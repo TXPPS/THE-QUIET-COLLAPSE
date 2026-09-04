@@ -1,0 +1,1401 @@
+{
+  "version": 1,
+  "allowedLicenses": [
+    "CC0-1.0",
+    "OFL-1.1",
+    "MIT",
+    "Public Domain"
+  ],
+  "allowedLibraryLicenses": [
+    "CC0-1.0",
+    "OFL-1.1",
+    "MIT",
+    "Public Domain",
+    "Apache-2.0",
+    "Zlib"
+  ],
+  "entries": [
+    {
+      "id": "kenney-city-kit-roads",
+      "source": "Kenney",
+      "name": "City Kit (Roads)",
+      "version": "2.1",
+      "url": "https://kenney.nl/assets/city-kit-roads",
+      "download": "https://kenney.nl/media/pages/assets/city-kit-roads/74288c9459-1787042796/kenney_city-kit-roads.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/city-kit-roads/road-straight.glb",
+        "assets/src/kenney/city-kit-roads/road-straight-half.glb",
+        "assets/src/kenney/city-kit-roads/road-crossroad.glb",
+        "assets/src/kenney/city-kit-roads/road-intersection.glb",
+        "assets/src/kenney/city-kit-roads/road-bend.glb",
+        "assets/src/kenney/city-kit-roads/road-end.glb",
+        "assets/src/kenney/city-kit-roads/road-side.glb",
+        "assets/src/kenney/city-kit-roads/road-straight-barrier.glb",
+        "assets/src/kenney/city-kit-roads/road-straight-barrier-half.glb",
+        "assets/src/kenney/city-kit-roads/road-crossroad-barrier.glb",
+        "assets/src/kenney/city-kit-roads/construction-barrier.glb",
+        "assets/src/kenney/city-kit-roads/construction-cone.glb",
+        "assets/src/kenney/city-kit-roads/construction-fence.glb",
+        "assets/src/kenney/city-kit-roads/construction-light.glb",
+        "assets/src/kenney/city-kit-roads/dumpster.glb",
+        "assets/src/kenney/city-kit-roads/light-curved.glb",
+        "assets/src/kenney/city-kit-roads/light-square.glb",
+        "assets/src/kenney/city-kit-roads/road-sign-warning.glb",
+        "assets/src/kenney/city-kit-roads/road-sign-stop.glb",
+        "assets/src/kenney/city-kit-roads/road-sign-street.glb",
+        "assets/src/kenney/city-kit-roads/sign-highway.glb",
+        "assets/src/kenney/city-kit-roads/traffic-light.glb",
+        "assets/src/kenney/city-kit-roads/electricity-pole.glb",
+        "assets/src/kenney/city-kit-roads/bridge-pillar.glb",
+        "assets/src/kenney/city-kit-roads/tile-low.glb",
+        "assets/src/kenney/city-kit-roads/colormap.png",
+        "assets/src/kenney/city-kit-roads/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Models merged per kit into one glTF library (dedup, prune, meshopt compression); colormap re-encoded to KTX2 (ETC1S). Geometry unchanged."
+    },
+    {
+      "id": "kenney-city-kit-suburban",
+      "source": "Kenney",
+      "name": "City Kit (Suburban)",
+      "version": "2.0",
+      "url": "https://kenney.nl/assets/city-kit-suburban",
+      "download": "https://kenney.nl/media/pages/assets/city-kit-suburban/2c871b7af2-1745479373/kenney_city-kit-suburban_20.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/city-kit-suburban/building-type-a.glb",
+        "assets/src/kenney/city-kit-suburban/building-type-b.glb",
+        "assets/src/kenney/city-kit-suburban/building-type-c.glb",
+        "assets/src/kenney/city-kit-suburban/building-type-d.glb",
+        "assets/src/kenney/city-kit-suburban/building-type-e.glb",
+        "assets/src/kenney/city-kit-suburban/building-type-f.glb",
+        "assets/src/kenney/city-kit-suburban/fence.glb",
+        "assets/src/kenney/city-kit-suburban/fence-low.glb",
+        "assets/src/kenney/city-kit-suburban/fence-1x2.glb",
+        "assets/src/kenney/city-kit-suburban/planter.glb",
+        "assets/src/kenney/city-kit-suburban/tree-small.glb",
+        "assets/src/kenney/city-kit-suburban/tree-large.glb",
+        "assets/src/kenney/city-kit-suburban/path-short.glb",
+        "assets/src/kenney/city-kit-suburban/colormap.png",
+        "assets/src/kenney/city-kit-suburban/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Models merged per kit into one glTF library (dedup, prune, meshopt compression); colormap re-encoded to KTX2 (ETC1S). Geometry unchanged."
+    },
+    {
+      "id": "kenney-city-kit-commercial",
+      "source": "Kenney",
+      "name": "City Kit (Commercial)",
+      "version": "2.1",
+      "url": "https://kenney.nl/assets/city-kit-commercial",
+      "download": "https://kenney.nl/media/pages/assets/city-kit-commercial/a742d900eb-1753115042/kenney_city-kit-commercial_2.1.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/city-kit-commercial/building-a.glb",
+        "assets/src/kenney/city-kit-commercial/building-b.glb",
+        "assets/src/kenney/city-kit-commercial/building-c.glb",
+        "assets/src/kenney/city-kit-commercial/building-d.glb",
+        "assets/src/kenney/city-kit-commercial/building-e.glb",
+        "assets/src/kenney/city-kit-commercial/building-f.glb",
+        "assets/src/kenney/city-kit-commercial/building-g.glb",
+        "assets/src/kenney/city-kit-commercial/building-h.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-a.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-b.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-c.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-d.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-e.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-f.glb",
+        "assets/src/kenney/city-kit-commercial/low-detail-building-wide-a.glb",
+        "assets/src/kenney/city-kit-commercial/detail-awning.glb",
+        "assets/src/kenney/city-kit-commercial/detail-awning-wide.glb",
+        "assets/src/kenney/city-kit-commercial/detail-overhang.glb",
+        "assets/src/kenney/city-kit-commercial/colormap.png",
+        "assets/src/kenney/city-kit-commercial/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Models merged per kit into one glTF library (dedup, prune, meshopt compression); colormap re-encoded to KTX2 (ETC1S). Geometry unchanged."
+    },
+    {
+      "id": "kenney-city-kit-industrial",
+      "source": "Kenney",
+      "name": "City Kit (Industrial)",
+      "version": "2.0",
+      "url": "https://kenney.nl/assets/city-kit-industrial",
+      "download": "https://kenney.nl/media/pages/assets/city-kit-industrial/0ec35b139d-1788171848/kenney_city-kit-industrial_2.0.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/city-kit-industrial/building-a.glb",
+        "assets/src/kenney/city-kit-industrial/building-b.glb",
+        "assets/src/kenney/city-kit-industrial/building-c.glb",
+        "assets/src/kenney/city-kit-industrial/shipping-container-a.glb",
+        "assets/src/kenney/city-kit-industrial/shipping-container-b.glb",
+        "assets/src/kenney/city-kit-industrial/shipping-container-c.glb",
+        "assets/src/kenney/city-kit-industrial/detail-tank.glb",
+        "assets/src/kenney/city-kit-industrial/detail-tank-large.glb",
+        "assets/src/kenney/city-kit-industrial/water-tower.glb",
+        "assets/src/kenney/city-kit-industrial/chimney-small.glb",
+        "assets/src/kenney/city-kit-industrial/colormap.png",
+        "assets/src/kenney/city-kit-industrial/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Models merged per kit into one glTF library (dedup, prune, meshopt compression); colormap re-encoded to KTX2 (ETC1S). Geometry unchanged."
+    },
+    {
+      "id": "kenney-modular-buildings",
+      "source": "Kenney",
+      "name": "Modular Buildings",
+      "version": "2.1",
+      "url": "https://kenney.nl/assets/modular-buildings",
+      "download": "https://kenney.nl/media/pages/assets/modular-buildings/3253b4219a-1707397411/kenney_modular-buildings.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/modular-buildings/building-window.glb",
+        "assets/src/kenney/modular-buildings/building-window-sill.glb",
+        "assets/src/kenney/modular-buildings/building-door.glb",
+        "assets/src/kenney/modular-buildings/building-block.glb",
+        "assets/src/kenney/modular-buildings/building-corner.glb",
+        "assets/src/kenney/modular-buildings/building-corner-window.glb",
+        "assets/src/kenney/modular-buildings/building-windows.glb",
+        "assets/src/kenney/modular-buildings/building-window-large.glb",
+        "assets/src/kenney/modular-buildings/door-white.glb",
+        "assets/src/kenney/modular-buildings/door-brown.glb",
+        "assets/src/kenney/modular-buildings/window-white.glb",
+        "assets/src/kenney/modular-buildings/roof-flat-center.glb",
+        "assets/src/kenney/modular-buildings/roof-flat-border-straight.glb",
+        "assets/src/kenney/modular-buildings/roof-flat-border-corner.glb",
+        "assets/src/kenney/modular-buildings/roof-flat-awning-a.glb",
+        "assets/src/kenney/modular-buildings/detail-ac-a.glb",
+        "assets/src/kenney/modular-buildings/building-steps-wide.glb",
+        "assets/src/kenney/modular-buildings/colormap.png",
+        "assets/src/kenney/modular-buildings/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Models merged per kit into one glTF library (dedup, prune, meshopt compression); colormap re-encoded to KTX2 (ETC1S). Geometry unchanged."
+    },
+    {
+      "id": "kenney-input-prompts",
+      "source": "Kenney",
+      "name": "Input Prompts",
+      "version": "1.5A",
+      "url": "https://kenney.nl/assets/input-prompts",
+      "download": "https://kenney.nl/media/pages/assets/input-prompts/8de120163f-1783763952/kenney_input-prompts_1.5.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_a.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_b.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_c.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_d.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_e.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_g.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_h.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_i.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_j.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_k.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_l.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_m.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_n.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_o.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_p.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_q.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_r.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_s.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_t.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_u.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_v.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_w.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_x.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_y.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_z.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_0.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_1.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_2.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_3.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_4.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_5.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_6.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_7.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_8.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_9.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f1.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f2.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f3.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f4.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f5.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f6.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f7.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f8.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f9.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f10.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f11.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_f12.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_space.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_shift.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_ctrl.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_alt.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_tab.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_enter.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_escape.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_backspace.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_arrow_up.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_arrow_down.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_arrow_left.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_arrow_right.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_arrows_all.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_page_up.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_page_down.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_capslock.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_home.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_end.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_delete.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_insert.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_apostrophe.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_comma.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_period.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_slash_forward.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_slash_back.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_semicolon.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_bracket_open.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_bracket_close.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_minus.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_equals.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_tilde.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_numpad_enter.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/keyboard_any.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_left.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_right.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_scroll.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_scroll_up.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_scroll_down.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_move.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_side_back.svg",
+        "assets/src/kenney/input-prompts/keyboard-mouse/mouse_side_forward.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_a.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_b.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_x.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_y.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_lb.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_rb.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_lt.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_rt.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_ls.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_rs.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_stick_l.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_stick_r.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_stick_l_press.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_stick_r_press.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad_up.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad_down.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad_left.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad_right.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_dpad_all.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_view.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_button_menu.svg",
+        "assets/src/kenney/input-prompts/xbox-series/xbox_guide.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_cross.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_circle.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_square.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_triangle.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_trigger_l1.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_trigger_r1.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_trigger_l2.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_trigger_r2.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_l3.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_button_r3.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_stick_l.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_stick_r.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_stick_l_press.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_stick_r_press.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad_up.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad_down.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad_left.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad_right.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation_dpad_all.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation5_button_options.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation5_button_create.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation4_button_share.svg",
+        "assets/src/kenney/input-prompts/playstation-series/playstation4_button_options.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_a.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_b.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_x.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_y.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_l.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_r.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_zl.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_zr.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_plus.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_minus.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_button_home.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_stick_l.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_stick_r.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_stick_l_press.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_stick_r_press.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad_up.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad_down.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad_left.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad_right.svg",
+        "assets/src/kenney/input-prompts/nintendo-switch/switch_dpad_all.svg",
+        "assets/src/kenney/input-prompts/generic/generic_button_circle.svg",
+        "assets/src/kenney/input-prompts/generic/generic_button_square.svg",
+        "assets/src/kenney/input-prompts/generic/generic_button_trigger_a.svg",
+        "assets/src/kenney/input-prompts/generic/generic_button_trigger_b.svg",
+        "assets/src/kenney/input-prompts/generic/generic_stick.svg",
+        "assets/src/kenney/input-prompts/generic/generic_stick_press.svg",
+        "assets/src/kenney/input-prompts/generic/generic_joystick.svg",
+        "assets/src/kenney/input-prompts/generic/generic_button.svg",
+        "assets/src/kenney/input-prompts/License.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Selected vector glyphs combined into one SVG sprite sheet (symbols); fill colour driven by CSS currentColor. Shapes unchanged."
+    },
+    {
+      "id": "quaternius-universal-base-characters",
+      "source": "Quaternius",
+      "name": "Universal Base Characters (Standard)",
+      "version": "itch.io upload 15861669",
+      "url": "https://quaternius.com/packs/universalbasecharacters.html",
+      "download": "itch.io: https://quaternius.itch.io/universal-base-characters",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/quaternius/universal-base-characters/Superhero_Male_FullBody.gltf",
+        "assets/src/quaternius/universal-base-characters/Superhero_Male_FullBody.bin",
+        "assets/src/quaternius/universal-base-characters/T_Superhero_Male_Dark.png",
+        "assets/src/quaternius/universal-base-characters/T_Superhero_Male_Light.png",
+        "assets/src/quaternius/universal-base-characters/T_Superhero_Male_Normal.png",
+        "assets/src/quaternius/universal-base-characters/T_Superhero_Male_Roughness.png",
+        "assets/src/quaternius/universal-base-characters/T_Eye_Brown.png",
+        "assets/src/quaternius/universal-base-characters/T_Eye_Normal.png",
+        "assets/src/quaternius/universal-base-characters/T_Hair_1_BaseColor.png",
+        "assets/src/quaternius/universal-base-characters/T_Hair_1_Normal.png",
+        "assets/src/quaternius/universal-base-characters/hair/Hair_Buzzed.gltf",
+        "assets/src/quaternius/universal-base-characters/hair/Hair_Buzzed.bin",
+        "assets/src/quaternius/universal-base-characters/hair/Hair_SimpleParted.gltf",
+        "assets/src/quaternius/universal-base-characters/hair/Hair_SimpleParted.bin",
+        "assets/src/quaternius/universal-base-characters/License_Standard.txt"
+      ],
+      "largeFiles": [],
+      "modifications": "Base body + one rigged hairstyle merged into one skinned glTF per character (player, affected). The suit albedo is desaturated/darkened and overlaid with a cloth-weave noise so it reads as plain dark street clothing (the Standard pack ships no outfit meshes; see PLACEHOLDER_ART in the ledger). Textures resized to 1024² (precached) and 2048² (desktop stream), KTX2. Skeleton unchanged."
+    },
+    {
+      "id": "quaternius-universal-animation-library",
+      "source": "Quaternius",
+      "name": "Universal Animation Library (Standard)",
+      "version": "itch.io upload 17958403",
+      "url": "https://quaternius.com/packs/universalanimationlibrary.html",
+      "download": "itch.io: https://quaternius.itch.io/universal-animation-library",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/quaternius/universal-animation-library/UAL1_Standard.glb",
+        "assets/src/quaternius/universal-animation-library/License.txt",
+        "assets/src/quaternius/universal-animation-library/README.txt"
+      ],
+      "largeFiles": [
+        "assets/src/quaternius/universal-animation-library/UAL1_Standard.glb"
+      ],
+      "modifications": "Only the clips the state machine uses are kept (idle, walk, jog, sprint, pistol idle/aim/shoot/reload, hit, death, interact, roll, torch idle); the mannequin mesh is stripped. Non root-motion variant."
+    },
+    {
+      "id": "quaternius-universal-animation-library-2",
+      "source": "Quaternius",
+      "name": "Universal Animation Library 2 (Standard)",
+      "version": "itch.io upload 17958478",
+      "url": "https://quaternius.com/packs/universalanimationlibrary2.html",
+      "download": "itch.io: https://quaternius.itch.io/universal-animation-library-2",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/quaternius/universal-animation-library-2/UAL2_Standard.glb",
+        "assets/src/quaternius/universal-animation-library-2/License.txt"
+      ],
+      "largeFiles": [
+        "assets/src/quaternius/universal-animation-library-2/UAL2_Standard.glb"
+      ],
+      "modifications": "Only the affected-resident clips are kept (Zombie_Idle_Loop, Zombie_Walk_Fwd_Loop, Zombie_Scratch, Hit_Knockback, Melee_Hook); mesh stripped. Non root-motion variant."
+    },
+    {
+      "id": "polyhaven-aarfontein-dusk",
+      "source": "Poly Haven",
+      "name": "Aarfontein Dusk (HDRI)",
+      "version": "1k / 2k HDR",
+      "url": "https://polyhaven.com/a/aarfontein_dusk",
+      "download": "https://dl.polyhaven.org/file/ph-assets/HDRIs/hdr/1k/aarfontein_dusk_1k.hdr",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/polyhaven/aarfontein_dusk_1k.hdr",
+        "assets/src/polyhaven/aarfontein_dusk_2k.hdr"
+      ],
+      "largeFiles": [
+        "assets/src/polyhaven/aarfontein_dusk_2k.hdr"
+      ],
+      "modifications": "Downsampled to 512×256 (precached, mobile) and 1024×512 (desktop stream) RGBE; exposure unchanged. Used for image-based lighting only."
+    },
+    {
+      "id": "ambientcg-asphalt033",
+      "source": "ambientCG",
+      "name": "Asphalt (Asphalt033)",
+      "version": "1K-JPG",
+      "url": "https://ambientcg.com/view?id=Asphalt033",
+      "download": "https://ambientcg.com/get?file=Asphalt033_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/ambientcg/asphalt033/color.jpg",
+        "assets/src/ambientcg/asphalt033/normalgl.jpg",
+        "assets/src/ambientcg/asphalt033/roughness.jpg",
+        "assets/src/ambientcg/asphalt033/ambientocclusion.jpg"
+      ],
+      "largeFiles": [],
+      "modifications": "Re-encoded to KTX2 (ETC1S for colour/AO, UASTC for normals) at 1024² for the precached set; roughness packed into the metallic-roughness channel."
+    },
+    {
+      "id": "ambientcg-concrete034",
+      "source": "ambientCG",
+      "name": "Concrete (Concrete034)",
+      "version": "1K-JPG",
+      "url": "https://ambientcg.com/view?id=Concrete034",
+      "download": "https://ambientcg.com/get?file=Concrete034_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/ambientcg/concrete034/color.jpg",
+        "assets/src/ambientcg/concrete034/normalgl.jpg",
+        "assets/src/ambientcg/concrete034/roughness.jpg"
+      ],
+      "largeFiles": [],
+      "modifications": "Re-encoded to KTX2 (ETC1S for colour/AO, UASTC for normals) at 1024² for the precached set; roughness packed into the metallic-roughness channel."
+    },
+    {
+      "id": "ambientcg-bricks104",
+      "source": "ambientCG",
+      "name": "Bricks (Bricks104)",
+      "version": "1K-JPG",
+      "url": "https://ambientcg.com/view?id=Bricks104",
+      "download": "https://ambientcg.com/get?file=Bricks104_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/ambientcg/bricks104/color.jpg",
+        "assets/src/ambientcg/bricks104/normalgl.jpg",
+        "assets/src/ambientcg/bricks104/roughness.jpg",
+        "assets/src/ambientcg/bricks104/ambientocclusion.jpg"
+      ],
+      "largeFiles": [],
+      "modifications": "Re-encoded to KTX2 (ETC1S for colour/AO, UASTC for normals) at 1024² for the precached set; roughness packed into the metallic-roughness channel."
+    },
+    {
+      "id": "ambientcg-paintedplaster017",
+      "source": "ambientCG",
+      "name": "Painted plaster (PaintedPlaster017)",
+      "version": "1K-JPG",
+      "url": "https://ambientcg.com/view?id=PaintedPlaster017",
+      "download": "https://ambientcg.com/get?file=PaintedPlaster017_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/ambientcg/paintedplaster017/color.jpg",
+        "assets/src/ambientcg/paintedplaster017/normalgl.jpg",
+        "assets/src/ambientcg/paintedplaster017/roughness.jpg"
+      ],
+      "largeFiles": [],
+      "modifications": "Re-encoded to KTX2 (ETC1S for colour/AO, UASTC for normals) at 1024² for the precached set; roughness packed into the metallic-roughness channel."
+    },
+    {
+      "id": "freesound-166509",
+      "source": "Freesound",
+      "name": "concrete footstep 1 (Yoyodaman234)",
+      "version": "sound 166509",
+      "url": "https://freesound.org/s/166509/",
+      "download": "https://cdn.freesound.org/previews/166/166509_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-concrete-1-166509.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.53 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-concrete-1"
+    },
+    {
+      "id": "freesound-166508",
+      "source": "Freesound",
+      "name": "concrete footstep 2 (Yoyodaman234)",
+      "version": "sound 166508",
+      "url": "https://freesound.org/s/166508/",
+      "download": "https://cdn.freesound.org/previews/166/166508_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-concrete-2-166508.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.49 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-concrete-2"
+    },
+    {
+      "id": "freesound-166507",
+      "source": "Freesound",
+      "name": "concrete footstep 3 (Yoyodaman234)",
+      "version": "sound 166507",
+      "url": "https://freesound.org/s/166507/",
+      "download": "https://cdn.freesound.org/previews/166/166507_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-concrete-3-166507.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.48 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-concrete-3"
+    },
+    {
+      "id": "freesound-166506",
+      "source": "Freesound",
+      "name": "concrete footstep 4 (Yoyodaman234)",
+      "version": "sound 166506",
+      "url": "https://freesound.org/s/166506/",
+      "download": "https://cdn.freesound.org/previews/166/166506_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-concrete-4-166506.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.42 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-concrete-4"
+    },
+    {
+      "id": "freesound-166511",
+      "source": "Freesound",
+      "name": "dirt/gravel footstep 1 (Yoyodaman234)",
+      "version": "sound 166511",
+      "url": "https://freesound.org/s/166511/",
+      "download": "https://cdn.freesound.org/previews/166/166511_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-gravel-1-166511.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.68 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-gravel-1"
+    },
+    {
+      "id": "freesound-166510",
+      "source": "Freesound",
+      "name": "dirt/gravel footstep 2 (Yoyodaman234)",
+      "version": "sound 166510",
+      "url": "https://freesound.org/s/166510/",
+      "download": "https://cdn.freesound.org/previews/166/166510_2792951-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-gravel-2-166510.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.52 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-gravel-2"
+    },
+    {
+      "id": "freesound-340983",
+      "source": "Freesound",
+      "name": "Footstep on wood (SoundsAreGr8)",
+      "version": "sound 340983",
+      "url": "https://freesound.org/s/340983/",
+      "download": "https://cdn.freesound.org/previews/340/340983_4978149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-wood-1-340983.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.50 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-wood-1"
+    },
+    {
+      "id": "freesound-812363",
+      "source": "Freesound",
+      "name": "Knocking once on wood, single footstep (CuboRodante)",
+      "version": "sound 812363",
+      "url": "https://freesound.org/s/812363/",
+      "download": "https://cdn.freesound.org/previews/812/812363_17517436-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-wood-2-812363.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.11 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-wood-2"
+    },
+    {
+      "id": "freesound-565489",
+      "source": "Freesound",
+      "name": "Footstep Wood/Concrete Chamber Echo 10 (Jakegwizdak)",
+      "version": "sound 565489",
+      "url": "https://freesound.org/s/565489/",
+      "download": "https://cdn.freesound.org/previews/565/565489_2383554-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-wood-3-565489.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.44 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-wood-3"
+    },
+    {
+      "id": "freesound-398554",
+      "source": "Freesound",
+      "name": "footstep_metal.ogg (raceynovel)",
+      "version": "sound 398554",
+      "url": "https://freesound.org/s/398554/",
+      "download": "https://cdn.freesound.org/previews/398/398554_7590843-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-metal-1-398554.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.27 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-metal-1"
+    },
+    {
+      "id": "freesound-816413",
+      "source": "Freesound",
+      "name": "metal footstep (atleastrelatively)",
+      "version": "sound 816413",
+      "url": "https://freesound.org/s/816413/",
+      "download": "https://cdn.freesound.org/previews/816/816413_17614127-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-metal-2-816413.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.31 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-metal-2"
+    },
+    {
+      "id": "freesound-421151",
+      "source": "Freesound",
+      "name": "Footstep_Metal_Crouch_5.wav (GiocoSound)",
+      "version": "sound 421151",
+      "url": "https://freesound.org/s/421151/",
+      "download": "https://cdn.freesound.org/previews/421/421151_5820033-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/foot-metal-3-421151.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.43 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "foot-metal-3"
+    },
+    {
+      "id": "freesound-371440",
+      "source": "Freesound",
+      "name": "Single Pistol Gunshot 2.wav (morganpurkis)",
+      "version": "sound 371440",
+      "url": "https://freesound.org/s/371440/",
+      "download": "https://cdn.freesound.org/previews/371/371440_5937039-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pistol-shot-1-371440.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.14 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pistol-shot-1"
+    },
+    {
+      "id": "freesound-385811",
+      "source": "Freesound",
+      "name": "Single Pistol Gunshot 3.wav (morganpurkis)",
+      "version": "sound 385811",
+      "url": "https://freesound.org/s/385811/",
+      "download": "https://cdn.freesound.org/previews/385/385811_5937039-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pistol-shot-2-385811.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 2.14 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pistol-shot-2"
+    },
+    {
+      "id": "freesound-386744",
+      "source": "Freesound",
+      "name": "Handgun_Reload.wav (ken788)",
+      "version": "sound 386744",
+      "url": "https://freesound.org/s/386744/",
+      "download": "https://cdn.freesound.org/previews/386/386744_5768130-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pistol-reload-1-386744.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.74 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pistol-reload-1"
+    },
+    {
+      "id": "freesound-159406",
+      "source": "Freesound",
+      "name": "Handgun reload (Jackjan)",
+      "version": "sound 159406",
+      "url": "https://freesound.org/s/159406/",
+      "download": "https://cdn.freesound.org/previews/159/159406_2683908-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pistol-reload-2-159406.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.74 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pistol-reload-2"
+    },
+    {
+      "id": "freesound-448989",
+      "source": "Freesound",
+      "name": "Weapon, Dryfire (LilMati)",
+      "version": "sound 448989",
+      "url": "https://freesound.org/s/448989/",
+      "download": "https://cdn.freesound.org/previews/448/448989_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pistol-dry-448989.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.15 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pistol-dry"
+    },
+    {
+      "id": "freesound-426628",
+      "source": "Freesound",
+      "name": "Zombie Moan.wav (mrh4hn)",
+      "version": "sound 426628",
+      "url": "https://freesound.org/s/426628/",
+      "download": "https://cdn.freesound.org/previews/426/426628_8238671-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-idle-1-426628.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 4.13 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-idle-1"
+    },
+    {
+      "id": "freesound-445995",
+      "source": "Freesound",
+      "name": "Zombie moan 3 (Breviceps)",
+      "version": "sound 445995",
+      "url": "https://freesound.org/s/445995/",
+      "download": "https://cdn.freesound.org/previews/445/445995_9159316-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-idle-2-445995.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.42 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-idle-2"
+    },
+    {
+      "id": "freesound-323819",
+      "source": "Freesound",
+      "name": "zombie growl (adharca)",
+      "version": "sound 323819",
+      "url": "https://freesound.org/s/323819/",
+      "download": "https://cdn.freesound.org/previews/323/323819_4366671-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-idle-3-323819.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 4.15 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-idle-3"
+    },
+    {
+      "id": "freesound-555417",
+      "source": "Freesound",
+      "name": "Zombie Growl 5.wav (tonsil5)",
+      "version": "sound 555417",
+      "url": "https://freesound.org/s/555417/",
+      "download": "https://cdn.freesound.org/previews/555/555417_8247784-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-alert-1-555417.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 2.64 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-alert-1"
+    },
+    {
+      "id": "freesound-133974",
+      "source": "Freesound",
+      "name": "Horrific Zombie Growl (MrPokephile)",
+      "version": "sound 133974",
+      "url": "https://freesound.org/s/133974/",
+      "download": "https://cdn.freesound.org/previews/133/133974_2449149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-alert-2-133974.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 3.85 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-alert-2"
+    },
+    {
+      "id": "freesound-560594",
+      "source": "Freesound",
+      "name": "Z-Roar 04a.wav (angelkunev)",
+      "version": "sound 560594",
+      "url": "https://freesound.org/s/560594/",
+      "download": "https://cdn.freesound.org/previews/560/560594_245685-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-attack-560594.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.41 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-attack"
+    },
+    {
+      "id": "freesound-555420",
+      "source": "Freesound",
+      "name": "Zombie Hit 1.wav (tonsil5)",
+      "version": "sound 555420",
+      "url": "https://freesound.org/s/555420/",
+      "download": "https://cdn.freesound.org/previews/555/555420_8247784-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-hurt-555420.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.57 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-hurt"
+    },
+    {
+      "id": "freesound-577033",
+      "source": "Freesound",
+      "name": "MaleDeathSound12.wav (Blankened)",
+      "version": "sound 577033",
+      "url": "https://freesound.org/s/577033/",
+      "download": "https://cdn.freesound.org/previews/577/577033_6512859-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/threat-death-577033.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.74 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "threat-death"
+    },
+    {
+      "id": "freesound-464486",
+      "source": "Freesound",
+      "name": "Male Grunting In Pain (elynch0901)",
+      "version": "sound 464486",
+      "url": "https://freesound.org/s/464486/",
+      "download": "https://cdn.freesound.org/previews/464/464486_4814007-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/player-hurt-1-464486.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.57 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "player-hurt-1"
+    },
+    {
+      "id": "freesound-547209",
+      "source": "Freesound",
+      "name": "Voice_AdultMale_PainGrunts_09.wav (MrFossy)",
+      "version": "sound 547209",
+      "url": "https://freesound.org/s/547209/",
+      "download": "https://cdn.freesound.org/previews/547/547209_129727-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/player-hurt-2-547209.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.32 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "player-hurt-2"
+    },
+    {
+      "id": "freesound-554443",
+      "source": "Freesound",
+      "name": "Male Death Sound (Blankened)",
+      "version": "sound 554443",
+      "url": "https://freesound.org/s/554443/",
+      "download": "https://cdn.freesound.org/previews/554/554443_6512859-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/player-death-554443.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.01 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "player-death"
+    },
+    {
+      "id": "freesound-138481",
+      "source": "Freesound",
+      "name": "Bullet Blood 4 (JustInvoke)",
+      "version": "sound 138481",
+      "url": "https://freesound.org/s/138481/",
+      "download": "https://cdn.freesound.org/previews/138/138481_758593-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/body-hit-1-138481.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.22 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "body-hit-1"
+    },
+    {
+      "id": "freesound-276600",
+      "source": "Freesound",
+      "name": "body_hit.wav (insanity54)",
+      "version": "sound 276600",
+      "url": "https://freesound.org/s/276600/",
+      "download": "https://cdn.freesound.org/previews/276/276600_464940-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/body-hit-2-276600.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.84 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "body-hit-2"
+    },
+    {
+      "id": "freesound-496187",
+      "source": "Freesound",
+      "name": "Light Body thud (on clothing) (JonasTisell)",
+      "version": "sound 496187",
+      "url": "https://freesound.org/s/496187/",
+      "download": "https://cdn.freesound.org/previews/496/496187_3910073-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/melee-hit-1-496187.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.33 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "melee-hit-1"
+    },
+    {
+      "id": "freesound-842508",
+      "source": "Freesound",
+      "name": "Hit_Impact (gulfstreamav)",
+      "version": "sound 842508",
+      "url": "https://freesound.org/s/842508/",
+      "download": "https://cdn.freesound.org/previews/842/842508_18255452-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/melee-hit-2-842508.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.55 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "melee-hit-2"
+    },
+    {
+      "id": "freesound-459344",
+      "source": "Freesound",
+      "name": "Select, Granted 03.wav (LilMati)",
+      "version": "sound 459344",
+      "url": "https://freesound.org/s/459344/",
+      "download": "https://cdn.freesound.org/previews/459/459344_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ui-move-459344.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.07 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ui-move"
+    },
+    {
+      "id": "freesound-455202",
+      "source": "Freesound",
+      "name": "Select, Granted 02.wav (LilMati)",
+      "version": "sound 455202",
+      "url": "https://freesound.org/s/455202/",
+      "download": "https://cdn.freesound.org/previews/455/455202_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ui-confirm-455202.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.26 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ui-confirm"
+    },
+    {
+      "id": "freesound-476817",
+      "source": "Freesound",
+      "name": "menuBack.wav (victorium183)",
+      "version": "sound 476817",
+      "url": "https://freesound.org/s/476817/",
+      "download": "https://cdn.freesound.org/previews/476/476817_7813468-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ui-cancel-476817.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.22 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ui-cancel"
+    },
+    {
+      "id": "freesound-459771",
+      "source": "Freesound",
+      "name": "Select, Denied 02.wav (LilMati)",
+      "version": "sound 459771",
+      "url": "https://freesound.org/s/459771/",
+      "download": "https://cdn.freesound.org/previews/459/459771_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ui-denied-459771.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.72 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ui-denied"
+    },
+    {
+      "id": "freesound-523763",
+      "source": "Freesound",
+      "name": "Select, Granted 06.wav (LilMati)",
+      "version": "sound 523763",
+      "url": "https://freesound.org/s/523763/",
+      "download": "https://cdn.freesound.org/previews/523/523763_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ui-checkpoint-523763.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.78 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ui-checkpoint"
+    },
+    {
+      "id": "freesound-459675",
+      "source": "Freesound",
+      "name": "Night Ambience (brunoboselli)",
+      "version": "sound 459675",
+      "url": "https://freesound.org/s/459675/",
+      "download": "https://cdn.freesound.org/previews/459/459675_300738-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ambience-night-1-459675.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 44.79 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ambience-night-1"
+    },
+    {
+      "id": "freesound-699143",
+      "source": "Freesound",
+      "name": "Night_Suburb_Crickets_wind.wav (roisin.gleeson)",
+      "version": "sound 699143",
+      "url": "https://freesound.org/s/699143/",
+      "download": "https://cdn.freesound.org/previews/699/699143_12896641-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/ambience-night-2-699143.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 43.41 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "ambience-night-2"
+    },
+    {
+      "id": "freesound-552160",
+      "source": "Freesound",
+      "name": "Radio tuning-static-interference (quantumriver)",
+      "version": "sound 552160",
+      "url": "https://freesound.org/s/552160/",
+      "download": "https://cdn.freesound.org/previews/552/552160_716433-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/radio-static-1-552160.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 18.55 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "radio-static-1"
+    },
+    {
+      "id": "freesound-684896",
+      "source": "Freesound",
+      "name": "Radio Static (Takimeko)",
+      "version": "sound 684896",
+      "url": "https://freesound.org/s/684896/",
+      "download": "https://cdn.freesound.org/previews/684/684896_9603502-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/radio-static-2-684896.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 6.91 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "radio-static-2"
+    },
+    {
+      "id": "freesound-244425",
+      "source": "Freesound",
+      "name": "creaking-door-open01.flac (Aiyumi)",
+      "version": "sound 244425",
+      "url": "https://freesound.org/s/244425/",
+      "download": "https://cdn.freesound.org/previews/244/244425_2326086-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/door-1-244425.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 1.07 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "door-1"
+    },
+    {
+      "id": "freesound-547024",
+      "source": "Freesound",
+      "name": "Door_handle_opening_creak.wav (bouncyballblue)",
+      "version": "sound 547024",
+      "url": "https://freesound.org/s/547024/",
+      "download": "https://cdn.freesound.org/previews/547/547024_11531251-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/door-2-547024.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 2.11 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "door-2"
+    },
+    {
+      "id": "freesound-175960",
+      "source": "Freesound",
+      "name": "zip2.wav (Snapper4298)",
+      "version": "sound 175960",
+      "url": "https://freesound.org/s/175960/",
+      "download": "https://cdn.freesound.org/previews/175/175960_33044-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pickup-1-175960.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.58 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pickup-1"
+    },
+    {
+      "id": "freesound-527773",
+      "source": "Freesound",
+      "name": "Zipping A Huge Black Bag.wav (LilMati)",
+      "version": "sound 527773",
+      "url": "https://freesound.org/s/527773/",
+      "download": "https://cdn.freesound.org/previews/527/527773_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/pickup-2-527773.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.72 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "pickup-2"
+    },
+    {
+      "id": "freesound-659458",
+      "source": "Freesound",
+      "name": "Zipping A Huge Black Bag, Remastered.wav (LilMati)",
+      "version": "sound 659458",
+      "url": "https://freesound.org/s/659458/",
+      "download": "https://cdn.freesound.org/previews/659/659458_6142149-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/medkit-use-659458.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.72 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "medkit-use"
+    },
+    {
+      "id": "freesound-784658",
+      "source": "Freesound",
+      "name": "heartbeat sub kick - softer (music_is_wiggly_air)",
+      "version": "sound 784658",
+      "url": "https://freesound.org/s/784658/",
+      "download": "https://cdn.freesound.org/previews/784/784658_16749461-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/heartbeat-784658.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.25 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "heartbeat"
+    },
+    {
+      "id": "freesound-617587",
+      "source": "Freesound",
+      "name": "Click_Button_BatteryRechargerFlashlight.wav (sweet_niche)",
+      "version": "sound 617587",
+      "url": "https://freesound.org/s/617587/",
+      "download": "https://cdn.freesound.org/previews/617/617587_5332155-hq.mp3",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "retrieved": "2026-09-04",
+      "files": [
+        "assets/src/freesound/flashlight-click-617587.mp3"
+      ],
+      "largeFiles": [],
+      "modifications": "Freesound HQ preview transcode (MP3, 0.26 s) used as-is; gain trimmed in the mixer, no re-encode.",
+      "role": "flashlight-click"
+    }
+  ],
+  "libraries": [
+    {
+      "id": "basis-universal-transcoder",
+      "source": "three.js r185 examples (Binomial LLC Basis Universal)",
+      "name": "KTX2 / Basis Universal transcoder (basis_transcoder.js + .wasm)",
+      "version": "three@0.185.1",
+      "url": "https://github.com/mrdoob/three.js/tree/r185/examples/jsm/libs/basis",
+      "license": "Apache-2.0",
+      "licenseUrl": "https://github.com/BinomialLLC/basis_universal/blob/master/LICENSE",
+      "files": [
+        "public/vendor/basis/basis_transcoder.js",
+        "public/vendor/basis/basis_transcoder.wasm"
+      ],
+      "modifications": "None."
+    }
+  ],
+  "placeholders": [
+    {
+      "name": "Crashed transit bus (blocked route centrepiece)",
+      "where": "src/game/level/districtLevel.ts → WorldRenderer box",
+      "status": "PLACEHOLDER_ART",
+      "note": "No vehicle kit is on the approved source list; the wreck is dressed with Kenney barriers and containers around a procedural box."
+    },
+    {
+      "name": "Character outfit",
+      "where": "scripts/assets/build-characters.mjs",
+      "status": "PLACEHOLDER_ART",
+      "note": "The Standard base-character pack ships no clothing meshes and quaternius.com/packs/modularcharacteroutfits.html does not exist (404). The suit albedo is treated as dark street clothing until an outfit rigged to the universal skeleton is dropped into assets/incoming/."
+    },
+    {
+      "name": "Held handgun, medkit, torch",
+      "where": "src/render/WeaponRig.ts",
+      "status": "PLACEHOLDER_ART",
+      "note": "Low-poly procedural meshes attached to the hand joints."
+    },
+    {
+      "name": "Radio body, pickups, documents, signage",
+      "where": "src/render/WorldRenderer.ts",
+      "status": "PLACEHOLDER_ART",
+      "note": "Procedural markers; grounded by the raycast placer."
+    },
+    {
+      "name": "Synthesised cues",
+      "where": "src/audio/synth.ts",
+      "status": "PLACEHOLDER_AUDIO",
+      "note": "Fallback when a sample has not loaded (offline first boot, decode failure)."
+    },
+    {
+      "name": "Touch control icons, HUD item silhouettes, app icon",
+      "where": "src/ui/touch/touchIcons.ts, src/ui/hud/Hud.ts, public/icons",
+      "status": "Original",
+      "note": "Kept as original work."
+    }
+  ]
+}

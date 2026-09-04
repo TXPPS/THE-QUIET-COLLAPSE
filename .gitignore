@@ -37,3 +37,11 @@ docs/reference/**/references/
 docs/reference/**/*.png
 docs/reference/**/*.jpg
 docs/reference/**/*.jpeg
+
+# Asset pipeline: downloaded archives, drop-ins, and source files over 5 MB (see assets/ledger.json largeFiles)
+assets/.cache/
+assets/incoming/*
+!assets/incoming/README.md
+assets/src/quaternius/universal-animation-library/UAL1_Standard.glb
+assets/src/quaternius/universal-animation-library-2/UAL2_Standard.glb
+assets/src/polyhaven/aarfontein_dusk_2k.hdr
