@@ -42,9 +42,10 @@ Resume from this file, not from scratch.
   touch-presets (20 captures in `docs/audit/touch/after/`), weapon, screens (phone); offline.
   Behaviour change to note for real-device testers: mouse/controller vertical look is now un-inverted
   (standard) and the camera sits over the right shoulder.
-  Production https://quiet-collapse.pages.dev (deployment `35888b39`) and QA preview
-  https://qa.quiet-collapse.pages.dev (deployment `0931469e`) both serve commit `c436f35` (build `93eb8c4b509a`);
-  live boot + offline gates green against production.
+  Deployments before the asset wave: production `35888b39`, QA `0931469e` (commit `c436f35`, build `93eb8c4b509a`).
+  Asset wave: production `6dc3d02d` and QA `90a4440b` serve build `0acb083fdc83` (93 precached files, 10.33 MB);
+  live boot + offline gates green against both. The deployed CSP now allows wasm, blob workers and blob
+  connections (TQC-062) — a CSP change must be verified against the QA alias, never only the local preview.
 - **All gates passed in headless Chromium**: desktop loop (KBM) ×2, emulated controller flow, phone touch
   loop, smoke, evidence screenshots (1080p, phone; 1366×768 run last). Unit: 69 tests. See 10_RELEASE_GATE.md.
 - Remaining work is real-device verification (no GPU/hardware in this session) — see the manual matrix.

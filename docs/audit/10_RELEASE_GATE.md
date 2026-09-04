@@ -108,8 +108,15 @@ untested** and must be run before a public release:
 | Held weapon evidence | `… weapon.spec.ts` (desktop + phone) | PASS (desktop and phone); `*-30…33-weapon-*.png` now show the skinned resident |
 | Three session cycles, heap | `… memory.spec.ts --project=desktop-1080p` | PASS — 141.1 MB after each of three cycles (Chromium reports the heap coarsely; no growth between cycles 2 and 3) |
 | Frame-time floor | `… perf.spec.ts` (desktop three tiers, phone Low with 4× CPU throttle) | PASS (records written); JSON in `docs/audit/perf/` |
-| Touch loop, presets, phone weapon | `… touch.spec.ts touch-presets.spec.ts weapon.spec.ts --project=phone-landscape` | PASS (touch loop ×2 specs, weapon, screens); `touch-presets.spec.ts` needed its timeout raised to 25 min for 20 boots under software rendering — see the rerun row below |
+| Touch loop, presets, phone weapon | `… touch.spec.ts touch-presets.spec.ts weapon.spec.ts --project=phone-landscape` | PASS (touch loop ×2 specs, weapon, screens); `touch-presets.spec.ts` PASS in an isolated rerun (6.1 min, 20 captures refreshed in `docs/audit/touch/after/`) once its boot sequence waited for the asset preload (TQC-057) and its timeout allowed 20 software-rendered boots |
 | Offline | `pnpm test:offline` | PASS (30 s): install → offline reload → warning → new run → flashlight pickup → checkpoint save → offline reload → Continue |
+
+### Deployment (asset wave)
+
+| Target | Deployment | Build | Checks |
+|---|---|---|---|
+| Production https://quiet-collapse.pages.dev | `6dc3d02d` | `0acb083fdc83` (93 precached files, 10.33 MB) | index / manifest / worker / precache manifest 200; all 93 precached URLs 200; CSP present with `wasm-unsafe-eval`, `unsafe-eval`, `worker-src blob:`, `connect-src blob:`; no `http://` references; live boot + offline gates PASS (see TQC-062 for why the first two QA deploys failed on the deployed origin only) |
+| QA https://qa.quiet-collapse.pages.dev | `90a4440b` | same | `E2E_BASE_URL=https://qa.quiet-collapse.pages.dev … live-boot.spec.ts offline.spec.ts` → 2 passed (52.8 s), stamp `0.1.0 · 6e33c6e` |
 
 ### Frame-time floor (headless Chromium + SwiftShader software GL; CPU floor only, not GPU truth)
 

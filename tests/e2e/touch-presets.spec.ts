@@ -24,6 +24,15 @@ async function startRun(page: Page, safe: { top: number; right: number; bottom: 
     root.setProperty('--tqc-safe-left', `${s.left}px`);
   }, safe);
   await expect(page.locator('.tqc-screen')).toBeVisible();
+  // Boot preloads the asset set; act only once the warning or the menu is up.
+  await page.waitForFunction(
+    () => {
+      const id = window.__tqc?.screens.top?.id;
+      return id === 'warning' || id === 'mainMenu';
+    },
+    undefined,
+    { timeout: 120_000 },
+  );
   const cont = page.getByRole('button', { name: /^Continue$/ });
   if (await cont.isVisible().catch(() => false)) await cont.tap();
   await page.getByRole('button', { name: /New run/ }).tap();
