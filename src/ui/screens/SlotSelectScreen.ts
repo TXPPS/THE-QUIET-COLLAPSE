@@ -68,7 +68,7 @@ export class SlotSelectScreen extends Screen {
         label: `Slot ${info.slot}`,
         value,
         hint,
-        disabled: this.mode === 'load' && info.status !== 'ok',
+        disabled: this.mode === 'load' && info.status === 'empty',
         danger: info.status === 'corrupt' || info.status === 'unsupported',
         onSelect: () => this.select(info),
       });

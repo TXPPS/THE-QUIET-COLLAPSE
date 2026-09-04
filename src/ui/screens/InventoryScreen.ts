@@ -1,5 +1,6 @@
 import type { App } from '@/app/App';
-import { MEDKIT, PISTOL } from '@/config/gameplay';
+import { MEDKIT, PISTOL, PLAYER } from '@/config/gameplay';
+import { tryMedkit, tryReload } from '@/game/sim/player';
 import { el, setText } from '@/ui/dom';
 import { footer, heading, menuItem, menuList } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
@@ -52,7 +53,7 @@ export class InventoryScreen extends Screen {
         label: 'First-aid kit',
         value: `×${p.medkits}`,
         description: `Dressings and antiseptic. Restores ${MEDKIT.heal} health. Takes a moment to apply; do it somewhere quiet.`,
-        action: { label: 'Use', enabled: p.medkits > 0 && p.health < 100, run: () => this.useMedkit() },
+        action: { label: 'Use', enabled: p.medkits > 0 && p.health < PLAYER.maxHealth, run: () => this.useMedkit() },
       },
     ];
     if (p.hasFlashlight) {
@@ -92,27 +93,22 @@ export class InventoryScreen extends Screen {
     );
   }
 
+  /** Starts the reload; it takes its normal time once play resumes. */
   private reload(): void {
     const world = this.app.session?.world;
     if (!world) return;
-    const p = world.player;
-    const moved = Math.min(PISTOL.magazine - p.ammoLoaded, p.ammoReserve);
-    p.ammoLoaded += moved;
-    p.ammoReserve -= moved;
-    world.events.emit('reloadDone', undefined);
-    this.render();
+    tryReload(world);
+    this.app.toasts.show('Reloading when you return', 'info', 1.6);
+    this.app.screens.clear();
   }
 
+  /** Starts applying the dressing; the player is vulnerable while it takes effect. */
   private useMedkit(): void {
     const world = this.app.session?.world;
     if (!world) return;
-    const p = world.player;
-    if (p.medkits <= 0) return;
-    p.medkits -= 1;
-    p.health = Math.min(100, p.health + MEDKIT.heal);
-    world.events.emit('medkitUsed', undefined);
-    world.events.emit('playerHealed', { health: p.health });
-    this.render();
+    tryMedkit(world);
+    this.app.toasts.show('Applying dressing', 'info', 1.6);
+    this.app.screens.clear();
   }
 
   private toggleFlashlight(): void {

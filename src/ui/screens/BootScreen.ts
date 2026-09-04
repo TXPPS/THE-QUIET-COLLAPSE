@@ -11,7 +11,7 @@ export class BootScreen extends Screen {
   private status!: HTMLElement;
   private actions!: HTMLElement;
 
-  constructor(private readonly app: App) {
+  constructor(_app: App) {
     super();
     this.root.classList.add('tqc-screen--opaque', 'tqc-screen--center');
   }
@@ -48,7 +48,6 @@ export class BootScreen extends Screen {
       ]),
     );
     this.focus.focusFirst();
-    void this.app;
   }
 
   override onCancel(): boolean {

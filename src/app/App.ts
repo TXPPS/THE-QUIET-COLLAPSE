@@ -18,6 +18,8 @@ import { GameView } from '@/render/GameView';
 import { MenuBackdrop } from '@/render/MenuBackdrop';
 import { ServiceWorkerClient } from './ServiceWorkerClient';
 import { ShellNotices } from './ShellNotices';
+import { PointerLockController } from './PointerLockController';
+import { ErrorGuard } from './ErrorGuard';
 import { QUALITY_PROFILES, Renderer, isWebGLAvailable } from '@/render/Renderer';
 import { Hud } from '@/ui/hud/Hud';
 import { Prompts } from '@/ui/Prompts';
@@ -45,6 +47,9 @@ import type { ProfileKind, TouchProfile, TouchProfiles } from '@/ui/touch/touchP
 import { createLayers, type Layers } from './layers';
 import { TouchShell } from './TouchShell';
 
+
+/* eslint-disable max-lines -- composition root: wiring and screen flow only; logic lives in the
+   extracted controllers (TouchShell, ShellNotices, PointerLockController, ErrorGuard, layers). */
 
 /**
  * Composition root and screen flow. Owns every long-lived service; the GameSession is the only
@@ -74,6 +79,13 @@ export class App {
   sessionsStarted = 0;
   private readonly bag = new DisposeBag();
   private fatal = false;
+  private tierSuggested = false;
+  private readonly pointerLock = new PointerLockController({
+    canvas: () => this.renderer?.canvas ?? null,
+    wantsLock: () => this.session !== null && this.screens.depth === 0 && this.input.registry.activeFamily === 'keyboard',
+    onLockLost: () => this.pause(),
+  });
+  private readonly errors = new ErrorGuard((reason) => this.onErrorBurst(reason));
 
   constructor(private readonly root: HTMLElement) {
     this.layers = createLayers(root);
@@ -106,8 +118,6 @@ export class App {
     this.device.events.on('change', () => this.onDeviceChanged());
     this.input.registry.events.on('gamepadConnected', ({ source }) => this.onGamepadConnected(source.label));
     this.input.registry.events.on('primaryLost', ({ source }) => this.onPrimaryLost(source.label));
-    this.bag.listen(window, 'error', (event) => this.onUncaught(event.error ?? event.message));
-    this.bag.listen(window, 'unhandledrejection', (event) => this.onUncaught(event.reason));
   }
 
   /* ---------- boot ---------- */
@@ -125,7 +135,7 @@ export class App {
       boot.setProgress(0.4, 'Starting the renderer');
       this.renderer = new Renderer(this.root, this.settings.get().video.quality !== 'low');
       this.input.keyboardMouse.lockTarget = this.renderer.canvas;
-      this.bag.listen(this.renderer.canvas, 'click', () => this.requestPointerLock());
+      this.bag.listen(this.renderer.canvas, 'click', () => this.pointerLock.request());
       this.hud = new Hud(this.layers.hud, this.prompts);
       this.hud.setVisible(false);
       this.onDeviceChanged();
@@ -191,7 +201,7 @@ export class App {
   /** Called when the chooser closes during play; returns to the game unless another screen is open. */
   private afterChooser(): void {
     this.screens.pop();
-    if (this.session && this.screens.depth === 0) this.requestPointerLock();
+    if (this.session && this.screens.depth === 0) this.pointerLock.request();
   }
 
   openRemap(): void {
@@ -264,6 +274,15 @@ export class App {
       this.toasts.show('That save could not be read', 'danger', 4);
       return;
     }
+    if (file.run.completed) {
+      this.confirm({
+        title: 'This run is complete',
+        body: 'Start a new run in this slot? The completed run will be replaced.',
+        confirmLabel: 'New run',
+        onConfirm: () => this.newGame(slot),
+      });
+      return;
+    }
     this.startSession(file.run, slot);
   }
 
@@ -274,8 +293,11 @@ export class App {
     else this.newGame(slot);
   }
 
+  /** Manual save from the radio: the run continues in the chosen slot from here on. */
   saveToSlot(slot: number): boolean {
     if (!this.session) return false;
+    this.session.slot = slot;
+    this.settings.update({ meta: { lastSlot: slot } });
     const ok = this.session.save('manual');
     this.toasts.show(ok ? `Saved to slot ${slot}` : 'Saving failed (storage unavailable)', ok ? 'info' : 'danger', 3);
     this.screens.pop();
@@ -289,7 +311,7 @@ export class App {
 
   resume(): void {
     this.screens.clear();
-    this.requestPointerLock();
+    this.pointerLock.request();
   }
 
   quitToMenu(): void {
@@ -320,19 +342,22 @@ export class App {
       createView: (world) => new GameView(renderer, world),
       host: {
         onGameOver: () => this.screens.reset(new GameOverScreen(this)),
-        onEnding: () => this.screens.reset(new EndingScreen(this)),
+        onEnding: () => {
+          this.session?.save('checkpoint');
+          this.screens.reset(new EndingScreen(this));
+        },
         onDocument: (document) => this.screens.push(new DocumentScreen(this, document)),
         onSaveRequest: () => this.openSlotSelect('save'),
       },
     });
-    this.gameAudio = new GameAudio(this.audio, this.session.world, { caption: (text, seconds) => hud.showMessage(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
+    this.gameAudio = new GameAudio(this.audio, this.session.world, { caption: (text, seconds) => hud.showCaption(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
     this.autoQuality.reset();
     if (runState.checkpointId === 'start' && runState.playtimeSec < 1) this.session.save('checkpoint');
     hud.setVisible(true);
     this.screens.clear();
     this.loop.resetClock();
     this.updateOverlays();
-    this.requestPointerLock();
+    this.pointerLock.request();
   }
 
   private endSession(): void {
@@ -344,7 +369,7 @@ export class App {
     this.hud?.setVisible(false);
     this.touch.hide();
     this.toasts.clear();
-    this.exitPointerLock();
+    this.pointerLock.release();
   }
 
   /**
@@ -353,6 +378,7 @@ export class App {
    */
   debugAdvance(seconds: number): void {
     const steps = Math.max(1, Math.round(seconds * 60));
+    this.input.update(1 / 60);
     for (let i = 0; i < steps; i += 1) {
       this.fixedUpdate(1 / 60);
       if (!this.session) break;
@@ -378,6 +404,13 @@ export class App {
       this.pause();
       return;
     }
+    if (this.input.game.justPressed('Inventory') || this.input.game.justPressed('Map')) {
+      const openMap = this.input.game.justPressed('Map');
+      this.input.consumeGameEdges();
+      if (openMap) this.openMap();
+      else this.openInventory();
+      return;
+    }
     session.fixedUpdate(dt);
     this.input.consumeGameEdges();
   }
@@ -392,6 +425,10 @@ export class App {
     if (this.session && !this.session.paused && this.settings.get().video.quality === 'auto' && this.autoQuality.update(dt, stats)) {
       this.applyRenderQuality(this.settings.get());
       this.loop.resetStats();
+      if (this.autoQuality.scale <= 0.6 && !this.tierSuggested) {
+        this.tierSuggested = true;
+        this.toasts.show('Still slow at the lowest resolution — try Quality: Low in Options', 'warning', 6);
+      }
     }
     if (this.session) {
       const p = this.session.world.player;
@@ -417,6 +454,7 @@ export class App {
     root.dataset['reducedMotion'] = s.accessibility.reducedMotion === 'system' ? '' : String(s.accessibility.reducedMotion === 'on');
     root.dataset['colorSafe'] = String(s.accessibility.colorSafeHud);
     this.screens.setRepeat(s.controls.menuRepeatDelay, s.controls.menuRepeatRate);
+    this.touch.setTuning({ deadZone: s.controls.touchDeadZone, sprintThreshold: s.controls.touchSprintThreshold, sprintLock: s.controls.touchSprintLock });
     this.audio.applySettings(s.audio);
     this.applyRenderQuality(s);
   }
@@ -446,7 +484,7 @@ export class App {
   }
 
   private onScreensChanged(depth: number): void {
-    if (depth > 0) this.exitPointerLock();
+    if (depth > 0) this.pointerLock.release();
     this.hud?.setDimmed(depth > 0);
     this.audio.setDuck(depth > 0 && this.session ? 0.35 : 1);
     this.updateOverlays();
@@ -460,26 +498,22 @@ export class App {
     this.loop.resetClock();
   }
 
-  private requestPointerLock(): void {
-    const canvas = this.renderer?.canvas;
-    if (!canvas || !this.session || this.screens.depth > 0) return;
-    if (this.input.registry.activeFamily !== 'keyboard') return;
-    if (document.pointerLockElement === canvas) return;
-    try {
-      const result = canvas.requestPointerLock() as unknown;
-      if (result instanceof Promise) result.catch(() => undefined);
-    } catch {
-      // Pointer lock needs a user gesture; the HUD hint tells the player to click.
-    }
+  /** Releases every long-lived service (tests and hot teardown). */
+  dispose(): void {
+    this.endSession();
+    this.errors.dispose();
+    this.pointerLock.dispose();
+    this.input.dispose();
+    this.device.dispose();
+    this.audio.dispose();
+    this.bag.dispose();
+    this.loop.stop();
   }
 
-  private exitPointerLock(): void {
-    if (document.pointerLockElement) document.exitPointerLock();
-  }
-
-  private onUncaught(reason: unknown): void {
+  private onErrorBurst(reason: unknown): void {
     if (this.fatal) return;
-    console.error('[tqc] uncaught', reason);
+    this.endSession();
+    this.showFatal('Something went wrong', 'The game hit repeated errors and stopped to protect your saved progress. Reloading returns you to the menu.', reason instanceof Error ? reason.message : String(reason));
   }
 
   private showFatal(title: string, message: string, detail?: string): void {

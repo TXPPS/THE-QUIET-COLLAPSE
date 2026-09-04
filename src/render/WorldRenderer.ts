@@ -1,7 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { DecalDef, LevelData, LightDef } from '@/game/level/types';
-import type { World } from '@/game/sim/World';
 import { MaterialLibrary } from './materials';
 
 interface FlickerLight {
@@ -21,6 +20,12 @@ const DECAL_COLORS: Record<DecalDef['style'], number> = {
   graffiti: 0xc99a3a,
   sign: 0x6e8a7a,
 };
+
+/** The slice of world state the renderer needs to sync doors and pickups. */
+export interface WorldView {
+  isDoorOpen(id: string): boolean;
+  pickupsTaken: Record<string, boolean>;
+}
 
 /**
  * Builds the static level: merged geometry per material (few draw calls), doors as individual
@@ -150,7 +155,7 @@ export class WorldRenderer {
   }
 
   /** Syncs door and pickup visibility with the world; advances flicker. */
-  update(world: World, dt: number): void {
+  update(world: WorldView, dt: number): void {
     this.time += dt;
     for (const [id, mesh] of this.doors) {
       const open = world.isDoorOpen(id);

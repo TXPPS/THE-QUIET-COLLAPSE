@@ -41,6 +41,9 @@ export interface ControlSettings {
   vibration: boolean;
   menuRepeatDelay: number;
   menuRepeatRate: number;
+  touchDeadZone: number;
+  touchSprintThreshold: number;
+  touchSprintLock: boolean;
 }
 
 export interface AccessibilitySettings {
@@ -86,6 +89,9 @@ export const DEFAULT_SETTINGS: Settings = {
     vibration: true,
     menuRepeatDelay: 0.38,
     menuRepeatRate: 0.11,
+    touchDeadZone: 0.12,
+    touchSprintThreshold: 0.92,
+    touchSprintLock: true,
   },
   accessibility: {
     reducedMotion: 'system',
@@ -113,6 +119,8 @@ export const SETTINGS_RANGES: Record<string, [number, number]> = {
   'controls.deadZoneAxial': [0, 0.5],
   'controls.menuRepeatDelay': [0.15, 0.8],
   'controls.menuRepeatRate': [0.05, 0.4],
+  'controls.touchDeadZone': [0, 0.4],
+  'controls.touchSprintThreshold': [0.6, 1],
   'accessibility.textScale': [0.85, 1.5],
 };
 

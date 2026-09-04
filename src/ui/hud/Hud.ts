@@ -45,6 +45,8 @@ export class Hud {
   private readonly damage: HTMLElement;
   private readonly hint: HTMLElement;
   private readonly fps: HTMLElement;
+  private readonly caption: HTMLElement;
+  private captionTimer = 0;
   private objectiveTimer = 0;
   private messageTimer = 0;
   private hitTimer = 0;
@@ -86,6 +88,7 @@ export class Hud {
     this.damage = el('div', { class: 'tqc-hud__damage', attrs: { 'aria-hidden': 'true' } });
     this.hint = el('div', { class: 'tqc-hud__hint', text: 'Click the view to capture the mouse' });
     this.fps = el('div', { class: 'tqc-hud__fps' });
+    this.caption = el('div', { class: 'tqc-hud__caption', attrs: { 'aria-live': 'polite' } });
     this.root = el('div', { class: 'tqc-hud', attrs: { 'aria-label': 'Heads-up display' } }, [
       el('div', { class: 'tqc-hud__vignette', attrs: { 'aria-hidden': 'true' } }),
       this.damage,
@@ -97,8 +100,16 @@ export class Hud {
       this.crosshair,
       this.hint,
       this.fps,
+      this.caption,
     ]);
     layer.append(this.root);
+  }
+
+  /** Subtitle line for significant sounds; separate from objective and system messages. */
+  showCaption(text: string, seconds = 2): void {
+    setText(this.caption, text);
+    this.caption.classList.add('is-visible');
+    this.captionTimer = seconds;
   }
 
   setVisible(visible: boolean): void {
@@ -180,6 +191,10 @@ export class Hud {
     if (this.hitTimer > 0) {
       this.hitTimer -= dt;
       if (this.hitTimer <= 0) this.damage.classList.remove('is-hit');
+    }
+    if (this.captionTimer > 0) {
+      this.captionTimer -= dt;
+      if (this.captionTimer <= 0) this.caption.classList.remove('is-visible');
     }
   }
 

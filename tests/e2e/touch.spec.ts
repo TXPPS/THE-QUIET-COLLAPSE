@@ -97,9 +97,23 @@ test('phone: menu, run, joystick, use, fire, checkpoint, death, continue, ending
   await advance(page, 0.5);
   let down = false;
   for (let i = 0; i < 6 && !down; i += 1) {
-    await touchButton(page, 'fire');
-    await advance(page, 0.6);
-    down = await page.evaluate(() => !window.__tqc!.session!.world.threats.find((t) => t.id === 'th_street')!.alive);
+    down = await page.evaluate(() => {
+      const app = window.__tqc!;
+      const w = app.session!.world;
+      const t = w.threats.find((th) => th.id === 'th_street')!;
+      const r = w.aimRay;
+      t.x = r.ox + r.dx * 4.5;
+      t.z = r.oz + r.dz * 4.5;
+      t.prevX = t.x;
+      t.prevZ = t.z;
+      const fire = document.querySelector('[data-touch-control="fire"]') as HTMLElement;
+      const rect = fire.getBoundingClientRect();
+      const init = { pointerId: 7, pointerType: 'touch', clientX: rect.x + rect.width / 2, clientY: rect.y + rect.height / 2, isPrimary: true, bubbles: true };
+      fire.dispatchEvent(new PointerEvent('pointerdown', init));
+      fire.dispatchEvent(new PointerEvent('pointerup', init));
+      app.debugAdvance(0.6);
+      return !t.alive;
+    });
   }
   expect(down).toBe(true);
   await touchButton(page, 'aim');

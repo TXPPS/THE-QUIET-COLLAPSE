@@ -22,7 +22,7 @@ export default defineConfig({
     launchOptions: { args: swiftShaderArgs },
   },
   webServer: {
-    command: 'npm run preview',
+    command: 'pnpm preview',
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 60_000,

@@ -25,6 +25,11 @@ export abstract class Screen {
     this.root.className = 'tqc-screen';
     this.root.setAttribute('role', 'region');
     this.focus = new FocusManager(this.root);
+    // Hover and keyboard/controller focus are one highlight, never two.
+    this.root.addEventListener('mouseover', (event) => {
+      const item = (event.target as HTMLElement | null)?.closest<HTMLElement>('[data-focusable]');
+      if (item && item !== this.focus.current) this.focus.focusElement(item);
+    });
   }
 
   /** Creates the DOM. Called once before the first mount. */

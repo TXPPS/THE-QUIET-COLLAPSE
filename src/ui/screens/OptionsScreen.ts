@@ -142,6 +142,9 @@ export class OptionsScreen extends Screen {
         format: (v) => (v === 'east' ? 'A (right)' : 'B (bottom)'),
       }),
       toggleItem(this.focus, { label: 'Controller vibration', get: () => s.get().controls.vibration, set: (v) => s.update({ controls: { vibration: v } }) }),
+      sliderItem(this.focus, this.bag, { label: 'Touch joystick dead zone', min: 0, max: 0.4, step: 0.02, get: () => s.get().controls.touchDeadZone, set: (v) => s.update({ controls: { touchDeadZone: v } }), format: (v) => v.toFixed(2) }),
+      sliderItem(this.focus, this.bag, { label: 'Touch sprint threshold', hint: 'How far the joystick must be pushed before you start running.', min: 0.6, max: 1, step: 0.02, get: () => s.get().controls.touchSprintThreshold, set: (v) => s.update({ controls: { touchSprintThreshold: v } }), format: (v) => `${Math.round(v * 100)}%` }),
+      toggleItem(this.focus, { label: 'Touch sprint lock', hint: 'Keep running until the joystick relaxes.', get: () => s.get().controls.touchSprintLock, set: (v) => s.update({ controls: { touchSprintLock: v } }) }),
     ];
   }
 
@@ -160,6 +163,7 @@ export class OptionsScreen extends Screen {
       toggleItem(this.focus, { label: 'High-contrast interface', get: () => s.get().accessibility.highContrastUi, set: (v) => s.update({ accessibility: { highContrastUi: v } }) }),
       toggleItem(this.focus, { label: 'Larger HUD', get: () => s.get().accessibility.largeHud, set: (v) => s.update({ accessibility: { largeHud: v } }) }),
       toggleItem(this.focus, { label: 'Colour-safe HUD', hint: 'Condition shown with text and shape, not colour alone.', get: () => s.get().accessibility.colorSafeHud, set: (v) => s.update({ accessibility: { colorSafeHud: v } }) }),
+      toggleItem(this.focus, { label: 'Hold to interact', hint: 'Use requires a short hold instead of a tap, preventing accidental pickups.', get: () => s.get().accessibility.holdToInteract, set: (v) => s.update({ accessibility: { holdToInteract: v } }) }),
       menuItem({
         label: 'Reset all settings',
         danger: true,

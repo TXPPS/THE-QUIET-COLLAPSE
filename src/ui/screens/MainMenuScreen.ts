@@ -21,7 +21,7 @@ export class MainMenuScreen extends Screen {
     const items = [
       menuItem({
         label: 'Continue',
-        hint: recent?.header ? `${recent.header.locationLabel} · ${formatPlaytime(recent.header.playtimeSec)}` : 'No saved run',
+        hint: recent?.header ? `${recent.header.locationLabel} · ${recent.header.objectiveLabel} · ${formatPlaytime(recent.header.playtimeSec)}` : 'No saved run',
         disabled: !recent,
         onSelect: () => app.continueGame(),
       }),

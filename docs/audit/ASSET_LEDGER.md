@@ -13,7 +13,7 @@ to be replaced by production assets without changing the systems that consume th
 | Pickups, documents, decals, signage | Small boxes/planes | `src/render/WorldRenderer.ts` | PLACEHOLDER_ART |
 | Light fixtures | Emissive spheres | `src/render/WorldRenderer.ts` | PLACEHOLDER_ART |
 | Muzzle flash, impacts, flashlight | Point/spot lights | `src/render/Effects.ts` | Final (effects-only) |
-| App icon | Original SVG (dark square, amber bar) | `public/icons/icon.svg` | Original; PNG variants pending |
+| App icon | Original SVG (dark square, amber bar) + PNG 192/512/maskable rendered by `scripts/make-icons.mjs` | `public/icons/` | Original |
 | Touch control icons | Original inline SVG line icons | `src/ui/touch/touchIcons.ts` | Original |
 | Button prompt glyphs | Text chips styled per family (no vendor artwork) | `src/input/PromptGlyphService.ts`, `src/ui/styles/base.css` | Original |
 | Footsteps, gunshot, dry fire, reload, impacts, doors, pickups, hurt, heal, checkpoint, heartbeat, UI cues, threat vocals | WebAudio synthesis (oscillators + filtered noise) | `src/audio/synth.ts` | PLACEHOLDER_AUDIO |

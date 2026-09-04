@@ -379,6 +379,6 @@ body {
       calc(var(--tqc-space-3) + var(--tqc-safe-bottom)) calc(var(--tqc-space-4) + var(--tqc-safe-left));
   }
   .tqc-columns { grid-template-columns: 1fr; gap: var(--tqc-space-3); }
-  .tqc-item { min-height: 44px; padding: var(--tqc-space-1) var(--tqc-space-3); }
+  .tqc-item { min-height: var(--tqc-hit-min); padding: var(--tqc-space-1) var(--tqc-space-3); }
   .tqc-footer { gap: var(--tqc-space-3); }
 }

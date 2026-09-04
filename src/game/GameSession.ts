@@ -1,4 +1,4 @@
-import { CAMERA, RUN } from '@/config/gameplay';
+import { RUN } from '@/config/gameplay';
 import { CANON } from '@/config/canon';
 import type { DocumentDef, LevelData } from '@/game/level/types';
 import type { InputManager } from '@/input/InputManager';
@@ -43,7 +43,7 @@ export class GameSession {
   readonly world: World;
   readonly sim: Simulation;
   readonly view: GameView;
-  readonly slot: number;
+  slot: number;
   paused = false;
   private readonly offs: Array<() => void> = [];
   private gameOverSent = false;
@@ -93,7 +93,7 @@ export class GameSession {
       this.slot,
       {
         playtimeSec: Math.round(this.world.playtimeSec),
-        objectiveLabel: objective?.label ?? '',
+        objectiveLabel: this.world.completed ? 'Run complete' : (objective?.label ?? ''),
         locationLabel: reason === 'manual' ? CANON.shelterLabel : this.checkpointLabel(),
         difficulty: this.world.difficulty,
         checkpointId: this.world.checkpointId,
@@ -162,10 +162,6 @@ export class GameSession {
       this.gameOverSent = true;
       host.onGameOver();
     }
-  }
-
-  get baseFov(): number {
-    return CAMERA.fov;
   }
 
   dispose(): void {

@@ -13,8 +13,17 @@ Resume from this file, not from scratch.
   Found and fixed so far: per-step input sampling (pending edges), pointer-lock jump delta (ignore first
   move + clamp), first-install service-worker reload (only reload after an accepted update), synthetic
   input ordering under software rendering (tests now wait for the input layer's lastRawBinding).
-  Current: the synchronous debugAdvance path does not perform an interaction that a later real frame does
-  perform — diagnosing with tests/e2e/debug-step.spec.ts (delete when done).
+  Root cause of the last stall: the `input.update()` line inside `App.debugAdvance` had never landed
+  (a patch ran in a shell that killed itself). Fixed. The shooting beat is now deterministic in both
+  loop.spec and touch.spec (target placed on the aim line, key/pointer edge and step in one synchronous
+  in-page call); headless pointer lock reports Playwright mouse jumps as ±960/540 movement, which the
+  input layer now filters (first move after lock ignored, per-event delta clamp).
+- Ledger fixes landed after the audit agent's review: SW no longer self-activates on update (TQC-011),
+  manual save to the chosen slot (006), Inventory/Map actions consumed (007), inventory actions use the
+  player timers (020), pointer-lock loss pauses (021), error-burst screen (023), damaged slots selectable
+  in Load (024), hover/focus unified (025), 48 px rows on phones (027), save on ending + completed-run
+  handling (031), leftovers (032), icon DOM parsing (035), touch dead zone/sprint settings (036), caption
+  line (038), hold-to-interact option (040), renderer view interface (041), CSP header (042), extra audio cues (010).
 - Waves 3/4 (chooser, remap, controller test, glyph prompts) built; Wave 6 (touch HUD, layout editor,
   rotate overlay) built with unit tests, phone e2e gate (tests/e2e/touch.spec.ts) not yet run.
 - Wave 10 partial: procedural audio engine, adaptive resolution, SW update/offline notices wired.

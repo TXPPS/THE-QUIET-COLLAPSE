@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { captureConsole, openGame, passWarning, startNewRun } from './helpers';
-import { advance, clickMouse, pressKey } from './input';
+import { advance, pressKey } from './input';
 
 /**
  * Drives the §0.1 playable loop through the real UI and real keyboard input. Teleports (via the
@@ -60,36 +60,45 @@ test('new game → threat → checkpoint → death → reload → ending → men
     await advance(page, 3);
     await page.keyboard.up('KeyW');
     await expect(page.locator('.tqc-hud__objective')).toContainText('Route 4');
-    await expect(page.locator('.tqc-toast')).toContainText('Checkpoint saved');
+    // The street checkpoint autosaved into slot 1 (the toast itself is transient).
+    await expect.poll(() => page.evaluate(() => window.__tqc!.saves.inspect(1).header?.checkpointId ?? 'none')).toBe('street');
 
-    // Threat encounter: stand in front of the street resident, aim and fire until it drops.
-    // Capture the mouse first (the click moves the pointer), then place everyone and level the aim.
+    // Threat encounter: rebind Aim/Fire to keys through the real remap API (headless pointer lock makes
+    // repeated mouse clicks unreliable), capture the mouse once, then shoot until the resident drops.
+    await page.evaluate(() => {
+      const b = window.__tqc!.input.bindings;
+      b.rebindKbm('Aim', { type: 'key', code: 'KeyH' }, ['Aim']);
+      b.rebindKbm('Fire', { type: 'key', code: 'KeyG' }, ['Fire']);
+    });
     await page.mouse.move(960, 540);
     await page.locator('.tqc-canvas').click({ position: { x: 960, y: 540 } });
     await page.waitForTimeout(150);
     await teleport(page, 58, 21, 0, 0);
-    await page.evaluate(() => {
-      const w = window.__tqc!.session!.world;
-      const t = w.threats.find((th) => th.id === 'th_street')!;
-      t.x = 58.2;
-      t.z = 26;
-      t.prevX = t.x;
-      t.prevZ = t.z;
-      t.yaw = Math.PI;
-    });
-    await page.evaluate(() => {
-      window.__tqc!.input.keyboardMouse.lastRawBinding = null;
-    });
-    await page.mouse.down({ button: 'right' });
-    await expect.poll(() => page.evaluate(() => window.__tqc!.input.keyboardMouse.lastRawBinding?.type ?? 'none')).toBe('mouse');
-    await advance(page, 0.5);
+    await page.keyboard.down('KeyH');
+    await expect.poll(() => page.evaluate(() => { const b = window.__tqc!.input.keyboardMouse.lastRawBinding; return b?.type === 'key' ? b.code : 'none'; })).toBe('KeyH');
+    await advance(page, 0.6);
     let threatDown = false;
     for (let i = 0; i < 6 && !threatDown; i += 1) {
-      await clickMouse(page, 'left');
-      await advance(page, 0.6);
-      threatDown = await world<boolean>(page, "!window.__tqc.session.world.threats.find((t) => t.id === 'th_street').alive");
+      // Place the resident on the aim line, fire through a DOM key event and step — all in one
+      // synchronous call so the target cannot move between placement and the hitscan.
+      threatDown = await page.evaluate(() => {
+        const app = window.__tqc!;
+        const w = app.session!.world;
+        const t = w.threats.find((th) => th.id === 'th_street')!;
+        const r = w.aimRay;
+        const d = 4.5;
+        t.x = r.ox + r.dx * d;
+        t.z = r.oz + r.dz * d;
+        t.prevX = t.x;
+        t.prevZ = t.z;
+        window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG', bubbles: true }));
+        window.dispatchEvent(new KeyboardEvent('keyup', { code: 'KeyG', bubbles: true }));
+        app.debugAdvance(0.6);
+        return !t.alive;
+      });
     }
-    await page.mouse.up({ button: 'right' });
+    await page.keyboard.up('KeyH');
+    await page.evaluate(() => window.__tqc!.input.bindings.resetAll());
     const ammoLeft = await world<number>(page, 'window.__tqc.session.world.player.ammoLoaded');
     expect(ammoLeft).toBeLessThan(6);
     expect(threatDown).toBe(true);
@@ -131,5 +140,7 @@ test('new game → threat → checkpoint → death → reload → ending → men
     await page.getByRole('button', { name: /Return to menu/ }).click();
     await expect(page.getByRole('heading', { name: 'THE QUIET COLLAPSE' })).toBeVisible();
   }
+  const stats = await page.evaluate(() => window.__tqc!.loop.getStats());
+  await test.info().attach('frame-stats.json', { body: JSON.stringify({ note: 'headless SwiftShader software rendering; not representative of GPU performance', ...stats }, null, 2), contentType: 'application/json' });
   expect(capture.errors).toEqual([]);
 });

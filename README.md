@@ -38,4 +38,7 @@ development container; run `pnpm exec playwright install chromium` elsewhere.
 | `docs/audit/` | Baseline, audits, defect ledger, roadmap, release gate, `STATE.md` |
 | `docs/design/CANON.md` | Established vs placeholder canon |
 
+Append `?debug` to the URL (or run the dev server) to expose `window.__tqc`, the app instance the Playwright
+specs drive (`debugAdvance(seconds)` steps the simulation deterministically).
+
 Reference screenshots used for design study are private and git-ignored (`docs/reference/**/references/`).

@@ -54,7 +54,6 @@ export const SIZE_RANGE: [number, number] = [0.09, 0.34];
 export const OPACITY_RANGE: [number, number] = [0.2, 1];
 /** Minimum diameter in CSS px so every control stays a comfortable target. */
 export const MIN_TARGET_PX = 48;
-export const PRIMARY_MIN_TARGET_PX = 64;
 
 type Partial3 = Partial<Record<TouchControlId, Partial<TouchControlLayout>>>;
 

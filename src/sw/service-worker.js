@@ -4,11 +4,13 @@ const PRECACHE = __PRECACHE__;
 const INDEX = './index.html';
 
 self.addEventListener('install', (event) => {
+  // Precache only. Activation waits for the player to accept the update (SKIP_WAITING message),
+  // except on the very first install where no controller exists yet.
   event.waitUntil(
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE))
-      .then(() => self.skipWaiting()),
+      .then(() => self.registration.active ? undefined : self.skipWaiting()),
   );
 });
 

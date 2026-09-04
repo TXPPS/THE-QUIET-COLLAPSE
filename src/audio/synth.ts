@@ -151,6 +151,34 @@ export const SFX = {
   heartbeat(ctx: AudioContext): Voice {
     return tone(ctx, 'sine', 70, 45, 0.35, 0.01, 0.16);
   },
+  bodyHit(ctx: AudioContext): Voice {
+    return noiseBurst(ctx, 'lowpass', 700, 0.8, 0.35, 0.004, 0.12);
+  },
+  death(ctx: AudioContext): Voice {
+    const gain = ctx.createGain();
+    const drone = tone(ctx, 'sine', 90, 30, 0.4, 0.4, 2.4);
+    const rush = noiseBurst(ctx, 'lowpass', 300, 0.6, 0.25, 0.3, 2.0);
+    drone.output.connect(gain);
+    rush.output.connect(gain);
+    return { output: gain, stop: () => (drone.stop(), rush.stop()) };
+  },
+  ending(ctx: AudioContext): Voice {
+    const gain = ctx.createGain();
+    const a = tone(ctx, 'sine', 196, 196, 0.12, 0.6, 3);
+    const b = tone(ctx, 'sine', 294, 294, 0.08, 1.2, 3);
+    a.output.connect(gain);
+    b.output.connect(gain);
+    return { output: gain, stop: () => (a.stop(), b.stop()) };
+  },
+  click(ctx: AudioContext): Voice {
+    return noiseBurst(ctx, 'bandpass', 3200, 8, 0.18, 0.002, 0.03);
+  },
+  rustle(ctx: AudioContext): Voice {
+    return noiseBurst(ctx, 'bandpass', 1800, 1.2, 0.12, 0.02, 0.14);
+  },
+  whoosh(ctx: AudioContext): Voice {
+    return noiseBurst(ctx, 'bandpass', 900, 0.9, 0.2, 0.05, 0.22);
+  },
 };
 
 /** Continuous wind/distant-city bed built from filtered noise with slow modulation. */

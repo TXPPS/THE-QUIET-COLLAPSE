@@ -2,12 +2,22 @@ import { DisposeBag } from '@/core/DisposeBag';
 import type { ButtonAction } from '@/input/actions';
 import type { TouchSource } from '@/input/TouchSource';
 import { el, setHidden, toggleClass } from '@/ui/dom';
-import { touchIconSvg } from './touchIcons';
+import { touchIconNode } from './touchIcons';
 import { CONTROL_LABELS, controlRect, type TouchControlId, type TouchProfile, type Viewport } from './touchProfiles';
 
-const STICK_SPRINT_THRESHOLD = 0.92;
 const STICK_SPRINT_HOLD_SECONDS = 0.35;
 const LOOK_PIXELS_TO_UNITS = 1;
+
+export interface TouchTuning {
+  /** Radial dead zone of the joystick (fraction of its radius). */
+  deadZone: number;
+  /** Deflection at which sprint engages. */
+  sprintThreshold: number;
+  /** Keep sprinting until the stick relaxes (true) or only while at the edge (false). */
+  sprintLock: boolean;
+}
+
+export const DEFAULT_TOUCH_TUNING: TouchTuning = { deadZone: 0.12, sprintThreshold: 0.92, sprintLock: true };
 
 export interface TouchHudState {
   equippedPistol: boolean;
@@ -55,6 +65,7 @@ export class TouchHud {
   private readonly knob: HTMLElement;
   private readonly buttons = new Map<TouchControlId, ButtonEntry>();
   private profile: TouchProfile;
+  tuning: TouchTuning = { ...DEFAULT_TOUCH_TUNING };
   private viewport: Viewport = { width: 1, height: 1, safe: { top: 0, right: 0, bottom: 0, left: 0 } };
   private stickPointer: number | null = null;
   private stickOrigin = { x: 0, y: 0 };
@@ -119,7 +130,8 @@ export class TouchHud {
       class: `tqc-touch__btn${id === 'fire' || id === 'aim' ? ' tqc-touch__btn--primary' : ''}`,
       attrs: { type: 'button', 'aria-label': CONTROL_LABELS[id], 'data-touch-control': id },
     });
-    element.innerHTML = touchIconSvg(id);
+    const icon = touchIconNode(id);
+    if (icon) element.append(icon);
     element.append(el('span', { text: CONTROL_LABELS[id] }));
     const entry: ButtonEntry = { id, element, action, pointerId: null, latched: false };
     this.buttons.set(id, entry);
@@ -206,7 +218,9 @@ export class TouchHud {
     const dx = clientX - this.stickOrigin.x;
     const dy = clientY - this.stickOrigin.y;
     const distance = Math.hypot(dx, dy);
-    const clamped = Math.min(1, distance / this.stickRadius);
+    const raw = Math.min(1, distance / this.stickRadius);
+    const dead = this.tuning.deadZone;
+    const clamped = raw <= dead ? 0 : (raw - dead) / (1 - dead);
     const nx = distance > 0 ? (dx / distance) * clamped : 0;
     const ny = distance > 0 ? (dy / distance) * clamped : 0;
     this.source.setMove(nx, -ny);
@@ -217,14 +231,15 @@ export class TouchHud {
   private updateSprint(dt: number): void {
     if (this.stickPointer === null) return;
     const magnitude = Math.hypot(this.source.moveX, this.source.moveY);
-    if (magnitude >= STICK_SPRINT_THRESHOLD) {
+    const releaseBelow = this.tuning.sprintLock ? 0.5 : this.tuning.sprintThreshold - 0.08;
+    if (magnitude >= this.tuning.sprintThreshold) {
       this.sprintHold += dt;
       if (!this.sprintLatched && this.sprintHold >= STICK_SPRINT_HOLD_SECONDS) {
         this.sprintLatched = true;
         this.source.hold('Sprint');
         this.stick.classList.add('is-sprint');
       }
-    } else if (magnitude < 0.5 && this.sprintLatched) {
+    } else if (magnitude < releaseBelow && this.sprintLatched) {
       this.sprintLatched = false;
       this.sprintHold = 0;
       this.source.release('Sprint');

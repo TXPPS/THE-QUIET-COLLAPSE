@@ -42,6 +42,12 @@ export class GameAudio {
       e.on('checkpoint', () => this.play(SFX.checkpoint, 'ui')),
       e.on('threatVocal', ({ x, z, kind }) => this.threatVocal(x, z, kind)),
       e.on('objective', () => this.play(SFX.uiConfirm, 'ui')),
+      e.on('threatHit', ({ x, z }) => this.playAt(SFX.bodyHit, x, z)),
+      e.on('playerDied', () => this.play(SFX.death, 'sfx')),
+      e.on('ending', () => this.play(SFX.ending, 'ambience')),
+      e.on('flashlight', () => this.play(SFX.click, 'sfx')),
+      e.on('equip', () => this.play(SFX.rustle, 'sfx')),
+      e.on('dodge', () => this.play(SFX.whoosh, 'sfx')),
     );
   }
 

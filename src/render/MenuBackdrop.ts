@@ -4,6 +4,7 @@ import type { Renderer } from './Renderer';
 import { WorldRenderer } from './WorldRenderer';
 
 const DRIFT_RADIUS = 0.6;
+const STATIC_VIEW = { isDoorOpen: () => false, pickupsTaken: {} as Record<string, boolean> };
 const DRIFT_SPEED = 0.05;
 
 /**
@@ -40,7 +41,7 @@ export class MenuBackdrop {
       camera.fov = 50;
       camera.updateProjectionMatrix();
     }
-    this.world.update({ isDoorOpen: () => false, pickupsTaken: {} } as never, dt);
+    this.world.update(STATIC_VIEW, dt);
   }
 
   dispose(): void {

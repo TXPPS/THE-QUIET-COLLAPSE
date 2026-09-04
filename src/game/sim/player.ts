@@ -96,7 +96,7 @@ function tryFire(world: World): void {
   if (!result.hit) world.events.emit('impact', result.impact);
 }
 
-function tryReload(world: World): void {
+export function tryReload(world: World): void {
   const p = world.player;
   if (p.equipped !== 'pistol' || p.ammoLoaded >= PISTOL.magazine || p.ammoReserve <= 0 || p.reloadTimer > 0) return;
   p.reloadTimer = PISTOL.reloadTime;
@@ -113,7 +113,7 @@ function finishReload(world: World): void {
   world.events.emit('reloadDone', undefined);
 }
 
-function tryMedkit(world: World): void {
+export function tryMedkit(world: World): void {
   const p = world.player;
   if (p.medkits <= 0 || p.health >= PLAYER.maxHealth || p.medkitTimer > 0) return;
   p.medkitTimer = MEDKIT.useTime;

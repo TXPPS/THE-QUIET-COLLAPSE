@@ -16,8 +16,11 @@ const ICONS: Partial<Record<TouchControlId, string>> = {
   map: '<path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/><path d="M9 4v14M15 6v14"/>',
 };
 
-export function touchIconSvg(id: TouchControlId): string {
+/** Builds the icon as a DOM node through the XML parser (no innerHTML on live elements). */
+export function touchIconNode(id: TouchControlId): SVGElement | null {
   const body = ICONS[id];
-  if (!body) return '';
-  return `<svg viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`;
+  if (!body) return null;
+  const doc = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`, 'image/svg+xml');
+  const svg = doc.documentElement;
+  return svg instanceof SVGElement ? (document.importNode(svg, true) as SVGElement) : null;
 }

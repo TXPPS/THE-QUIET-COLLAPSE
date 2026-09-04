@@ -91,6 +91,22 @@ describe('TouchHud pointer lifecycle', () => {
     expect(source.isHeld('Fire')).toBe(false);
   });
 
+  it('applies the configurable joystick dead zone and sprint threshold', () => {
+    hud.tuning = { deadZone: 0.3, sprintThreshold: 0.8, sprintLock: true };
+    const zone = layer.querySelector('.tqc-touch__zone--move') as HTMLElement;
+    fire(zone, 'pointerdown', 2, 100, 300);
+    fire(zone, 'pointermove', 2, 100, 290); // 10px on a ~115px radius: inside the dead zone
+    expect(source.moveY).toBe(0);
+    fire(zone, 'pointermove', 2, 100, 150); // far past the edge: full deflection
+    expect(source.moveY).toBeCloseTo(1, 5);
+    for (let i = 0; i < 30; i += 1) hud.update({ equippedPistol: true, canReload: false, hasFlashlight: false, promptVisible: false }, 1 / 60);
+    expect(source.isHeld('Sprint')).toBe(true);
+    fire(zone, 'pointermove', 2, 100, 270); // relax below the release point
+    hud.update({ equippedPistol: true, canReload: false, hasFlashlight: false, promptVisible: false }, 1 / 60);
+    expect(source.isHeld('Sprint')).toBe(false);
+    fire(zone, 'pointerup', 2, 100, 270);
+  });
+
   it('accumulates look deltas from the right zone and resets after polling', () => {
     const zone = layer.querySelector('.tqc-touch__zone--look') as HTMLElement;
     fire(zone, 'pointerdown', 11, 600, 200);
