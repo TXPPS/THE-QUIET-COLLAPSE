@@ -12,17 +12,26 @@
 .tqc-hud.is-dimmed { opacity: 0; }
 
 /* With on-screen controls the bottom corners belong to the thumbs: vitals and item move to the top. */
+:root[data-touch-hud='true'] .tqc-hud__objective { max-width: min(18rem, 34vw); }
+:root[data-touch-hud='true'] .tqc-hud__objective-label { font-size: calc(var(--tqc-fs-sm) * var(--tqc-hud-scale)); }
 :root[data-touch-hud='true'] .tqc-hud__vitals {
-  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 3.4rem);
+  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 5.2rem);
   bottom: auto;
 }
 :root[data-touch-hud='true'] .tqc-hud__item {
   top: calc(var(--tqc-space-4) + var(--tqc-safe-top));
   bottom: auto;
 }
-:root[data-touch-hud='true'] .tqc-hud__prompt { bottom: auto; top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 7.5rem); }
+:root[data-touch-hud='true'] .tqc-hud__message { top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 6.4rem); }
+:root[data-touch-hud='true'] .tqc-hud__prompt { bottom: auto; top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 8.6rem); }
 :root[data-touch-hud='true'] .tqc-hud__caption { bottom: calc(var(--hud-pad-y) + 0.5rem); }
-:root[data-touch-hud='true'] .tqc-toasts { top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 6.2rem); }
+:root[data-touch-hud='true'] .tqc-toasts {
+  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 3.4rem);
+  right: auto;
+  left: 50%;
+  transform: translateX(-50%);
+  justify-items: center;
+}
 
 .tqc-hud__vitals {
   position: absolute;

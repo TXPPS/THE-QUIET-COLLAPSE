@@ -112,6 +112,18 @@ describe('headless playable loop', () => {
     new Simulation(restored).dispose();
   });
 
+  it('half stick deflection walks at half speed, not a quarter', () => {
+    const h = createHeadless(undefined, { killThreats: true });
+    h.world.player.x = 12;
+    h.world.player.z = 22;
+    h.world.look.yaw = Math.PI / 2;
+    h.input.move = { x: 0, y: 0.5 };
+    stepFor(h, 2);
+    const walked = h.world.player.x - 12;
+    expect(walked).toBeGreaterThan(2.0);
+    expect(walked).toBeLessThan(2.8);
+  });
+
   it('shooting damages and kills a threat and consumes scarce ammo', () => {
     const h = createHeadless();
     const { world, input, events } = h;

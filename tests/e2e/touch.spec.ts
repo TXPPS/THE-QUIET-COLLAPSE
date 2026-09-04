@@ -47,7 +47,6 @@ async function joystick(page: Page, dx: number, dy: number, seconds: number): Pr
   const y = box.y + box.height * 0.7;
   await zone.dispatchEvent('pointerdown', { pointerId: 3, pointerType: 'touch', clientX: x, clientY: y, isPrimary: true, bubbles: true });
   await zone.dispatchEvent('pointermove', { pointerId: 3, pointerType: 'touch', clientX: x + dx, clientY: y + dy, bubbles: true });
-  await page.waitForTimeout(80);
   await advance(page, seconds);
   await zone.dispatchEvent('pointerup', { pointerId: 3, pointerType: 'touch', clientX: x + dx, clientY: y + dy, bubbles: true });
 }

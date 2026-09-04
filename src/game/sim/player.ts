@@ -168,9 +168,12 @@ function handleMovement(world: World, input: PlayerInput, dt: number): void {
     p.sprinting = false;
     if (p.staminaRegenDelay <= 0) p.stamina = Math.min(PLAYER.maxStamina, p.stamina + PLAYER.staminaRegenPerSec * dt);
   }
+  // Speed scales linearly with deflection: normalise the direction so it is not applied twice.
   const speed = targetSpeed(p) * magnitude;
-  const targetX = dirX * speed;
-  const targetZ = dirZ * speed;
+  const nx = magnitude > 1e-6 ? dirX / magnitude : 0;
+  const nz = magnitude > 1e-6 ? dirZ / magnitude : 0;
+  const targetX = nx * speed;
+  const targetZ = nz * speed;
   const rate = magnitude > 0.05 ? PLAYER.acceleration : PLAYER.deceleration;
   const blend = 1 - Math.exp(-rate * dt);
   p.velX += (targetX - p.velX) * blend;

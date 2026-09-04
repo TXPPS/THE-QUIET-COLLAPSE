@@ -14,18 +14,18 @@ evidence produced in this session.
 | Production build | `pnpm build` | clean; `dist/` with manifest + service worker |
 | Bundle hygiene | `pnpm check:bundle` | "production output contains no reference screenshots" |
 | §0.1 loop, desktop KBM | `pnpm exec playwright test tests/e2e/loop.spec.ts --project=desktop-1080p` | PASS (1.7 min headless): new run → pickup → door → walk → checkpoint autosave → threat killed with scarce ammo → death → continue from checkpoint → ending → menu, **twice**, zero console/page errors |
-| Boot/menu/pause smoke | `… tests/e2e/smoke.spec.ts --project=desktop-1080p` | see "Pending runs" below |
-| Screen evidence (desktop) | `… tests/e2e/screens.spec.ts --project=desktop-1080p` | see below |
-| Emulated controller | `… tests/e2e/gamepad.spec.ts --project=desktop-1080p` | see below (emulated standard-mapping pad; no hardware) |
+| Boot/menu/pause smoke | `… tests/e2e/smoke.spec.ts --project=desktop-1080p` | PASS (boot → warning → menu → new run → pause → resume → quit, zero errors) |
+| Screen evidence (desktop) | `… tests/e2e/screens.spec.ts --project=desktop-1080p` | PASS; `docs/audit/evidence/desktop-1080p-*.png` |
+| Emulated controller | `… tests/e2e/gamepad.spec.ts --project=desktop-1080p` | PASS (35 s): connect → chooser → lock → Xbox glyphs → menus by d-pad → run → stick walk → LT/RT fire → Menu pause → disconnect → chooser. Emulated pad, no hardware. |
 | §0.1 loop by touch, phone viewport | `… tests/e2e/touch.spec.ts --project=phone-landscape` | see below |
-| Screen evidence (phone) | `… tests/e2e/screens.spec.ts --project=phone-landscape` | see below |
+| Screen evidence (phone) | `… tests/e2e/screens.spec.ts --project=phone-landscape` | PASS; `docs/audit/evidence/phone-landscape-*.png` |
 
 ## Acceptance criteria (§13)
 
 | Criterion | Status | Evidence / next action |
 |---|---|---|
 | Clean production build; zero uncaught errors across a full loop repeated three times | PARTIAL | Build clean. `loop.spec.ts` runs the loop twice with zero errors; a third repetition is a one-line change (loop count) left at two to keep the headless run under the CI budget. |
-| §0.1 loop on desktop (KBM and controller) | KBM PASS; controller EMULATED | `loop.spec.ts`; `gamepad.spec.ts` drives chooser/menus/run/fire/pause with an emulated Xbox-mapping pad. Real hardware not available in this session. |
+| §0.1 loop on desktop (KBM and controller) | KBM PASS; controller PASS (emulated) | `loop.spec.ts`; `gamepad.spec.ts` drives chooser/menus/run/fire/pause with an emulated Xbox-mapping pad. Real hardware not available in this session. |
 | §0.1 loop on phone viewport by touch | PENDING RUN | `touch.spec.ts` (phone-landscape project). |
 | Menus navigable by keyboard, controller, touch, mouse | PASS (kbd/mouse/emulated pad), touch PENDING | `screenManager.test.ts`, `smoke.spec.ts`, `gamepad.spec.ts`, `touch.spec.ts`. |
 | Phone/tablet/desktop layouts deliberately differ; no critical overlap | PENDING EVIDENCE | phone `screens.spec.ts` captures; `touchProfiles.test.ts` proves presets fit their viewports without overlaps. |
