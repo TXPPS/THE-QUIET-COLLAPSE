@@ -2,6 +2,13 @@ import { PLAYER, RUN } from '@/config/gameplay';
 import { DisposeBag } from '@/core/DisposeBag';
 import { el, setHidden, setText, toggleClass } from '@/ui/dom';
 import type { Prompts } from '@/ui/Prompts';
+import { svgNode } from '@/ui/touch/touchIcons';
+
+/** Original silhouettes for the equipped-item slot (handgun, first-aid pack). */
+const ITEM_ICONS = {
+  pistol: '<path d="M2 4h26v6h-5l-3 9h-7l3-9H2z"/><path d="M4 5h22" stroke="rgba(0,0,0,0.6)" stroke-width="1"/>',
+  medkit: '<rect x="3" y="4" width="26" height="16" rx="2"/><path d="M16 8v8M12 12h8" stroke="#0b0c0d" stroke-width="2.6" fill="none"/>',
+} as const;
 
 export interface HudModel {
   health: number;
@@ -31,6 +38,8 @@ export class Hud {
   private readonly staminaBar: HTMLElement;
   private readonly staminaFill: HTMLElement;
   private readonly itemName: HTMLElement;
+  private readonly itemIcon: HTMLElement;
+  private itemIconKind: 'pistol' | 'medkit' | null = null;
   private readonly ammo: HTMLElement;
   private readonly status: HTMLElement;
   private readonly medkitsNode: HTMLElement;
@@ -63,11 +72,13 @@ export class Hud {
       this.staminaBar,
     ]);
     this.itemName = el('div', { class: 'tqc-hud__item-name', text: 'Pistol' });
+    this.itemIcon = el('div', { class: 'tqc-hud__item-icon', attrs: { 'aria-hidden': 'true' } });
     this.ammo = el('div', { class: 'tqc-hud__ammo' });
     this.status = el('div', { class: 'tqc-hud__status' });
     this.medkitsNode = el('span', { text: 'Medkit ×0' });
     this.flashlightNode = el('span', { text: 'Light' });
     const item = el('div', { class: 'tqc-hud__item' }, [
+      this.itemIcon,
       this.itemName,
       this.ammo,
       this.status,
@@ -156,6 +167,7 @@ export class Hud {
       toggleClass(this.staminaBar, 'is-visible', staminaVisible);
     }
     this.staminaFill.style.width = `${Math.round((model.stamina / PLAYER.maxStamina) * 100)}%`;
+    this.setItemIcon(model.equipped);
     if (model.equipped === 'pistol') {
       setText(this.itemName, 'Pistol');
       this.ammo.textContent = '';
@@ -177,6 +189,13 @@ export class Hud {
     if (model.fps !== null) setText(this.fps, `${Math.round(model.fps)} fps`);
     setHidden(this.fps, model.fps === null);
     this.tickTimers(dt);
+  }
+
+  private setItemIcon(kind: 'pistol' | 'medkit'): void {
+    if (this.itemIconKind === kind) return;
+    this.itemIconKind = kind;
+    const icon = svgNode(ITEM_ICONS[kind], '0 0 32 22');
+    this.itemIcon.replaceChildren(...(icon ? [icon] : []));
   }
 
   private tickTimers(dt: number): void {

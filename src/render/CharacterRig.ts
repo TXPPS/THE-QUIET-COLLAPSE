@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { lerp } from '@/core/math';
+import type { EquippedItem } from '@/game/sim/types';
+import { FlashlightRig, WeaponRig } from './WeaponRig';
 
 export type RigKind = 'player' | 'threat';
 
@@ -16,14 +18,34 @@ export interface RigPose {
   /** 0..1 attack windup for threats. */
   attack: number;
   stagger: boolean;
+  /** Player only: 0..1 weapon raise blend, look pitch (radians) and reload progress (0 when idle). */
+  weaponRaise: number;
+  lookPitch: number;
+  reloadProgress: number;
+  equipped: EquippedItem;
+  flashlightOn: boolean;
 }
+
+export const IDLE_HANDS: Pick<RigPose, 'weaponRaise' | 'lookPitch' | 'reloadProgress' | 'equipped' | 'flashlightOn'> = {
+  weaponRaise: 0,
+  lookPitch: 0,
+  reloadProgress: 0,
+  equipped: 'pistol',
+  flashlightOn: false,
+};
 
 const PLAYER_COLORS = { skin: 0x9a7d66, top: 0x3d4a52, bottom: 0x2a2c30, boots: 0x1c1c1c };
 const THREAT_COLORS = { skin: 0x7c7a70, top: 0x4a4038, bottom: 0x2e2a26, boots: 0x1a1816 };
+/** Arm raised almost horizontal: the gun points where the camera looks. */
+const ARM_RAISED = -1.5;
+const ARM_LOWERED_READY = -0.35;
+const ARM_LENGTH = 0.58;
 
 /**
  * Procedural humanoid (PLACEHOLDER_ART). Torso, head and four limbs with a simple gait cycle;
  * threats carry a slumped posture and a raised-arm attack telegraph so they read from silhouette.
+ * The player rig carries hand sockets: the held weapon or medkit in the right hand, the torch in
+ * the left, with raise, reload and pitch-follow motion driven from the pose.
  */
 export class CharacterRig {
   readonly group = new THREE.Group();
@@ -34,6 +56,10 @@ export class CharacterRig {
   private readonly legL: THREE.Group;
   private readonly legR: THREE.Group;
   private readonly body = new THREE.Group();
+  private readonly handR = new THREE.Object3D();
+  private readonly handL = new THREE.Object3D();
+  private readonly weapon: WeaponRig | null = null;
+  private readonly torch: FlashlightRig | null = null;
   private phase = 0;
   private readonly materials: THREE.Material[] = [];
   private readonly geometries: THREE.BufferGeometry[] = [];
@@ -55,8 +81,8 @@ export class CharacterRig {
     this.head.position.y = 1.64;
     const hips = make(0.38, 0.2, 0.22, colors.bottom);
     hips.position.y = 0.78;
-    this.armL = this.limb(make(0.11, 0.58, 0.11, colors.top), 0.3, 1.45);
-    this.armR = this.limb(make(0.11, 0.58, 0.11, colors.top), -0.3, 1.45);
+    this.armL = this.limb(make(0.11, ARM_LENGTH, 0.11, colors.top), 0.3, 1.45);
+    this.armR = this.limb(make(0.11, ARM_LENGTH, 0.11, colors.top), -0.3, 1.45);
     this.legL = this.limb(make(0.14, 0.72, 0.14, colors.bottom), 0.11, 0.72);
     this.legR = this.limb(make(0.14, 0.72, 0.14, colors.bottom), -0.11, 0.72);
     const bootL = make(0.15, 0.1, 0.24, colors.boots);
@@ -68,6 +94,20 @@ export class CharacterRig {
     this.body.add(this.torso, this.head, hips, this.armL, this.armR, this.legL, this.legR);
     this.group.add(this.body);
     if (kind === 'threat') this.body.rotation.x = 0.16;
+    if (kind === 'player') {
+      // Hand sockets sit at the end of each arm, rotated so an item's natural +Z runs along the arm.
+      this.handR.position.set(0, -ARM_LENGTH + 0.04, 0.03);
+      this.handR.rotation.x = Math.PI / 2;
+      this.handL.position.set(0, -ARM_LENGTH + 0.04, 0.03);
+      this.handL.rotation.x = Math.PI / 2;
+      this.armR.add(this.handR);
+      this.armL.add(this.handL);
+      this.weapon = new WeaponRig();
+      this.handR.add(this.weapon.group);
+      this.torch = new FlashlightRig();
+      this.torch.group.visible = false;
+      this.handL.add(this.torch.group);
+    }
   }
 
   private limb(mesh: THREE.Mesh, x: number, y: number): THREE.Group {
@@ -77,6 +117,12 @@ export class CharacterRig {
     mesh.position.y = -(mesh.geometry.boundingBox?.max.y ?? 0.3);
     pivot.add(mesh);
     return pivot;
+  }
+
+  /** World position of the muzzle (player rig only); falls back to the group position. */
+  muzzleWorldPosition(out: THREE.Vector3): THREE.Vector3 {
+    if (this.weapon) return this.weapon.muzzle.getWorldPosition(out);
+    return out.copy(this.group.position);
   }
 
   update(pose: RigPose, dt: number): void {
@@ -91,23 +137,51 @@ export class CharacterRig {
     const swing = Math.sin(this.phase) * 0.7 * stride;
     this.legL.rotation.x = swing;
     this.legR.rotation.x = -swing;
-    const armSwing = this.kind === 'threat' ? swing * 0.35 : swing * 0.8;
-    if (this.kind === 'threat') {
-      const raise = pose.attack > 0 ? lerp(0.6, 2.2, pose.attack) : 0.55 + 0.1 * Math.sin(this.phase * 0.5);
-      this.armL.rotation.x = -raise + armSwing;
-      this.armR.rotation.x = -raise - armSwing;
-      this.body.rotation.x = pose.stagger ? -0.25 : 0.16 + (pose.attack > 0 ? 0.25 * pose.attack : 0);
-    } else if (pose.aiming) {
-      this.armR.rotation.x = -1.5;
-      this.armL.rotation.x = -1.35;
-      this.armL.rotation.z = 0.35;
-    } else {
-      this.armL.rotation.x = armSwing;
-      this.armR.rotation.x = -armSwing;
-      this.armL.rotation.z = 0;
-    }
+    if (this.kind === 'threat') this.animateThreat(pose, swing * 0.35);
+    else this.animatePlayerArms(pose, swing * 0.8);
     this.body.position.y = Math.abs(Math.sin(this.phase)) * 0.04 * stride;
     this.body.rotation.z = pose.hurt ? 0.08 : 0;
+  }
+
+  private animateThreat(pose: RigPose, armSwing: number): void {
+    const raise = pose.attack > 0 ? lerp(0.6, 2.2, pose.attack) : 0.55 + 0.1 * Math.sin(this.phase * 0.5);
+    this.armL.rotation.x = -raise + armSwing;
+    this.armR.rotation.x = -raise - armSwing;
+    this.body.rotation.x = pose.stagger ? -0.25 : 0.16 + (pose.attack > 0 ? 0.25 * pose.attack : 0);
+  }
+
+  /** Weapon raise blends the right arm from a ready carry to the aim line; the left hand supports or reloads. */
+  private animatePlayerArms(pose: RigPose, armSwing: number): void {
+    const raise = pose.aiming ? Math.max(pose.weaponRaise, 0.5) : pose.weaponRaise;
+    const holding = pose.equipped === 'pistol';
+    // Holding the pistol: low-ready carry with a faint walk swing so the weapon stays in view.
+    const restR = holding ? ARM_LOWERED_READY - armSwing * 0.25 : -armSwing;
+    const aimedR = ARM_RAISED - pose.lookPitch;
+    let armR = lerp(restR, aimedR, raise);
+    let armLX = pose.flashlightOn ? -0.9 : armSwing;
+    let armLZ = pose.flashlightOn ? 0.15 : 0;
+    let handRoll = 0;
+    if (raise > 0.5) {
+      armLX = lerp(armLX, -1.35, (raise - 0.5) * 2);
+      armLZ = lerp(armLZ, 0.35, (raise - 0.5) * 2);
+    }
+    if (pose.reloadProgress > 0) {
+      // Reload: the gun rolls toward the chest while the left hand works the magazine.
+      const bump = Math.sin(pose.reloadProgress * Math.PI);
+      armR = lerp(armR, -1.05, bump);
+      armLX = lerp(armLX, -1.15, bump);
+      armLZ = lerp(armLZ, 0.55, bump);
+      handRoll = bump * 0.7;
+    }
+    this.armR.rotation.x = armR;
+    this.armL.rotation.x = armLX;
+    this.armL.rotation.z = armLZ;
+    this.handR.rotation.z = handRoll;
+    this.weapon?.setEquipped(pose.equipped);
+    if (this.torch) {
+      this.torch.group.visible = pose.flashlightOn;
+      this.torch.setLit(pose.flashlightOn);
+    }
   }
 
   private animateDeath(timer: number, _dt: number): void {
@@ -122,6 +196,8 @@ export class CharacterRig {
   }
 
   dispose(): void {
+    this.weapon?.dispose();
+    this.torch?.dispose();
     for (const geometry of this.geometries) geometry.dispose();
     for (const material of this.materials) material.dispose();
     this.group.removeFromParent();

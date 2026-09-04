@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import { PLAYER, THREAT } from '@/config/gameplay';
+import { PISTOL, PLAYER, THREAT } from '@/config/gameplay';
 import { lerp } from '@/core/math';
 import type { World } from '@/game/sim/World';
 import { CameraRig } from './CameraRig';
-import { CharacterRig } from './CharacterRig';
+import { CharacterRig, IDLE_HANDS } from './CharacterRig';
 import { Effects } from './Effects';
 import type { Renderer } from './Renderer';
+import { SpawnRayDebug } from './SpawnRayDebug';
 import { WorldRenderer } from './WorldRenderer';
 
 export interface ViewOptions {
@@ -26,6 +27,8 @@ export class GameView {
   private readonly root = new THREE.Group();
   private readonly offs: Array<() => void> = [];
   private readonly forward = new THREE.Vector3();
+  private readonly muzzle = new THREE.Vector3();
+  private spawnRays: SpawnRayDebug | null = null;
 
   constructor(
     private readonly renderer: Renderer,
@@ -44,13 +47,23 @@ export class GameView {
     renderer.scene.add(this.root);
     this.offs.push(
       world.events.on('shot', () => {
-        const p = world.player;
-        this.effects.muzzleFlash(p.x + Math.sin(p.yaw) * 0.5, 1.35, p.z + Math.cos(p.yaw) * 0.5);
+        // The muzzle socket on the held weapon places the flash where the gun actually is.
+        this.playerRig.muzzleWorldPosition(this.muzzle);
+        this.effects.muzzleFlash(this.muzzle.x, this.muzzle.y, this.muzzle.z);
         this.cameraRig.addShake(0.5);
       }),
       world.events.on('impact', ({ x, y, z }) => this.effects.impactAt(x, y, z)),
       world.events.on('playerHurt', () => this.cameraRig.addShake(0.9)),
     );
+  }
+
+  /** QA overlay: draws the grounding rays every prop and pickup was placed with. */
+  setSpawnRays(visible: boolean): void {
+    if (visible && !this.spawnRays) {
+      this.spawnRays = new SpawnRayDebug(this.world.level.spawnRays ?? []);
+      this.root.add(this.spawnRays.group);
+    }
+    if (this.spawnRays) this.spawnRays.group.visible = visible;
   }
 
   update(dt: number, alpha: number, options: ViewOptions): void {
@@ -64,12 +77,17 @@ export class GameView {
         yaw: p.yaw,
         moving: p.moving || p.dodgeTimer > 0,
         speed: Math.hypot(p.velX, p.velZ),
-        aiming: p.aiming || p.weaponRaise > 0.5,
+        aiming: p.aiming,
         dead: p.dead,
         deathTimer: p.deathTimer,
         hurt: p.hurtTimer > 0,
         attack: 0,
         stagger: false,
+        weaponRaise: p.weaponRaise,
+        lookPitch: world.look.pitch,
+        reloadProgress: p.reloadTimer > 0 ? 1 - p.reloadTimer / PISTOL.reloadTime : 0,
+        equipped: p.equipped,
+        flashlightOn: p.flashlightOn && p.hasFlashlight,
       },
       dt,
     );
@@ -90,6 +108,7 @@ export class GameView {
           hurt: false,
           attack,
           stagger: threat.state === 'stagger',
+          ...IDLE_HANDS,
         },
         dt,
       );
@@ -107,6 +126,7 @@ export class GameView {
     this.playerRig.dispose();
     for (const rig of this.threatRigs.values()) rig.dispose();
     this.threatRigs.clear();
+    this.spawnRays?.dispose();
     this.effects.dispose();
     this.worldRenderer.dispose();
     this.renderer.scene.remove(this.root);

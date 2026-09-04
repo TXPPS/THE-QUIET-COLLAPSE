@@ -9,7 +9,11 @@ to be replaced by production assets without changing the systems that consume th
 | Level geometry (buildings, walls, props, bus, cars, barriers) | Procedural boxes, merged per material | `src/render/WorldRenderer.ts`, `src/game/level/districtLevel.ts` | PLACEHOLDER_ART |
 | Materials (concrete, brick, plaster, metal, rust, glass, asphalt, tile, wood, barrier, bus, car, tarp, fence, paper) | `MeshStandardMaterial` colour/roughness/metalness table | `src/render/materials.ts` | PLACEHOLDER_ART |
 | Ground surfaces (asphalt, concrete, tile, gravel, metal, water) | Flat planes | `src/render/materials.ts` | PLACEHOLDER_ART |
-| Player and threat characters | Procedural box humanoid rig with gait/attack animation | `src/render/CharacterRig.ts` | PLACEHOLDER_ART |
+| Player and threat characters | Procedural box humanoid rig with gait/attack animation; player rig carries hand sockets with raise, pitch-follow and reload motion | `src/render/CharacterRig.ts` | PLACEHOLDER_ART |
+| Held handgun, medkit and hand torch | Low-poly procedural meshes (slide, frame, raked grip, lit edge; cross-marked pack; torch with emissive lens) with a muzzle socket for fire effects | `src/render/WeaponRig.ts` | PLACEHOLDER_ART |
+| Radio (manual save point) | Small box with an emissive dial | `src/render/WorldRenderer.ts` | PLACEHOLDER_ART |
+| HUD equipped-item silhouettes (handgun, first aid) | Original inline SVG | `src/ui/hud/Hud.ts` | Original |
+| Drag-to-look first-use glyph, right-stick icon | Original inline SVG | `src/ui/touch/touchIcons.ts` | Original |
 | Pickups, documents, decals, signage | Small boxes/planes | `src/render/WorldRenderer.ts` | PLACEHOLDER_ART |
 | Light fixtures | Emissive spheres | `src/render/WorldRenderer.ts` | PLACEHOLDER_ART |
 | Muzzle flash, impacts, flashlight | Point/spot lights | `src/render/Effects.ts` | Final (effects-only) |
