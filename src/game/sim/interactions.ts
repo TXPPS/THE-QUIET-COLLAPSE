@@ -48,7 +48,7 @@ export function findInteraction(world: World): InteractionPrompt | null {
     consider(doc.x, doc.z, { kind: 'document', def: doc, verb: 'Read' }, doc.title);
   }
   for (const item of world.level.interactables) {
-    if (item.kind === 'gate' && world.objectiveIndex < world.level.objectives.length - 1) continue;
+    if (item.kind === 'gate' && (world.objectiveIndex < world.level.objectives.length - 1 || world.endingReached)) continue;
     const verb = item.kind === 'radio' ? 'Use' : item.kind === 'gate' ? 'Open' : 'Examine';
     consider(item.x, item.z, { kind: 'interactable', def: item, verb }, item.label, 0.5);
   }

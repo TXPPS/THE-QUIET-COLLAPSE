@@ -119,6 +119,8 @@ export class GameSession {
     if (this.paused) return;
     this.sim.holdToInteract = this.deps.settings.get().accessibility.holdToInteract;
     this.sim.step(this.deps.input.game, dt);
+    // Run-time delays tick in simulation time so slow frames never stretch them.
+    if (this.endingTimer > 0) this.endingTimer -= dt;
   }
 
   update(dt: number, alpha: number, fps: number | null): void {
@@ -151,12 +153,9 @@ export class GameSession {
       },
       dt,
     );
-    if (this.endingTimer > 0 && !this.paused) {
-      this.endingTimer -= dt;
-      if (this.endingTimer <= 0 && !this.endingSent) {
-        this.endingSent = true;
-        host.onEnding();
-      }
+    if (this.world.endingReached && this.endingTimer <= 0 && !this.endingSent) {
+      this.endingSent = true;
+      host.onEnding();
     }
     if (this.sim.gameOverReady && !this.gameOverSent) {
       this.gameOverSent = true;
