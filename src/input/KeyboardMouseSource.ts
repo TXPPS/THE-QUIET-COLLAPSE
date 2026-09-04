@@ -57,9 +57,11 @@ export class KeyboardMouseSource implements InputSource {
     this.bag = bag;
     bag.listen(window, 'keydown', this.onKeyDown);
     bag.listen(window, 'keyup', this.onKeyUp);
-    bag.listen(window, 'mousedown', this.onMouseDown);
-    bag.listen(window, 'mouseup', this.onMouseUp);
-    bag.listen(window, 'mousemove', this.onMouseMove, { passive: true });
+    // Pointer events carry pointerType, so compatibility mouse events synthesised after touches
+    // never count as mouse activity.
+    bag.listen(window, 'pointerdown', this.onMouseDown);
+    bag.listen(window, 'pointerup', this.onMouseUp);
+    bag.listen(window, 'pointermove', this.onMouseMove, { passive: true });
     bag.listen(window, 'wheel', this.onWheel, { passive: false });
     bag.listen(window, 'blur', this.clearAll);
     bag.listen(document, 'visibilitychange', () => {
@@ -160,7 +162,8 @@ export class KeyboardMouseSource implements InputSource {
     this.keys.delete(event.code);
   };
 
-  private readonly onMouseDown = (event: MouseEvent): void => {
+  private readonly onMouseDown = (event: PointerEvent): void => {
+    if (event.pointerType !== 'mouse') return;
     this.markActivity();
     this.captureRaw({ type: 'mouse', button: event.button });
     if (!this.isPointerLocked && !this.isGameSurface(event.target)) return;
@@ -169,11 +172,13 @@ export class KeyboardMouseSource implements InputSource {
     if (event.button === 2 || event.button === 1) event.preventDefault();
   };
 
-  private readonly onMouseUp = (event: MouseEvent): void => {
+  private readonly onMouseUp = (event: PointerEvent): void => {
+    if (event.pointerType !== 'mouse') return;
     this.buttons.delete(event.button);
   };
 
-  private readonly onMouseMove = (event: MouseEvent): void => {
+  private readonly onMouseMove = (event: PointerEvent): void => {
+    if (event.pointerType !== 'mouse') return;
     const dx = event.movementX;
     const dy = event.movementY;
     if (Math.abs(dx) + Math.abs(dy) > MOUSE_JITTER_PX) this.markActivity();

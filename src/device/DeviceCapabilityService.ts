@@ -59,7 +59,7 @@ export class DeviceCapabilityService {
     this.bag.listen(window, 'resize', () => this.refresh());
     this.bag.listen(window, 'orientationchange', () => this.refresh());
     this.bag.listen(window, 'keydown', () => this.markKeyboardMouse(), { passive: true });
-    this.bag.listen(window, 'mousemove', () => this.markKeyboardMouse(), { passive: true });
+    this.bag.listen(window, 'pointermove', (event) => this.markPointer(event), { passive: true });
     this.bag.listen(window, 'pointerdown', (event) => this.markPointer(event), { passive: true });
     this.bag.listen(window, 'gamepadconnected', () => this.refresh());
     this.bag.listen(window, 'gamepaddisconnected', () => this.refresh());
@@ -95,7 +95,7 @@ export class DeviceCapabilityService {
       this.refresh();
       return;
     }
-    this.markKeyboardMouse();
+    if (event.pointerType === 'mouse') this.markKeyboardMouse();
   }
 
   private compute(): DeviceSnapshot {

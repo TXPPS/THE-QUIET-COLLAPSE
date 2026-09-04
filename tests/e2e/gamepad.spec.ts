@@ -24,9 +24,9 @@ const INIT = `
 
 async function tap(page: Page, button: number): Promise<void> {
   await page.evaluate((b) => (window as unknown as { __press: (i: number, d: boolean) => void }).__press(b, true), button);
-  await page.waitForTimeout(120);
+  await page.waitForTimeout(260);
   await page.evaluate((b) => (window as unknown as { __press: (i: number, d: boolean) => void }).__press(b, false), button);
-  await page.waitForTimeout(120);
+  await page.waitForTimeout(260);
 }
 
 test.describe('emulated controller', () => {

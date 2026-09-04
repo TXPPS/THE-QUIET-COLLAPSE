@@ -7,6 +7,8 @@ import type { GlyphFamily, InputSource } from './InputSource';
 import { KEYBOARD_MOUSE_SOURCE_ID, TOUCH_SOURCE_ID, gamepadSourceId } from './InputSource';
 
 const SWITCH_DEBOUNCE_MS = 220;
+/** Gamepads are also read on a timer so short presses survive slow or throttled frames. */
+const GAMEPAD_POLL_MS = 8;
 
 export interface RegistryEvents extends Record<string, unknown> {
   /** The source whose glyph family drives prompts changed. */
@@ -42,6 +44,9 @@ export class InputSourceRegistry {
     this.padTuning = padTuning;
     this.bag.listen(window, 'gamepadconnected', (event) => this.onGamepadConnected(event.gamepad));
     this.bag.listen(window, 'gamepaddisconnected', (event) => this.onGamepadDisconnected(event.gamepad));
+    this.bag.interval(() => {
+      if (this.gamepads.size > 0) this.pollGamepads();
+    }, GAMEPAD_POLL_MS);
   }
 
   dispose(): void {
