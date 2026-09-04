@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+    <meta name="description" content="%PROJECT_DESCRIPTION%" />
+    <meta name="theme-color" content="%THEME_COLOR%" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="./icons/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <title>%PROJECT_TITLE%</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: %BACKGROUND_COLOR%; color: #c9c6bf; overscroll-behavior: none; }
+      #app { position: fixed; inset: 0; }
+      #boot-shell { position: fixed; inset: 0; display: grid; place-items: center; font: 13px/1.5 system-ui, sans-serif; letter-spacing: 0.08em; color: #7f7c75; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="boot-shell" aria-live="polite">LOADING</div>
+    </div>
+    <noscript>This game requires JavaScript.</noscript>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
