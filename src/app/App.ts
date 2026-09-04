@@ -97,6 +97,7 @@ export class App {
   private readonly bag = new DisposeBag();
   private fatal = false;
   private tierSuggested = false;
+  private hiResRequested = false;
   private readonly pointerLock = new PointerLockController({
     canvas: () => this.renderer?.canvas ?? null,
     wantsLock: () => this.session !== null && this.screens.depth === 0 && this.input.registry.activeFamily === 'keyboard',
@@ -568,6 +569,18 @@ export class App {
     const adaptive = s.video.quality === 'auto' ? this.autoQuality.scale : 1;
     this.renderer.setQuality(QUALITY_PROFILES[tier], s.video.resolutionScale * adaptive);
     this.renderer.setBrightness(s.video.brightness);
+    if (tier === 'high') this.streamHiRes();
+  }
+
+  /**
+   * High tier only: the 2K character maps and the 1K environment stream in after boot (never
+   * precached). Offline or on failure the 1K set simply stays.
+   */
+  private streamHiRes(): void {
+    if (this.hiResRequested || !this.assets || !navigator.onLine) return;
+    this.hiResRequested = true;
+    void this.characters?.applyHiRes();
+    if (hasAsset('env.dusk.hi')) void this.renderer?.applyEnvironment(this.assets, 'env.dusk.hi');
   }
 
   /** A second viable source appeared: offer the chooser once, without interrupting a fight. */

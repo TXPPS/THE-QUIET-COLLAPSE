@@ -1,0 +1,13 @@
+{
+  "project": "desktop-1080p",
+  "tier": "balanced",
+  "cpuThrottle": 1,
+  "windowMs": 8000,
+  "drawCalls": 120,
+  "renderer": "headless Chromium + SwiftShader (software GL)",
+  "medianMs": 1059.300048828125,
+  "worstMs": 2399.800048828125,
+  "fps": 0.9440195920941125,
+  "samples": 7,
+  "at": "2026-09-04T21:44:09.896Z"
+}

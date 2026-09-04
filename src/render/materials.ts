@@ -37,12 +37,12 @@ const SURFACE_SPECS: Record<SurfaceKind, { color: number; roughness: number; met
 
 /** Which ambientCG set dresses each key, and its tiling in metres. */
 const TEXTURED: Partial<Record<string, { set: string; tile: number; tint?: number }>> = {
-  'block:concrete': { set: 'concrete034', tile: LIGHTING.tiles.concrete },
+  'block:concrete': { set: 'concrete034', tile: LIGHTING.tiles.concrete, tint: 0xb4b4b0 },
   'block:brick': { set: 'bricks104', tile: LIGHTING.tiles.brick },
   'block:plaster': { set: 'paintedplaster017', tile: LIGHTING.tiles.plaster },
   'block:asphalt': { set: 'asphalt033', tile: LIGHTING.tiles.asphalt },
   'surface:asphalt': { set: 'asphalt033', tile: LIGHTING.tiles.asphalt },
-  'surface:concrete': { set: 'concrete034', tile: LIGHTING.tiles.concrete },
+  'surface:concrete': { set: 'concrete034', tile: LIGHTING.tiles.concrete, tint: 0x9a9a96 },
   'surface:gravel': { set: 'concrete034', tile: LIGHTING.tiles.concrete * 0.6, tint: 0x8c8880 },
   'surface:tile': { set: 'paintedplaster017', tile: 1.5, tint: 0xb8b6ae },
 };

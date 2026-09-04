@@ -72,9 +72,9 @@ export class Renderer {
   }
 
   /** Image-based lighting from the dusk HDRI (prefiltered once); the hemisphere light steps back when it lands. */
-  async applyEnvironment(assets: AssetLibrary): Promise<void> {
+  async applyEnvironment(assets: AssetLibrary, key: 'env.dusk' | 'env.dusk.hi' = 'env.dusk'): Promise<void> {
     try {
-      const hdr = await assets.hdr('env.dusk');
+      const hdr = await assets.hdr(key);
       const pmrem = new THREE.PMREMGenerator(this.three);
       const target = pmrem.fromEquirectangular(hdr);
       pmrem.dispose();

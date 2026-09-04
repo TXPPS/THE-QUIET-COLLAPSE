@@ -24,6 +24,18 @@ pnpm exec playwright test tests/e2e/touch.spec.ts --project=phone-landscape
 `pnpm verify` runs the whole chain. Playwright is pinned to 1.56.1 to match the preinstalled Chromium in the
 development container; run `pnpm exec playwright install chromium` elsewhere.
 
+## Assets
+
+```bash
+pnpm assets:fetch     # download the ledgered archives (Quaternius via itch.io, Kenney, Poly Haven, ambientCG, Freesound CC0) into assets/src
+pnpm assets:build     # → public/assets: kit glTF libraries, characters + clips, KTX2 textures, HDRI, prompt sprite, audio, navmesh
+pnpm assets:ledger    # regenerate assets/ledger.json and docs/assets/ASSET_LEDGER.md from scripts/assets/sources.mjs
+pnpm check:assets     # licence/provenance gate (also part of check:bundle)
+```
+
+Run `pnpm assets:build` after editing level colliders: the navmesh is baked from them and the game
+falls back to grid pathing (with a console warning, and a failing unit test) when the bake is stale.
+
 ## Where things live
 
 | Path | What |
@@ -33,7 +45,12 @@ development container; run `pnpm exec playwright install chromium` elsewhere.
 | `src/ui/` | DOM screens, focus management, components, HUD, touch HUD and layout editor |
 | `src/game/` | Simulation (level data, collision, navigation, player, threats, objectives) and the session |
 | `src/render/` | three.js renderer, world builder, character rigs, camera, effects, quality profiles |
-| `src/audio/` | WebAudio mixer and procedural cues |
+| `src/audio/` | WebAudio mixer, Freesound sample bank, procedural fallbacks |
+| `src/assets/` | Asset library (KTX2/meshopt/HDR loaders) and the bundled pipeline manifest |
+| `src/game/nav/` | Recast tile-cache navigation (crowd agents, door obstacles) and the level signature |
+| `src/game/items/` | Data-driven item registry (examine / use / combine) |
+| `assets/`, `scripts/assets/` | External sources, provenance ledger, fetch + build pipeline (`docs/assets/ASSET_LEDGER.md`) |
+| `docs/MANUAL.md` | Player manual; controls table generated from the action map (`pnpm docs:manual`) |
 | `src/persistence/` | Versioned settings, bindings and save slots |
 | `docs/audit/` | Baseline, audits, defect ledger, roadmap, release gate, `STATE.md` |
 | `docs/design/CANON.md` | Established vs placeholder canon |

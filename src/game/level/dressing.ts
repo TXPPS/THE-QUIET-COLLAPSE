@@ -138,7 +138,7 @@ function facades(): ModelDef[] {
     model('modular-buildings', 'detail-ac-a', 52.1, 33, { y: 3.6, yaw: -QUARTER }),
     model('modular-buildings', 'detail-ac-a', 68, 36, { y: 4.2, yaw: QUARTER }),
     model('modular-buildings', 'detail-ac-a', 44.3, 41, { y: 2.4, yaw: 0 }),
-    model('city-kit-industrial', 'water-tower', 54, 38, { y: 6, scale: 0.55 }),
+    model('city-kit-industrial', 'water-tower', 54, 38, { y: 6, scale: 0.4 }),
     model('city-kit-industrial', 'chimney-small', 40, 8, { y: 10 }),
     model('city-kit-industrial', 'chimney-small', 90, 8, { y: 14 }),
   ];

@@ -85,6 +85,7 @@ export class CharacterAssets {
   private clips: ClipSet | null = null;
   private loading: Promise<void> | null = null;
   private failureText: string | null = null;
+  private hiRes = false;
 
   constructor(private readonly library: AssetLibrary) {}
 
@@ -126,6 +127,41 @@ export class CharacterAssets {
     }
     this.templates = { resident: resident.scene, affected: affected.scene };
     this.clips = { full, lower, upper, plants };
+  }
+
+  /**
+   * Desktop tier: swaps the shared body materials to the streamed 2K albedo/normal maps. Idempotent;
+   * silently keeps the 1K set when offline or when the download fails.
+   */
+  async applyHiRes(): Promise<boolean> {
+    if (!this.templates || this.hiRes) return this.hiRes;
+    try {
+      const [normal, resident, affected] = await Promise.all([
+        this.library.texture('character.tex.body-normal.2048', { srgb: false }),
+        this.library.texture('character.tex.resident-albedo.2048', { srgb: true }),
+        this.library.texture('character.tex.affected-albedo.2048', { srgb: true }),
+      ]);
+      for (const [variant, albedo] of [['resident', resident], ['affected', affected]] as const) {
+        this.templates[variant].traverse((object) => {
+          const mesh = object as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          const material = mesh.material as THREE.MeshStandardMaterial;
+          if (!material.name.startsWith('MI_Superhero')) return;
+          for (const texture of [albedo, normal]) {
+            texture.flipY = false;
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+          }
+          material.map = albedo;
+          material.normalMap = normal;
+          material.needsUpdate = true;
+        });
+      }
+      this.hiRes = true;
+    } catch {
+      this.hiRes = false;
+    }
+    return this.hiRes;
   }
 
   /** A deep skeleton clone of the variant; materials are shared, geometry is shared. */

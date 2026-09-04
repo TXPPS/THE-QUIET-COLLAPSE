@@ -84,7 +84,7 @@ const STICK_LABELS: Record<GlyphFamily, [string, string]> = {
   generic: ['Stick 1', 'Left stick'],
 };
 
-const TOUCH_LABELS: Partial<Record<Action, [string, string]>> = {
+export const TOUCH_LABELS: Partial<Record<Action, [string, string]>> = {
   Move: ['Joystick', 'Left joystick'],
   Look: ['Drag', 'Drag on the right side'],
   Aim: ['Aim', 'Aim button'],

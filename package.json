@@ -22,6 +22,7 @@
     "assets:fetch": "node scripts/assets/fetch.mjs",
     "assets:ledger": "node scripts/assets/ledger.mjs",
     "assets:build": "node scripts/assets/build.mjs",
+    "docs:manual": "node scripts/manual.mjs",
     "deploy:pages": "node scripts/deploy-pages.mjs main",
     "deploy:qa": "node scripts/deploy-pages.mjs qa",
     "test:offline": "playwright test tests/e2e/offline.spec.ts --project=desktop-1080p"

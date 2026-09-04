@@ -25,7 +25,7 @@ jobs:
       - run: pnpm build
       - run: pnpm check:bundle
       - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/loop.spec.ts --project=desktop-1080p
+      - run: pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/loop.spec.ts tests/e2e/nav.spec.ts tests/e2e/memory.spec.ts --project=desktop-1080p
       - run: pnpm exec playwright test tests/e2e/touch.spec.ts --project=phone-landscape
       - uses: actions/upload-artifact@v4
         if: always()

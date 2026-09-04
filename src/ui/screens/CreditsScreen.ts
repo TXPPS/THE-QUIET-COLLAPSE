@@ -6,6 +6,13 @@ import { Screen } from '@/ui/Screen';
 
 const CREDITS: Array<[string, string]> = [
   ['Design, code, placeholder art and audio', 'The project team'],
+  ['Characters and animations', 'Quaternius — Universal Base Characters, Universal Animation Library 1 & 2 (CC0)'],
+  ['Environment kits and input prompts', 'Kenney — City Kit (Roads, Suburban, Commercial, Industrial), Modular Buildings, Input Prompts (CC0)'],
+  ['Surface textures', 'ambientCG — Asphalt033, Concrete034, Bricks104, PaintedPlaster017 (CC0)'],
+  ['Environment lighting', 'Poly Haven — Aarfontein Dusk HDRI (CC0)'],
+  ['Sound', 'Freesound contributors (CC0): Yoyodaman234, SoundsAreGr8, CuboRodante, Jakegwizdak, raceynovel, atleastrelatively, GiocoSound, morganpurkis, ken788, Jackjan, LilMati, mrh4hn, Breviceps, adharca, tonsil5, MrPokephile, angelkunev, Blankened, elynch0901, MrFossy, JustInvoke, insanity54, JonasTisell, gulfstreamav, victorium183, brunoboselli, roisin.gleeson, quantumriver, Takimeko, Aiyumi, bouncyballblue, Snapper4298, music_is_wiggly_air, sweet_niche'],
+  ['Navigation', 'recast-navigation-js (MIT) over Recast & Detour (Zlib)'],
+  ['Texture compression', 'Basis Universal transcoder (Apache-2.0) via three.js'],
   ['Engine', 'three.js (MIT)'],
   ['Tooling', 'Vite, TypeScript, Vitest, Playwright'],
   ['Fonts', 'System fonts'],
@@ -13,7 +20,7 @@ const CREDITS: Array<[string, string]> = [
 
 const LEGAL = [
   `${PROJECT_TITLE} is a work in progress. All characters, places and events are fictional.`,
-  'three.js is distributed under the MIT License. No third-party art, audio or screenshots are included in this build.',
+  'three.js is distributed under the MIT License. Third-party art, animation, textures and sound are CC0 1.0 (public domain dedication); the full provenance ledger with source URLs is docs/assets/ASSET_LEDGER.md in the repository. The Basis Universal transcoder is Apache-2.0; Recast/Detour is Zlib. No screenshots or reference material are included in this build.',
   'Saved games and settings are stored only in your browser (localStorage). Nothing is sent to a server.',
 ];
 

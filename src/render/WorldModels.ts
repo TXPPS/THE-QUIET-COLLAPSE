@@ -16,6 +16,15 @@ interface Placement {
 
 const KIT_IDS: KitId[] = ['city-kit-roads', 'city-kit-suburban', 'city-kit-commercial', 'city-kit-industrial', 'modular-buildings'];
 const KIT_ROUGHNESS = 0.92;
+/** Kenney palettes are bright and saturated; pulled down so kit props sit in the same night as the PBR surfaces. */
+const KIT_ALBEDO = 0.72;
+const toned = new WeakSet<THREE.Material>();
+function tone(material: THREE.MeshStandardMaterial): void {
+  if (toned.has(material)) return;
+  toned.add(material);
+  material.roughness = KIT_ROUGHNESS;
+  material.color.multiplyScalar(KIT_ALBEDO);
+}
 
 /**
  * Kenney kit instances for the level: every distinct model becomes one InstancedMesh, so a
@@ -45,7 +54,7 @@ export class WorldModels {
           const gltf = await assets.gltf(`kit.${kit}`);
           gltf.scene.traverse((object) => {
             const mesh = object as THREE.Mesh;
-            if (mesh.isMesh && mesh.material instanceof THREE.MeshStandardMaterial) mesh.material.roughness = KIT_ROUGHNESS;
+            if (mesh.isMesh && mesh.material instanceof THREE.MeshStandardMaterial) tone(mesh.material);
           });
           kits.set(kit, gltf);
         } catch {

@@ -16,8 +16,8 @@ export class MenuBackdrop {
   private readonly world: WorldRenderer;
   private readonly root = new THREE.Group();
   private time = 0;
-  private readonly anchor = new THREE.Vector3(30, 5.2, 12);
-  private readonly target = new THREE.Vector3(62, 1.4, 34);
+  private readonly anchor = new THREE.Vector3(14, 4.6, 24.6);
+  private readonly target = new THREE.Vector3(61, 1.6, 30.5);
 
   constructor(
     private readonly renderer: Renderer,
