@@ -69,12 +69,12 @@ untested** and must be run before a public release:
 |---|---|
 | Account | Toppsmusicproductions@gmail.com's Account (`63ff72fccc00cfe5ba217f8931f09724`), OAuth login via `wrangler login` with `pages (write)` scope |
 | Project | `quiet-collapse` (derived from `PROJECT_SHORT_TITLE`; production branch `main`) |
-| Production | https://quiet-collapse.pages.dev (deployment `2da5bb15`, commit `b7901e9`) |
-| QA preview | https://qa.quiet-collapse.pages.dev (deployment `7237fadf`, same build) |
+| Production | https://quiet-collapse.pages.dev (deployment `35888b39`, commit `c436f35`, build `93eb8c4b509a`) |
+| QA preview | https://qa.quiet-collapse.pages.dev (deployment `0931469e`, same build) |
 | Commands | `pnpm build && pnpm check:bundle && pnpm deploy:pages` · `pnpm deploy:qa` (see README) |
-| Precache | 9 files, 0.71 MB (`dist/precache-manifest.json`); largest `assets/three-*.js` 511 KB, `assets/index-*.js` 199 KB; source maps (2.7 MB) deployed but not precached; no file near the 25 MB Pages limit |
+| Precache | 9 files, 0.73 MB (`dist/precache-manifest.json`); largest `assets/three-*.js` 516 KB, `assets/index-*.js` 217 KB; source maps (3.5 MB) deployed but not precached; no file near the 25 MB Pages limit |
 | Live checks | `/`, `/manifest.webmanifest`, `/sw.js`, `/precache-manifest.json` and all three hashed assets return 200; hashed assets `immutable`, shell/worker `no-cache`; CSP, nosniff, referrer and permissions headers present; no `http://` references in the shell |
-| Offline | `tests/e2e/offline.spec.ts`: first load installs the worker and precaches; offline reload boots; new run → first interaction → checkpoint save → offline reload → Continue restores the run. PASS locally (12.3 s) and against https://quiet-collapse.pages.dev (`E2E_BASE_URL`, 2 passed incl. `live-boot.spec.ts`: no console errors, worker `activated`, stamp `0.1.0 · b7901e9`). |
+| Offline | `tests/e2e/offline.spec.ts`: first load installs the worker and precaches; offline reload boots; new run → first interaction → checkpoint save → offline reload → Continue restores the run. PASS locally (12.3 s) and against https://quiet-collapse.pages.dev (`E2E_BASE_URL`, 2 passed incl. `live-boot.spec.ts`: no console errors, worker `activated`, stamp `0.1.0 · c436f35`). Note: after the first production deploy of `c436f35` (`f486f242`) the apex and `qa` aliases kept serving the previous builds for ~20 minutes although the Pages API already listed it as the canonical deployment; a second `deploy:pages`/`deploy:qa` (`35888b39`/`0931469e`) flipped both aliases within two minutes. Verify the alias with `/precache-manifest.json` → `cacheName` after every deploy. |
 | Reference hygiene | `pnpm check:bundle` on the deployed `dist/`: zero reference-screenshot hits |
 
 ## Touch look / weapon / grounding wave (2026-09-04)
@@ -89,4 +89,4 @@ untested** and must be run before a public release:
 | Preset screenshots, every preset at every aspect (+ right-stick variant) | `... tests/e2e/touch-presets.spec.ts --project=phone-landscape` | PASS; 20 files in `docs/audit/touch/after/` |
 | Held weapon: carry, aim (camera over the right shoulder), fire from the muzzle socket, reload motion | `... tests/e2e/weapon.spec.ts` (desktop-1080p, phone-landscape) | PASS; `evidence/*-3x-weapon-*.png` |
 | Regression: desktop loop x2, smoke, emulated controller, screens, offline | `... smoke/loop/gamepad/screens --project=desktop-1080p`, `pnpm test:offline` | PASS |
-| QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev = deployment `014d906b` (commit `f3214fe`); `E2E_BASE_URL=… live-boot.spec.ts` PASS (no console errors, worker installed) |
+| QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev = deployment `0931469e` and production = `35888b39` (commit `c436f35`); `E2E_BASE_URL=https://quiet-collapse.pages.dev live-boot.spec.ts offline.spec.ts` 2 passed (no console errors, worker installed, offline run + save + Continue) |
