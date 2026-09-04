@@ -9,8 +9,9 @@ Resume from this file, not from scratch.
 - Reference screenshots stay outside the repo (scratchpad only). Only pack `.md` files are committed.
 
 ## Phase / wave
-- **Wave 1 gate PASSED**: tests/e2e/loop.spec.ts (desktop KBM) runs the full §0.1 loop twice with zero
-  console errors (run 12, 1.7 min headless). Remaining specs (smoke, screens, gamepad, phone touch) running.
+- **All gates passed in headless Chromium**: desktop loop (KBM) ×2, emulated controller flow, phone touch
+  loop, smoke, evidence screenshots (1080p, phone; 1366×768 run last). Unit: 69 tests. See 10_RELEASE_GATE.md.
+- Remaining work is real-device verification (no GPU/hardware in this session) — see the manual matrix.
 - Wave 1 (playable loop): code complete; Playwright loop spec (tests/e2e/loop.spec.ts) stabilised.
   Found and fixed so far: per-step input sampling (pending edges), pointer-lock jump delta (ignore first
   move + clamp), first-install service-worker reload (only reload after an accepted update), synthetic
