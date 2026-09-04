@@ -68,7 +68,8 @@ export class InputManager implements ActionSnapshot {
   private readonly toggles = new Map<ButtonAction, boolean>();
   private lookX = 0;
   private lookY = 0;
-  private suppressUntil = 0;
+  /** Actions already held when the context switched: no edge until they are released. */
+  private readonly staleDown = new Set<ButtonAction>();
   /** Edges observed since the last fixed-step consumption. */
   readonly pendingPressed = new Set<ButtonAction>();
   readonly pendingReleased = new Set<ButtonAction>();
@@ -103,8 +104,12 @@ export class InputManager implements ActionSnapshot {
     this.toggles.clear();
     this.pendingPressed.clear();
     this.pendingReleased.clear();
-    // Ignore edges for a moment so the press that opened a menu cannot also confirm inside it.
-    this.suppressUntil = performance.now() + 120;
+    // Keys held through the switch (the press that opened a menu, Space on "New run") stay inert
+    // until released; fresh presses after the switch are never dropped.
+    this.staleDown.clear();
+    for (const source of this.registry.list()) source.poll(this.current, context, 0);
+    for (const action of this.current.down) this.staleDown.add(action);
+    this.current.reset();
     this.events.emit('contextChanged', { context });
   }
 
@@ -129,10 +134,9 @@ export class InputManager implements ActionSnapshot {
     }
     this.lookX = this.current.lookDeltaX;
     this.lookY = this.current.lookDeltaY;
-    if (now < this.suppressUntil) {
-      this.current.down.clear();
-      this.lookX = 0;
-      this.lookY = 0;
+    for (const action of this.staleDown) {
+      if (!this.current.down.has(action) || this.current.pressedNow.has(action)) this.staleDown.delete(action);
+      else this.current.down.delete(action);
     }
     for (const action of this.current.down) if (!this.previous.down.has(action) || this.current.pressedNow.has(action)) this.pendingPressed.add(action);
     for (const action of this.previous.down) if (!this.current.down.has(action)) this.pendingReleased.add(action);

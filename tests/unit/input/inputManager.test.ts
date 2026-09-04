@@ -59,16 +59,23 @@ describe('InputManager edges', () => {
     expect(input.game.justPressed('Reload')).toBe(false);
   });
 
-  it('suppresses edges briefly after a context switch so one press cannot open and confirm', () => {
+  it('keys held through a context switch stay inert until released; fresh presses count at once', () => {
     key('keydown', 'Escape');
     input.setContext('ui');
     input.update(1 / 60);
     expect(input.justPressed('Cancel')).toBe(false);
-    now += 200;
+    input.update(1 / 60);
+    expect(input.isDown('Cancel')).toBe(false);
     key('keyup', 'Escape');
     key('keydown', 'Escape');
     input.update(1 / 60);
     expect(input.justPressed('Cancel')).toBe(true);
+    // A different key pressed immediately after the switch is an edge with no delay.
+    input.setContext('game');
+    key('keydown', 'KeyE');
+    input.update(1 / 60);
+    expect(input.justPressed('Interact')).toBe(true);
+    key('keyup', 'KeyE');
   });
 
   it('never reports gameplay actions while the ui context is active', () => {
