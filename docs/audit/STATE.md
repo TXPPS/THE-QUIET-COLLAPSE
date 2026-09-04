@@ -54,3 +54,10 @@ Resume from this file, not from scratch.
 
 ## Checkpoint commits
 - (none yet)
+
+## Deployment (after the audit session)
+- Cloudflare Pages project `quiet-collapse`: production https://quiet-collapse.pages.dev, QA preview
+  https://qa.quiet-collapse.pages.dev. Deploy with `pnpm build && pnpm deploy:pages` / `pnpm deploy:qa`
+  (account id via `CLOUDFLARE_ACCOUNT_ID`). Offline-first worker, `?fresh=1` bypass, build stamp on the title
+  screen, F9 / three-finger QA overlay. Optional CI deploy job in `.github/workflows/deploy.yml` (needs
+  `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID` secrets).

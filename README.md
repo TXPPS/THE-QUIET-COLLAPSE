@@ -42,3 +42,25 @@ Append `?debug` to the URL (or run the dev server) to expose `window.__tqc`, the
 specs drive (`debugAdvance(seconds)` steps the simulation deterministically).
 
 Reference screenshots used for design study are private and git-ignored (`docs/reference/**/references/`).
+
+## Deploy (Cloudflare Pages)
+
+The production bundle is static, so it deploys to Cloudflare Pages. The project name is derived from
+`PROJECT_SHORT_TITLE` in `src/config/project.ts` (`quiet-collapse`); nothing else hard-codes it.
+
+```bash
+npx wrangler@4 login                     # once; OAuth in the browser
+export CLOUDFLARE_ACCOUNT_ID=<account id>  # required when the login can see several accounts
+pnpm build && pnpm check:bundle
+pnpm deploy:pages                        # production  → https://quiet-collapse.pages.dev
+pnpm deploy:qa                           # qa preview  → https://qa.quiet-collapse.pages.dev
+```
+
+- Force a fresh load (wipes caches, unregisters the worker for that load): append `?fresh=1`.
+- Offline check: load once online, wait a few seconds, switch the device to airplane mode (or DevTools →
+  Network → Offline), reload; the game must boot and play from the precache. `pnpm test:offline` automates
+  this against the local preview; set `E2E_BASE_URL=https://quiet-collapse.pages.dev` to run it live.
+- QA overlay: press F9, or tap with three fingers, to show fps, frame time, resolution, input source,
+  service-worker state and the current scene. The title screen footer carries the build stamp.
+- Install as an app: iPhone Safari → Share → Add to Home Screen; Android Chrome → menu → Install app
+  (or the install banner); desktop Chrome/Edge → the install icon in the address bar.
