@@ -22,6 +22,8 @@ Resume from this file, not from scratch.
   touch-presets (20 captures in `docs/audit/touch/after/`), weapon, screens (phone); offline.
   Behaviour change to note for real-device testers: mouse/controller vertical look is now un-inverted
   (standard) and the camera sits over the right shoulder.
+  QA preview: https://qa.quiet-collapse.pages.dev (deployment `014d906b`, commit `f3214fe`; `live-boot.spec.ts`
+  green against it). Production not redeployed in this wave.
 - **All gates passed in headless Chromium**: desktop loop (KBM) ×2, emulated controller flow, phone touch
   loop, smoke, evidence screenshots (1080p, phone; 1366×768 run last). Unit: 69 tests. See 10_RELEASE_GATE.md.
 - Remaining work is real-device verification (no GPU/hardware in this session) — see the manual matrix.

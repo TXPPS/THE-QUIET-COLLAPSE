@@ -89,4 +89,4 @@ untested** and must be run before a public release:
 | Preset screenshots, every preset at every aspect (+ right-stick variant) | `... tests/e2e/touch-presets.spec.ts --project=phone-landscape` | PASS; 20 files in `docs/audit/touch/after/` |
 | Held weapon: carry, aim (camera over the right shoulder), fire from the muzzle socket, reload motion | `... tests/e2e/weapon.spec.ts` (desktop-1080p, phone-landscape) | PASS; `evidence/*-3x-weapon-*.png` |
 | Regression: desktop loop x2, smoke, emulated controller, screens, offline | `... smoke/loop/gamepad/screens --project=desktop-1080p`, `pnpm test:offline` | PASS |
-| QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev (deployment id in STATE.md) |
+| QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev = deployment `014d906b` (commit `f3214fe`); `E2E_BASE_URL=… live-boot.spec.ts` PASS (no console errors, worker installed) |
