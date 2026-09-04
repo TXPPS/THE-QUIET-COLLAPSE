@@ -6,6 +6,7 @@
 import { buildAudio } from './build-audio.mjs';
 import { buildCharacters } from './build-characters.mjs';
 import { buildKits } from './build-kits.mjs';
+import { buildNavmesh } from './build-navmesh.mjs';
 import { buildPrompts } from './build-prompts.mjs';
 import { buildTextures } from './build-textures.mjs';
 import { Manifest, cleanOutput, mb } from './lib/io.mjs';
@@ -24,6 +25,7 @@ async function main() {
   await buildTextures(manifest, SOURCES);
   buildPrompts(manifest, SOURCES);
   buildAudio(manifest, SOURCES);
+  await buildNavmesh(manifest);
   const result = manifest.write();
   const entries = Object.entries(result.files);
   const largest = entries.sort((a, b) => b[1].bytes - a[1].bytes).slice(0, 8);

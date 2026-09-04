@@ -11,6 +11,10 @@ import { InputManager } from '@/input/InputManager';
 import { SaveSystem } from '@/persistence/SaveSystem';
 import { SettingsStore } from '@/persistence/SettingsStore';
 import type { Settings } from '@/persistence/settingsSchema';
+import { AssetLibrary } from '@/assets/AssetLibrary';
+import { assetFile, assetKeys, hasAsset } from '@/assets/manifest';
+import { RecastNavigation } from '@/game/nav/RecastNavigation';
+import { CharacterAssets } from '@/render/character/CharacterAssets';
 import { AudioEngine } from '@/audio/AudioEngine';
 import { GameAudio } from '@/audio/GameAudio';
 import { AutoQuality } from '@/render/AutoQuality';
@@ -72,6 +76,10 @@ export class App {
   readonly layers: Layers;
   readonly loop: GameLoop;
   renderer: Renderer | null = null;
+  assets: AssetLibrary | null = null;
+  characters: CharacterAssets | null = null;
+  /** Baked district navmesh bytes; null keeps the grid A* (headless behaviour). */
+  private navBytes: ArrayBuffer | null = null;
   hud: Hud | null = null;
   session: GameSession | null = null;
   readonly touch: TouchShell;
@@ -148,8 +156,9 @@ export class App {
       this.hud.setVisible(false);
       this.onDeviceChanged();
       this.applySettings(this.settings.get());
-      boot.setProgress(0.8, 'Preparing the district');
-      await new Promise((resolve) => requestAnimationFrame(resolve));
+      this.assets = new AssetLibrary(this.renderer.three);
+      this.characters = new CharacterAssets(this.assets);
+      await this.preloadAssets(boot);
       boot.setProgress(1, 'Ready');
       if (this.settings.loadStatus === 'recovered') this.toasts.show('Settings were reset after unreadable data was found', 'warning', 6);
       if (this.settings.get().meta.warningsAccepted) this.showMainMenu();
@@ -166,6 +175,39 @@ export class App {
     }
   }
 
+  /** Loads every precached asset with progress; failures fall back to placeholders and are logged once. */
+  private async preloadAssets(boot: BootScreen): Promise<void> {
+    const assets = this.assets;
+    if (!assets) return;
+    const keys = assetKeys('', true);
+    const failures = await assets.preload(keys, ({ ratio, key }) => boot.setProgress(0.5 + ratio * 0.45, `Loading ${key.split('.')[0]}`));
+    await this.characters?.load();
+    await this.loadNavigation(assets);
+    await this.renderer?.applyEnvironment(assets);
+    if (failures.length > 0) console.warn(`[tqc] ${failures.length} asset(s) failed to load; placeholders in use:`, failures.join(', '));
+    if (this.characters?.failure) console.warn(`[tqc] character assets unavailable: ${this.characters.failure}`);
+  }
+
+  private async loadNavigation(assets: AssetLibrary): Promise<void> {
+    if (!hasAsset('nav.district')) return;
+    try {
+      await RecastNavigation.ensureInit();
+      this.navBytes = await assets.bytes('nav.district');
+    } catch (error) {
+      console.warn('[tqc] navmesh unavailable, using grid pathing:', error);
+      this.navBytes = null;
+    }
+  }
+
+  /** Crowd navigation for a fresh world, or null when the bake is stale or missing. */
+  private createNavigation(): RecastNavigation | null {
+    if (!this.navBytes) return null;
+    const signature = (assetFile('nav.district') as { signature?: string }).signature ?? '';
+    const navigation = RecastNavigation.fromBytes(this.navBytes.slice(0), DISTRICT_LEVEL, signature);
+    if (!navigation) console.warn('[tqc] navmesh signature does not match the level; run pnpm assets:build');
+    return navigation;
+  }
+
   /* ---------- flow ---------- */
 
   showMainMenu(): void {
@@ -175,7 +217,7 @@ export class App {
 
   private ensureBackdrop(): void {
     if (this.backdrop || !this.renderer || this.session) return;
-    this.backdrop = new MenuBackdrop(this.renderer, DISTRICT_LEVEL, () => this.reducedMotion());
+    this.backdrop = new MenuBackdrop(this.renderer, DISTRICT_LEVEL, () => this.reducedMotion(), this.assets);
   }
 
   private reducedMotion(): boolean {
@@ -353,7 +395,7 @@ export class App {
       renderer,
       toasts: this.toasts,
       hud,
-      createView: (world) => new GameView(renderer, world),
+      createView: (world) => new GameView(renderer, world, this.characters, this.assets),
       host: {
         onGameOver: () => this.screens.reset(new GameOverScreen(this)),
         onEnding: () => {
@@ -364,6 +406,7 @@ export class App {
         onSaveRequest: () => this.openSlotSelect('save'),
       },
     });
+    this.session.world.setNavigation(this.createNavigation());
     this.gameAudio = new GameAudio(this.audio, this.session.world, { caption: (text, seconds) => hud.showCaption(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
     this.autoQuality.reset();
     if (runState.checkpointId === 'start' && runState.playtimeSec < 1) this.session.save('checkpoint');
@@ -496,6 +539,7 @@ export class App {
       touchPointers: Array.from(this.touch.hud?.ownedPointers ?? [], ([id, owner]) => `${id}:${owner}`).join(' '),
       swState: this.sw.state,
       online: navigator.onLine,
+      nav: this.session ? (this.session.world.navigation ? `crowd (${this.session.world.navigation.agentCount} agents)` : 'grid A*') : '-',
       scene: top ? top.id : this.session ? `gameplay / ${this.session.world.currentObjective()?.id ?? '-'}` : 'idle',
     });
   }

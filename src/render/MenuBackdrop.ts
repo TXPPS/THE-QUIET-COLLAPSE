@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import type { AssetLibrary } from '@/assets/AssetLibrary';
 import type { LevelData } from '@/game/level/types';
 import type { Renderer } from './Renderer';
 import { WorldRenderer } from './WorldRenderer';
@@ -22,9 +23,10 @@ export class MenuBackdrop {
     private readonly renderer: Renderer,
     level: LevelData,
     reducedMotion: () => boolean,
+    assets: AssetLibrary | null,
   ) {
     this.reducedMotion = reducedMotion;
-    this.world = new WorldRenderer(level, { optionalLights: true, shadows: false });
+    this.world = new WorldRenderer(level, { optionalLights: true, shadows: false }, assets);
     this.root.add(this.world.group);
     renderer.scene.add(this.root);
   }

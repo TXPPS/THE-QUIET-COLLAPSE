@@ -16,11 +16,12 @@ export interface DebugSnapshot {
   swState: string;
   online: boolean;
   scene: string;
+  nav: string;
 }
 
 const THREE_FINGER_WINDOW_MS = 400;
 const REFRESH_MS = 250;
-const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'touch', 'sw', 'scene'] as const;
+const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'touch', 'sw', 'scene', 'nav'] as const;
 
 /**
  * Hidden QA overlay toggled with F9 or a three-finger tap. Costs nothing while hidden: the host
@@ -94,6 +95,7 @@ export class DebugOverlay {
     setText(this.line('touch'), `touch ${snapshot.touchPointers || '-'}`);
     setText(this.line('sw'), `sw ${snapshot.swState} / ${snapshot.online ? 'online' : 'offline'}`);
     setText(this.line('scene'), `scene ${snapshot.scene}`);
+    setText(this.line('nav'), `nav ${snapshot.nav}`);
   }
 
   private line(key: string): HTMLElement {

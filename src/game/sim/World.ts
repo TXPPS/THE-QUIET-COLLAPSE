@@ -1,4 +1,5 @@
 import { EventBus } from '@/core/EventBus';
+import type { NavProvider } from '@/game/nav/NavProvider';
 import { THREAT } from '@/config/gameplay';
 import { createRng } from '@/core/math';
 import type { BlockDef, DoorDef, LevelData, SurfaceKind, ZoneDef } from '@/game/level/types';
@@ -65,6 +66,10 @@ export class World {
   private colliders: Collider[] = [];
   /** Set when the player crosses the ending trigger. */
   endingReached = false;
+  /** The view sets this when skinned rigs drive footstep audio; the sim then only emits noise. */
+  animatedFootsteps = false;
+  /** Recast crowd when the baked navmesh is available; null keeps the grid A* in charge. */
+  navigation: NavProvider | null = null;
 
   constructor(
     readonly level: LevelData,
@@ -103,6 +108,17 @@ export class World {
     this.doors[id] = open ? 'open' : 'closed';
     this.rebuildColliders();
     this.nav.rebuild(this.colliders);
+    const door = this.level.doors.find((d) => d.id === id);
+    if (door) this.navigation?.setDoorBlocked(door, !open);
+  }
+
+  /** Attaches the crowd: every living threat becomes an agent and closed doors become obstacles. */
+  setNavigation(navigation: NavProvider | null): void {
+    this.navigation?.dispose();
+    this.navigation = navigation;
+    if (!navigation) return;
+    for (const threat of this.threats) if (threat.alive) navigation.addAgent(threat.id, threat.x, threat.z, threat.radius);
+    for (const door of this.level.doors) navigation.setDoorBlocked(door, !this.isDoorOpen(door.id));
   }
 
   private rebuildColliders(): void {
@@ -181,6 +197,8 @@ export class World {
   }
 
   dispose(): void {
+    this.navigation?.dispose();
+    this.navigation = null;
     this.events.clear();
   }
 }

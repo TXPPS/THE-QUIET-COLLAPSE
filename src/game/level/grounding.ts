@@ -55,6 +55,7 @@ function probe(level: LevelData, blocks: readonly BlockDef[], id: string, kind: 
  * loose documents and the radio drop straight down onto the nearest surface below their spawn
  * point; anything with no surface within `SPAWN.maxDrop` metres is left out of the level and
  * reported. Elevated blocks (`elevated: true`, e.g. a barrier arm on its post) keep their height.
+ * Dressing models flagged `ground` drop the same way; wall-mounted ones keep their authored height.
  */
 export function groundLevel(level: LevelData): { level: LevelData; report: GroundingReport } {
   const rays: SpawnRay[] = [];
@@ -105,5 +106,15 @@ export function groundLevel(level: LevelData): { level: LevelData; report: Groun
     }
     return [{ ...item, y: placement.y }];
   });
-  return { level: { ...level, blocks: kept, pickups, documents, interactables, spawnRays: rays }, report: { rays, skipped } };
+  const models = level.models.flatMap((item) => {
+    if (!item.ground) return [item];
+    const placement = probe(level, kept, item.id, 'model', item.x, item.z, item.y ?? SPAWN.defaultProbeHeight, 0);
+    rays.push(placement.ray);
+    if (placement.y === null) {
+      skipped.push(item.id);
+      return [];
+    }
+    return [{ ...item, y: placement.y }];
+  });
+  return { level: { ...level, blocks: kept, pickups, documents, interactables, models, spawnRays: rays }, report: { rays, skipped } };
 }

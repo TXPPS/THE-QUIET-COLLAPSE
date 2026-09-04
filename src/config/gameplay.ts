@@ -111,7 +111,7 @@ export const FLASHLIGHT = {
   range: 18,
   angle: 0.42,
   penumbra: 0.6,
-  intensity: 260,
+  intensity: 170,
 } as const;
 
 /** Spawn grounding: everything placed in the world drops onto the nearest surface below it. */

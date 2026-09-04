@@ -116,6 +116,8 @@ export class ThreatRuntime {
   staggerDirX = 0;
   staggerDirZ = 0;
   moving = false;
+  /** Last goal handed to the crowd agent (null when idle). */
+  navGoal: Vec2 | null = null;
 
   constructor(def: ThreatDef, saved: ThreatSaveState | undefined) {
     this.id = def.id;

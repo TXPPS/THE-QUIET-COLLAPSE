@@ -52,7 +52,12 @@ export class Manifest {
     const precached = keys.filter((k) => files[k].precache).reduce((sum, k) => sum + files[k].bytes, 0);
     const streamed = keys.filter((k) => !files[k].precache).reduce((sum, k) => sum + files[k].bytes, 0);
     const manifest = { version: 1, generated: new Date().toISOString(), precachedBytes: precached, streamedBytes: streamed, files };
-    writeFileSync(join(OUT_ROOT, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    const text = `${JSON.stringify(manifest, null, 2)}
+`;
+    writeFileSync(join(OUT_ROOT, 'manifest.json'), text);
+    // Bundled copy: the app imports this so hashed paths are baked into the build.
+    mkdirSync('src/assets', { recursive: true });
+    writeFileSync('src/assets/manifest.generated.json', text);
     return manifest;
   }
 }

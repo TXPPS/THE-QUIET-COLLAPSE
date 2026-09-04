@@ -10,6 +10,7 @@ function level(partial: Partial<LevelData>): LevelData {
     id: 'test',
     name: 'test',
     bounds: { minX: -10, minZ: -10, maxX: 10, maxZ: 10 },
+    models: [],
     playerStart: { x: 0, z: 0, yaw: 0 },
     lookStart: { yaw: 0, pitch: 0 },
     blocks: [],

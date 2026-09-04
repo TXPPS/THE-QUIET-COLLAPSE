@@ -134,6 +134,19 @@ async function buildAnimations(io, manifest) {
       channel.setTargetNode(existing);
     }
   }
+  // Bone lengths and scales never animate: only root/pelvis translation and every rotation are kept.
+  const MOVING = new Set(['root', 'pelvis']);
+  for (const animation of doc.getRoot().listAnimations()) {
+    for (const channel of animation.listChannels()) {
+      const path = channel.getTargetPath();
+      const joint = channel.getTargetNode()?.getName() ?? '';
+      if (path === 'scale' || (path === 'translation' && !MOVING.has(joint))) {
+        const sampler = channel.getSampler();
+        channel.dispose();
+        if (sampler && sampler.listParents().length <= 1) sampler.dispose();
+      }
+    }
+  }
   for (const node of doc.getRoot().listNodes()) if (node.getMesh()) node.setMesh(null);
   for (const mesh of doc.getRoot().listMeshes()) mesh.dispose();
   for (const skin of doc.getRoot().listSkins()) skin.dispose();

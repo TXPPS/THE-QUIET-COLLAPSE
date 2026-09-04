@@ -233,8 +233,7 @@ function handleFootsteps(world: World, dt: number): void {
   p.footstepTimer -= dt;
   if (p.footstepTimer > 0) return;
   p.footstepTimer = p.sprinting ? FOOTSTEP_INTERVAL_SPRINT : FOOTSTEP_INTERVAL_WALK;
-  const surface = world.surfaceAt(p.x, p.z);
-  world.events.emit('footstep', { x: p.x, z: p.z, surface, sprint: p.sprinting });
+  if (!world.animatedFootsteps) world.events.emit('footstep', { x: p.x, z: p.z, surface: world.surfaceAt(p.x, p.z), sprint: p.sprinting });
   world.events.emit('noise', {
     x: p.x,
     z: p.z,

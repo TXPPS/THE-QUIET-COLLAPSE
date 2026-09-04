@@ -1,5 +1,6 @@
 import { PLAYER, THREAT } from '@/config/gameplay';
 import { dampAngle, length2, wrapAngle } from '@/core/math';
+import type { NavProvider } from '@/game/nav/NavProvider';
 import type { ThreatRuntime } from './entities';
 import { damagePlayer } from './player';
 import type { NoiseEvent, Vec2 } from './types';
@@ -10,6 +11,8 @@ const WAYPOINT_REACH = 0.45;
 const VOCAL_INTERVAL_MIN = 4;
 const VOCAL_INTERVAL_MAX = 11;
 const DEATH_SETTLE = 1.4;
+/** Metres the crowd agent may drift from the resolved simulation position before it is re-synced. */
+const CROWD_RESYNC_DISTANCE = 0.06;
 
 /** Threats react to noise: closer, louder noises pull them out of idle into investigation. */
 export function onNoise(world: World, noise: NoiseEvent): void {
@@ -28,12 +31,14 @@ export function onNoise(world: World, noise: NoiseEvent): void {
 }
 
 export function updateThreats(world: World, dt: number): void {
+  world.navigation?.update(dt);
   for (const threat of world.threats) {
     threat.prevX = threat.x;
     threat.prevZ = threat.z;
     if (!threat.alive) {
       threat.deathTimer = Math.min(DEATH_SETTLE, threat.deathTimer + dt);
       threat.moving = false;
+      if (threat.deathTimer === dt) world.navigation?.removeAgent(threat.id);
       continue;
     }
     perceive(world, threat, dt);
@@ -207,15 +212,18 @@ function updateStagger(world: World, threat: ThreatRuntime, dt: number): void {
   if (threat.stateTimer >= THREAT.staggerDuration) enterState(world, threat, 'chase');
 }
 
-/** Follows an A* path towards `goal`; returns true when arrived. Repaths on a timer. */
+/** Follows a path towards `goal`; returns true when arrived. Uses the crowd when attached, the grid A* otherwise. */
 function moveAlongPath(world: World, threat: ThreatRuntime, goal: Vec2, speed: number, dt: number): boolean {
   const distanceToGoal = length2(goal.x - threat.x, goal.z - threat.z);
   if (distanceToGoal < WAYPOINT_REACH) {
     threat.velX = 0;
     threat.velZ = 0;
     threat.moving = false;
+    world.navigation?.clearTarget(threat.id);
+    threat.navGoal = null;
     return true;
   }
+  if (world.navigation) return moveWithCrowd(world, threat, goal, speed, dt);
   threat.repathTimer -= dt;
   if (!threat.path || threat.repathTimer <= 0) {
     threat.repathTimer = THREAT.repathInterval;
@@ -246,9 +254,37 @@ function moveAlongPath(world: World, threat: ThreatRuntime, goal: Vec2, speed: n
   return false;
 }
 
+/**
+ * Crowd steering: the agent owns the path and local avoidance; the simulation reads its velocity
+ * and position back each step and re-syncs the agent whenever collision resolution moved it.
+ */
+function moveWithCrowd(world: World, threat: ThreatRuntime, goal: Vec2, speed: number, dt: number): boolean {
+  const nav = world.navigation as NavProvider;
+  threat.repathTimer -= dt;
+  const goalMoved = !threat.navGoal || length2(threat.navGoal.x - goal.x, threat.navGoal.z - goal.z) > WAYPOINT_REACH;
+  if (threat.repathTimer <= 0 || goalMoved) {
+    threat.repathTimer = THREAT.repathInterval;
+    threat.navGoal = { x: goal.x, z: goal.z };
+    nav.setTarget(threat.id, goal, speed);
+  }
+  const velocity = nav.agentVelocity(threat.id);
+  threat.velX = velocity.x;
+  threat.velZ = velocity.z;
+  const moving = length2(velocity.x, velocity.z) > 0.05;
+  threat.moving = moving;
+  if (moving) threat.yaw = dampAngle(threat.yaw, Math.atan2(velocity.x, velocity.z), 8, dt);
+  return false;
+}
+
 function integrate(world: World, threat: ThreatRuntime, dt: number): void {
-  scratch.x = threat.x + threat.velX * dt;
-  scratch.z = threat.z + threat.velZ * dt;
+  const crowdPosition = threat.state === 'stagger' ? null : world.navigation?.agentPosition(threat.id);
+  if (crowdPosition) {
+    scratch.x = crowdPosition.x;
+    scratch.z = crowdPosition.z;
+  } else {
+    scratch.x = threat.x + threat.velX * dt;
+    scratch.z = threat.z + threat.velZ * dt;
+  }
   // Keep threats apart and out of the player's capsule.
   for (const other of world.threats) {
     if (other === threat || !other.alive) continue;
@@ -259,6 +295,13 @@ function integrate(world: World, threat: ThreatRuntime, dt: number): void {
   world.resolveCircle(scratch, threat.radius);
   threat.x = scratch.x;
   threat.z = scratch.z;
+  if (world.navigation) {
+    const agent = world.navigation.agentPosition(threat.id);
+    if (agent && length2(agent.x - threat.x, agent.z - threat.z) > CROWD_RESYNC_DISTANCE) {
+      world.navigation.teleport(threat.id, threat.x, threat.z);
+      if (threat.navGoal) world.navigation.setTarget(threat.id, threat.navGoal, length2(threat.velX, threat.velZ) || THREAT.chaseSpeed);
+    }
+  }
 }
 
 function separate(pos: Vec2, ox: number, oz: number, minDistance: number): void {

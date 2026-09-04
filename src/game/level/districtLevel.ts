@@ -1,5 +1,6 @@
 import { CANON } from '@/config/canon';
 import { box, car, door, light, pillar, prop, surface, zone } from './builders';
+import { FENCE_BLOCK_IDS, blockedRouteProps, dressingModels } from './dressing';
 import { DOCUMENTS } from './documents';
 import { groundLevel } from './grounding';
 import type { BlockDef, LevelData } from './types';
@@ -77,17 +78,11 @@ const streetProps: BlockDef[] = [
   car(44.5, 25.6, -0.08, 'rust'),
   car(70.5, 20.4, 0.05),
   car(90, 25.8, 3.05),
-  prop('dumpster', 27, 17.6, 2.2, 1.4, 1.4, 'rust'),
-  prop('dumpster', 53.2, 29.2, 2.2, 1.4, 1.4, 'rust'),
-  prop('barricade', 53.4, 17.4, 2.4, 0.4, 1.1, 'barrier', 0.2, { lowObstacle: true }),
-  prop('barricade', 54.2, 26.5, 2.4, 0.4, 1.1, 'barrier', -0.3, { lowObstacle: true }),
   // Abandoned luggage: people left in a hurry, and on foot.
   prop('luggage', 36.5, 27.8, 0.7, 0.5, 0.45, 'tarp', 0.6, { noCollide: true }),
   prop('luggage', 47.2, 18.6, 0.6, 0.4, 0.4, 'tarp', -0.4, { noCollide: true }),
   // The crashed bus and the wreckage that seals Route 4
   prop('bus', 61.2, 34.2, 2.7, 12, 3.2, 'bus', 0.42),
-  prop('jersey', 56.9, 33, 2.2, 1.0, 1.0, 'barrier', 0.1, { lowObstacle: true }),
-  prop('jersey', 65.4, 36.2, 2.2, 1.0, 1.0, 'barrier', -0.2, { lowObstacle: true }),
   prop('rubble', 61.8, 36.6, 12.6, 1.6, 1.2, 'concrete', 0, { lowObstacle: true }),
   // "Road closed" board on its own stand in front of the wreck.
   prop('sign_closed', 61, 31.2, 1.6, 0.12, 1.8, 'barrier', 0, { noCollide: true }),
@@ -129,11 +124,14 @@ const southProps: BlockDef[] = [
   prop('debris', 57.5, 40, 1.6, 1.2, 0.6, 'concrete', 0.5, { lowObstacle: true }),
   prop('debris', 64.2, 47, 1.4, 1.4, 0.7, 'concrete', -0.4, { lowObstacle: true }),
   prop('cart', 60.6, 58.5, 0.8, 1.0, 1.0, 'metal', 0.3),
-  prop('sandbags', 44, 70, 3, 1.2, 0.9, 'tarp', 0.1, { lowObstacle: true }),
-  prop('sandbags', 78, 71, 3, 1.2, 0.9, 'tarp', -0.15, { lowObstacle: true }),
   prop('tent', 48, 74.5, 3, 3, 2.2, 'tarp'),
   prop('generator', 66.8, 75.6, 1.4, 0.9, 1.1, 'metal'),
 ];
+
+/** Fence blocks keep their colliders but are drawn as tiled kit fences (see dressing.ts). */
+function markModelled(blocks: BlockDef[]): BlockDef[] {
+  return blocks.map((block) => (FENCE_BLOCK_IDS.includes(block.id) ? { ...block, modelled: true } : block));
+}
 
 const RAW_LEVEL: LevelData = {
   id: 'district',
@@ -141,7 +139,7 @@ const RAW_LEVEL: LevelData = {
   bounds: { minX: -12, minZ: -6, maxX: 112, maxZ: 92 },
   playerStart: { x: 11.2, z: 10.6, yaw: 0 },
   lookStart: { yaw: 0, pitch: 0.12 },
-  blocks: [...buildings, ...stairwellProps, ...streetProps, ...pharmacyProps, ...parkingProps, ...southProps],
+  blocks: markModelled([...buildings, ...stairwellProps, ...streetProps, ...pharmacyProps, ...parkingProps, ...southProps, ...blockedRouteProps()]),
   surfaces: [
     surface(-12, -6, 112, 92, 'concrete', -0.02),
     surface(-6, 18, 104, 28, 'asphalt'),
@@ -229,6 +227,7 @@ const RAW_LEVEL: LevelData = {
     { id: 'dc_shelter', x: 27.95, y: 2.2, z: 24, yaw: Math.PI / 2, w: 1.2, h: 1.6, style: 'notice' },
     { id: 'dc_route4', x: 55.95, y: 4, z: 40, yaw: Math.PI / 2, w: 2.2, h: 0.8, style: 'sign', text: 'ROUTE 4 →' },
   ],
+  models: [],
   mapLabels: [
     { x: 11, z: 12, text: 'Apartments' },
     { x: 26, z: 23, text: 'Ferry Street' },
@@ -240,7 +239,7 @@ const RAW_LEVEL: LevelData = {
   ],
 };
 
-const grounded = groundLevel(RAW_LEVEL);
+const grounded = groundLevel({ ...RAW_LEVEL, models: dressingModels(RAW_LEVEL.blocks) });
 /** The playable district with every prop, pickup, loose document and the radio grounded. */
 export const DISTRICT_LEVEL: LevelData = grounded.level;
 export const DISTRICT_GROUNDING = grounded.report;

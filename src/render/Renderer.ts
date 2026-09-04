@@ -1,5 +1,7 @@
 import * as THREE from 'three';
+import type { AssetLibrary } from '@/assets/AssetLibrary';
 import { CAMERA } from '@/config/gameplay';
+import { LIGHTING } from '@/config/lighting';
 
 export type QualityTier = 'low' | 'balanced' | 'high';
 
@@ -19,9 +21,6 @@ export const QUALITY_PROFILES: Record<QualityTier, QualityProfile> = {
   high: { id: 'high', resolutionScale: 1, maxPixelRatio: 2, shadows: true, optionalLights: true, antialias: true, fogDensity: 0.024 },
 };
 
-const SKY_COLOR = 0x0b0d10;
-const FOG_COLOR = 0x0a0b0d;
-const MOON_COLOR = 0x8a95a8;
 
 export function isWebGLAvailable(): boolean {
   try {
@@ -46,6 +45,7 @@ export class Renderer {
   profile: QualityProfile = QUALITY_PROFILES.balanced;
   private userResolutionScale = 1;
   private readonly fog: THREE.FogExp2;
+  private environment: THREE.Texture | null = null;
 
   constructor(private readonly container: HTMLElement, antialias = true) {
     this.canvas = document.createElement('canvas');
@@ -60,15 +60,33 @@ export class Renderer {
     this.three.shadowMap.enabled = false;
     this.three.shadowMap.type = THREE.PCFSoftShadowMap;
     this.camera = new THREE.PerspectiveCamera(CAMERA.fov, 1, 0.08, 220);
-    this.scene.background = new THREE.Color(SKY_COLOR);
-    this.fog = new THREE.FogExp2(FOG_COLOR, this.profile.fogDensity);
+    this.scene.background = new THREE.Color(LIGHTING.sky);
+    this.fog = new THREE.FogExp2(LIGHTING.fog, this.profile.fogDensity);
     this.scene.fog = this.fog;
-    this.hemisphere = new THREE.HemisphereLight(0x2c3744, 0x101010, 1.35);
+    this.hemisphere = new THREE.HemisphereLight(LIGHTING.hemisphere.sky, LIGHTING.hemisphere.ground, LIGHTING.hemisphere.intensity);
     this.scene.add(this.hemisphere);
-    this.moon = new THREE.DirectionalLight(MOON_COLOR, 0.7);
-    this.moon.position.set(-30, 60, -20);
+    this.moon = new THREE.DirectionalLight(LIGHTING.key.color, LIGHTING.key.intensity);
+    this.moon.position.set(...LIGHTING.key.position);
     this.scene.add(this.moon);
     this.resize();
+  }
+
+  /** Image-based lighting from the dusk HDRI (prefiltered once); the hemisphere light steps back when it lands. */
+  async applyEnvironment(assets: AssetLibrary): Promise<void> {
+    try {
+      const hdr = await assets.hdr('env.dusk');
+      const pmrem = new THREE.PMREMGenerator(this.three);
+      const target = pmrem.fromEquirectangular(hdr);
+      pmrem.dispose();
+      this.environment?.dispose();
+      this.environment = target.texture;
+      this.scene.environment = this.environment;
+      this.scene.environmentRotation.y = LIGHTING.environmentYaw;
+      this.scene.environmentIntensity = LIGHTING.environmentIntensity[this.profile.id];
+      this.hemisphere.intensity = LIGHTING.hemisphere.intensity * 0.4;
+    } catch {
+      // No HDRI: the hemisphere + key lighting stays as it is.
+    }
   }
 
   setBrightness(value: number): void {
@@ -79,6 +97,7 @@ export class Renderer {
     this.profile = profile;
     this.userResolutionScale = userResolutionScale;
     this.fog.density = profile.fogDensity;
+    if (this.environment) this.scene.environmentIntensity = LIGHTING.environmentIntensity[profile.id];
     this.three.shadowMap.enabled = profile.shadows;
     this.moon.castShadow = profile.shadows;
     if (profile.shadows) {

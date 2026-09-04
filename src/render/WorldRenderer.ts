@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import type { AssetLibrary } from '@/assets/AssetLibrary';
+import { LIGHTING } from '@/config/lighting';
 import type { DecalDef, LevelData, LightDef } from '@/game/level/types';
-import { MaterialLibrary } from './materials';
+import { MaterialLibrary, tileSize } from './materials';
+import { WorldModels } from './WorldModels';
 
 interface FlickerLight {
   light: THREE.PointLight;
@@ -10,9 +13,6 @@ interface FlickerLight {
   rotating: boolean;
   phase: number;
 }
-
-/** Level light intensities are authored on a 0–10 scale; three.js point lights expect candela. */
-const POINT_LIGHT_SCALE = 34;
 
 const DECAL_COLORS: Record<DecalDef['style'], number> = {
   poster: 0x8f8776,
@@ -27,9 +27,32 @@ export interface WorldView {
   pickupsTaken: Record<string, boolean>;
 }
 
+export interface WorldQuality {
+  optionalLights: boolean;
+  shadows: boolean;
+}
+
+/** Rewrites box UVs into planar world-metre coordinates so tiled materials read at true scale. */
+function worldUvBox(geometry: THREE.BufferGeometry, metresPerTile: number): void {
+  const position = geometry.getAttribute('position');
+  const normal = geometry.getAttribute('normal');
+  const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
+  for (let i = 0; i < position.count; i += 1) {
+    const nx = Math.abs(normal.getX(i));
+    const ny = Math.abs(normal.getY(i));
+    const x = position.getX(i);
+    const y = position.getY(i);
+    const z = position.getZ(i);
+    if (nx > 0.5) uv.setXY(i, z / metresPerTile, y / metresPerTile);
+    else if (ny > 0.5) uv.setXY(i, x / metresPerTile, z / metresPerTile);
+    else uv.setXY(i, x / metresPerTile, y / metresPerTile);
+  }
+  uv.needsUpdate = true;
+}
+
 /**
  * Builds the static level: merged geometry per material (few draw calls), doors as individual
- * meshes, lights with flicker, pickups/documents as small readable markers.
+ * meshes, kit models as instanced meshes, lights with flicker, pickups/documents as markers.
  */
 export class WorldRenderer {
   readonly group = new THREE.Group();
@@ -38,21 +61,40 @@ export class WorldRenderer {
   private readonly pickups = new Map<string, THREE.Object3D>();
   private readonly lights: FlickerLight[] = [];
   private readonly geometries: THREE.BufferGeometry[] = [];
+  private models: WorldModels | null = null;
   private time = 0;
 
-  constructor(private readonly level: LevelData, quality: { optionalLights: boolean; shadows: boolean }) {
+  constructor(
+    private readonly level: LevelData,
+    private readonly quality: WorldQuality,
+    assets: AssetLibrary | null,
+  ) {
     this.buildSurfaces();
-    this.buildBlocks(quality.shadows);
     this.buildDoors();
     this.buildMarkers();
     this.buildDecals();
     this.buildLights(quality.optionalLights);
+    if (assets) void this.dress(assets);
+    else this.buildBlocks(null);
+  }
+
+  /** Textures and kit models arrive from the (already preloaded) library; boxes fill in for anything missing. */
+  private async dress(assets: AssetLibrary): Promise<void> {
+    const kits = await WorldModels.load(assets);
+    this.models = new WorldModels(kits, this.quality.shadows);
+    this.models.build(this.level.models, this.level.blocks);
+    this.group.add(this.models.group);
+    this.buildBlocks(this.models);
+    await this.materials.applyTextures(assets);
   }
 
   private buildSurfaces(): void {
     for (const patch of this.level.surfaces) {
       const geometry = new THREE.PlaneGeometry(patch.w, patch.d);
       geometry.rotateX(-Math.PI / 2);
+      const tile = tileSize(`surface:${patch.kind}`);
+      const uv = geometry.getAttribute('uv') as THREE.BufferAttribute;
+      for (let i = 0; i < uv.count; i += 1) uv.setXY(i, (uv.getX(i) * patch.w) / tile, (uv.getY(i) * patch.d) / tile);
       const mesh = new THREE.Mesh(geometry, this.materials.surface(patch.kind));
       mesh.position.set(patch.x, patch.y ?? 0, patch.z);
       mesh.receiveShadow = true;
@@ -61,11 +103,14 @@ export class WorldRenderer {
     }
   }
 
-  private buildBlocks(shadows: boolean): void {
+  /** Box visuals for every collider that is not drawn as a kit model. */
+  private buildBlocks(models: WorldModels | null): void {
     const byMaterial = new Map<string, THREE.BufferGeometry[]>();
     for (const block of this.level.blocks) {
-      if (block.invisible) continue;
+      if (block.invisible || block.modelled) continue;
+      if (block.model && models?.has(block.model.kit, block.model.name)) continue;
       const geometry = new THREE.BoxGeometry(block.w, block.h, block.d);
+      worldUvBox(geometry, tileSize(`block:${block.material}`));
       geometry.rotateY(block.rot ?? 0);
       geometry.translate(block.x, (block.y ?? 0) + block.h / 2, block.z);
       const list = byMaterial.get(block.material) ?? [];
@@ -77,8 +122,8 @@ export class WorldRenderer {
       for (const geometry of list) geometry.dispose();
       if (!merged) continue;
       const mesh = new THREE.Mesh(merged, this.materials.block(key as never));
-      mesh.castShadow = shadows;
-      mesh.receiveShadow = shadows;
+      mesh.castShadow = this.quality.shadows;
+      mesh.receiveShadow = this.quality.shadows;
       this.group.add(mesh);
       this.geometries.push(merged);
     }
@@ -104,9 +149,11 @@ export class WorldRenderer {
       ammo: new THREE.MeshStandardMaterial({ color: 0x6b6f63, roughness: 0.6, metalness: 0.4, emissive: 0x2a2a1a }),
       medkit: new THREE.MeshStandardMaterial({ color: 0x8a5a4a, roughness: 0.7, emissive: 0x2a0f0a }),
       flashlight: new THREE.MeshStandardMaterial({ color: 0x4a4e52, roughness: 0.4, metalness: 0.6, emissive: 0x2a2a1a }),
+      supply: new THREE.MeshStandardMaterial({ color: 0x7a7f74, roughness: 0.8, emissive: 0x1e2018 }),
     };
     for (const pickup of this.level.pickups) {
-      const mesh = new THREE.Mesh(pickupGeometry, pickupMaterials[pickup.kind]);
+      const material = pickupMaterials[pickup.kind as keyof typeof pickupMaterials] ?? pickupMaterials.supply;
+      const mesh = new THREE.Mesh(pickupGeometry, material);
       mesh.position.set(pickup.x, pickup.y ?? 0.09, pickup.z);
       this.group.add(mesh);
       this.pickups.set(pickup.id, mesh);
@@ -128,7 +175,7 @@ export class WorldRenderer {
     const dial = new THREE.BoxGeometry(0.06, 0.03, 0.01);
     this.geometries.push(body, dial);
     const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x3f4a44, roughness: 0.6, metalness: 0.3, emissive: 0x0d1210 });
-    const dialMaterial = new THREE.MeshStandardMaterial({ color: 0xe0782a, emissive: 0xe0782a, emissiveIntensity: 1.5 });
+    const dialMaterial = new THREE.MeshStandardMaterial({ color: LIGHTING.accent, emissive: LIGHTING.accent, emissiveIntensity: 1.5 });
     for (const item of this.level.interactables) {
       if (item.kind !== 'radio') continue;
       const mesh = new THREE.Mesh(body, bodyMaterial);
@@ -155,11 +202,11 @@ export class WorldRenderer {
   private buildLights(optionalLights: boolean): void {
     for (const def of this.level.lights) {
       if (def.optional && !optionalLights) continue;
-      const light = new THREE.PointLight(def.color, def.intensity * POINT_LIGHT_SCALE, def.range, 1.6);
+      const light = new THREE.PointLight(def.color, def.intensity * LIGHTING.pointLightScale, def.range, 1.6);
       light.position.set(def.x, def.y, def.z);
       light.castShadow = false; // point-light shadows are too costly for WebGL on phones
       this.group.add(light);
-      this.lights.push({ light, base: def.intensity * POINT_LIGHT_SCALE, flicker: def.flicker ?? 0, rotating: def.rotating ?? false, phase: Math.random() * 10 });
+      this.lights.push({ light, base: def.intensity * LIGHTING.pointLightScale, flicker: def.flicker ?? 0, rotating: def.rotating ?? false, phase: Math.random() * 10 });
       this.addFixture(def);
     }
   }
@@ -202,6 +249,7 @@ export class WorldRenderer {
 
   dispose(): void {
     for (const geometry of this.geometries) geometry.dispose();
+    this.models?.dispose();
     this.materials.dispose();
     this.group.removeFromParent();
   }

@@ -1,38 +1,10 @@
 import * as THREE from 'three';
 import { lerp } from '@/core/math';
-import type { EquippedItem } from '@/game/sim/types';
+import type { Rig, RigKind, RigPose } from './Rig';
 import { FlashlightRig, WeaponRig } from './WeaponRig';
 
-export type RigKind = 'player' | 'threat';
-
-export interface RigPose {
-  x: number;
-  z: number;
-  yaw: number;
-  moving: boolean;
-  speed: number;
-  aiming: boolean;
-  dead: boolean;
-  deathTimer: number;
-  hurt: boolean;
-  /** 0..1 attack windup for threats. */
-  attack: number;
-  stagger: boolean;
-  /** Player only: 0..1 weapon raise blend, look pitch (radians) and reload progress (0 when idle). */
-  weaponRaise: number;
-  lookPitch: number;
-  reloadProgress: number;
-  equipped: EquippedItem;
-  flashlightOn: boolean;
-}
-
-export const IDLE_HANDS: Pick<RigPose, 'weaponRaise' | 'lookPitch' | 'reloadProgress' | 'equipped' | 'flashlightOn'> = {
-  weaponRaise: 0,
-  lookPitch: 0,
-  reloadProgress: 0,
-  equipped: 'pistol',
-  flashlightOn: false,
-};
+export { IDLE_HANDS } from './Rig';
+export type { RigKind, RigPose } from './Rig';
 
 const PLAYER_COLORS = { skin: 0x9a7d66, top: 0x3d4a52, bottom: 0x2a2c30, boots: 0x1c1c1c };
 const THREAT_COLORS = { skin: 0x7c7a70, top: 0x4a4038, bottom: 0x2e2a26, boots: 0x1a1816 };
@@ -45,10 +17,12 @@ const ARM_LENGTH = 0.58;
  * Procedural humanoid (PLACEHOLDER_ART). Torso, head and four limbs with a simple gait cycle;
  * threats carry a slumped posture and a raised-arm attack telegraph so they read from silhouette.
  * The player rig carries hand sockets: the held weapon or medkit in the right hand, the torch in
- * the left, with raise, reload and pitch-follow motion driven from the pose.
+ * the left, with raise, reload and pitch-follow motion driven from the pose. Kept as the fallback
+ * when the character assets fail to load.
  */
-export class CharacterRig {
+export class CharacterRig implements Rig {
   readonly group = new THREE.Group();
+  onFootstep: ((foot: 'left' | 'right') => void) | null = null;
   private readonly torso: THREE.Mesh;
   private readonly head: THREE.Mesh;
   private readonly armL: THREE.Group;
@@ -117,6 +91,11 @@ export class CharacterRig {
     mesh.position.y = -(mesh.geometry.boundingBox?.max.y ?? 0.3);
     pivot.add(mesh);
     return pivot;
+  }
+
+  /** One-shots are implied by the pose in the procedural rig. */
+  trigger(): void {
+    // nothing to do
   }
 
   /** World position of the muzzle (player rig only); falls back to the group position. */

@@ -17,16 +17,33 @@ export function captureConsole(page: Page): ConsoleCapture {
   return capture;
 }
 
+/** Boots the game and waits until asset preload is done (warning or main menu showing). */
 export async function openGame(page: Page): Promise<void> {
   await page.goto('/?debug');
   await expect(page.locator('.tqc-screen')).toBeVisible();
+  await page.waitForFunction(
+    () => {
+      const id = window.__tqc?.screens.top?.id;
+      return id === 'warning' || id === 'mainMenu' || id === 'error';
+    },
+    undefined,
+    { timeout: 60_000 },
+  );
 }
 
-/** Clicks through the first-launch warning if it is showing. */
+/** Waits for boot to finish, then clicks through the first-launch warning if it is showing. */
 export async function passWarning(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => {
+      const id = window.__tqc?.screens.top?.id;
+      return id === 'warning' || id === 'mainMenu';
+    },
+    undefined,
+    { timeout: 60_000 },
+  );
   const cont = page.getByRole('button', { name: /^Continue$/ });
   if (await cont.isVisible().catch(() => false)) await cont.click();
-  await expect(page.getByRole('menu')).toBeVisible();
+  await expect(page.getByRole('button', { name: /New run/ })).toBeVisible();
 }
 
 export async function startNewRun(page: Page): Promise<void> {

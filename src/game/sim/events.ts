@@ -4,6 +4,7 @@ import type { NoiseEvent } from './types';
 export interface SimEvents extends Record<string, unknown> {
   noise: NoiseEvent;
   footstep: { x: number; z: number; surface: string; sprint: boolean };
+  threatFootstep: { id: string; x: number; z: number; surface: string };
   shot: { x: number; z: number; hit: boolean };
   dryFire: undefined;
   reloadStart: undefined;
