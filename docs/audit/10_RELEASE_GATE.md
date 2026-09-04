@@ -90,3 +90,49 @@ untested** and must be run before a public release:
 | Held weapon: carry, aim (camera over the right shoulder), fire from the muzzle socket, reload motion | `... tests/e2e/weapon.spec.ts` (desktop-1080p, phone-landscape) | PASS; `evidence/*-3x-weapon-*.png` |
 | Regression: desktop loop x2, smoke, emulated controller, screens, offline | `... smoke/loop/gamepad/screens --project=desktop-1080p`, `pnpm test:offline` | PASS |
 | QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev = deployment `0931469e` and production = `35888b39` (commit `c436f35`); `E2E_BASE_URL=https://quiet-collapse.pages.dev live-boot.spec.ts offline.spec.ts` 2 passed (no console errors, worker installed, offline run + save + Continue) |
+
+## Asset wave: free-asset pipeline, characters, enemy, dressed test area (2026-09-04)
+
+| Check | Command | Result |
+|---|---|---|
+| Lint / type check | `pnpm lint && pnpm typecheck` | 0 errors (1 pre-existing warning in `live-boot.spec.ts`) / clean |
+| Unit tests | `pnpm test` | 21 files, 99 tests passing (items registry, navmesh signature, grounding with models added) |
+| Production build | `pnpm build` | clean; 93 precached files, 10.33 MB (shell 2.4 MB: app 0.45 MB, three 0.58 MB, recast 0.73 MB, basis transcoder 0.59 MB; assets 7.47 MB); streamed 5.40 MB never precached |
+| Bundle hygiene + asset licences | `pnpm check:bundle` (runs `check:assets`) | no reference screenshots; 62 sources / 344 files, every licence CC0-1.0, ledger and manifest in sync |
+| Asset pipeline | `pnpm assets:build` | 85 outputs; largest `character.animations` 2.71 MB (20 clips), `env.dusk.hi` 2.00 MB (stream), night beds 0.99 + 0.94 MB (stream); navmesh 0.09 MB, 1094 input triangles |
+| §0.1 loop, desktop KBM (twice) | `… loop.spec.ts --project=desktop-1080p` | PASS (both rounds, zero console/page errors; crowd navigation active) |
+| Boot/menu/pause smoke | `… smoke.spec.ts --project=desktop-1080p` | PASS |
+| Screen evidence (desktop, 1366, phone) | `… screens.spec.ts` on all three projects | PASS on desktop-1080p, desktop-1366 and phone-landscape; `docs/audit/evidence/*.png` refreshed with the dressed district |
+| Emulated controller | `… gamepad.spec.ts --project=desktop-1080p` | PASS (taps now wait for rendered frames; prompt chips are checked through `data-text`) |
+| Crowd navigation | `… nav.spec.ts --project=desktop-1080p` | PASS (street resident jogs ~9 m along the navmesh in 3 s; pharmacy resident stays behind its closed door) |
+| Held weapon evidence | `… weapon.spec.ts` (desktop + phone) | PASS (desktop and phone); `*-30…33-weapon-*.png` now show the skinned resident |
+| Three session cycles, heap | `… memory.spec.ts --project=desktop-1080p` | PASS — 141.1 MB after each of three cycles (Chromium reports the heap coarsely; no growth between cycles 2 and 3) |
+| Frame-time floor | `… perf.spec.ts` (desktop three tiers, phone Low with 4× CPU throttle) | PASS (records written); JSON in `docs/audit/perf/` |
+| Touch loop, presets, phone weapon | `… touch.spec.ts touch-presets.spec.ts weapon.spec.ts --project=phone-landscape` | PASS (touch loop ×2 specs, weapon, screens); `touch-presets.spec.ts` needed its timeout raised to 25 min for 20 boots under software rendering — see the rerun row below |
+| Offline | `pnpm test:offline` | PASS (30 s): install → offline reload → warning → new run → flashlight pickup → checkpoint save → offline reload → Continue |
+
+### Frame-time floor (headless Chromium + SwiftShader software GL; CPU floor only, not GPU truth)
+
+| Project | Tier | CPU throttle | Median frame | Worst frame | Draw calls |
+|---|---|---|---|---|---|
+| desktop-1080p | low | 1× | 633.3 ms | 2283.2 ms | 118 |
+| desktop-1080p | balanced | 1× | 433.4 ms | 4766.4 ms | 120 |
+| desktop-1080p | high | 1× | 553.2 ms | 3233.2 ms | 240 |
+| phone-landscape (844×390 @3×) | low | 4× | 283.2 ms | 1833.2 ms | 122 |
+
+The 30 fps floor on a real phone cannot be shown from software rendering; the numbers above bound the
+JavaScript/simulation/DOM cost per frame (they include SwiftShader's rasterisation on the CPU). Real-device
+capture is the next action on the manual matrix.
+
+### Deviations recorded
+
+- The outfit pack named in the brief (`quaternius.com/packs/modularcharacteroutfits.html`) returns 404 and the
+  Standard base-character pack ships no clothing; the suit albedo is treated as dark clothing (PLACEHOLDER_ART,
+  `assets/incoming/README.md` lists the wanted drop-in). No substitute source was used.
+- The free Universal Animation Library has no strafe clips: 8-direction movement under aim uses the forward walk
+  with a pelvis twist toward the travel direction and a spine counter-twist; backwards travel plays the walk in reverse.
+- The wreck bus remains a procedural box (no vehicle kit on the approved source list); the blocked route is dressed
+  with shipping containers, construction barriers, fencing, cones and work lights.
+- KTX2 encoding uses the Basis Universal WebAssembly encoder (Apache-2.0, build tool only, fetched into
+  `assets/.cache`) instead of KTX-Software's `toktx`: the Windows installer's binaries disappeared after extraction on
+  this machine and a native dependency would not reproduce in CI.

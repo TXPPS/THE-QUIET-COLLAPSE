@@ -22,11 +22,16 @@ const INIT = `
   })();
 `;
 
+/** Two rendered frames: menu edges are consumed per frame, and software rendering can take half a second per frame. */
+async function frames(page: Page): Promise<void> {
+  await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+}
+
 async function tap(page: Page, button: number): Promise<void> {
   await page.evaluate((b) => (window as unknown as { __press: (i: number, d: boolean) => void }).__press(b, true), button);
-  await page.waitForTimeout(260);
+  await frames(page);
   await page.evaluate((b) => (window as unknown as { __press: (i: number, d: boolean) => void }).__press(b, false), button);
-  await page.waitForTimeout(260);
+  await frames(page);
 }
 
 test.describe('emulated controller', () => {
@@ -49,7 +54,7 @@ test.describe('emulated controller', () => {
     expect(await page.evaluate(() => window.__tqc!.input.registry.activeFamily)).toBe('xbox');
     // Footer prompts now show Xbox glyphs.
     await expect(page.locator('.tqc-footer .tqc-glyph').first()).toHaveClass(/tqc-glyph--family-xbox/);
-    await expect(page.locator('.tqc-footer').getByText('A', { exact: true })).toBeVisible();
+    await expect(page.locator('.tqc-footer .tqc-glyph[data-text="A"]').first()).toBeVisible();
 
     // Start a run with the pad: Continue is disabled with no save, so New run is the first focusable row.
     await tap(page, 0);
@@ -66,7 +71,7 @@ test.describe('emulated controller', () => {
     await page.evaluate(() => (window as unknown as { __axis: (i: number, v: number) => void }).__axis(1, 0));
     const z = await page.evaluate(() => window.__tqc!.session!.world.player.z);
     expect(z).toBeGreaterThan(10.6);
-    await expect(page.locator('.tqc-hud__prompt .tqc-glyph')).toHaveText('A');
+    await expect(page.locator('.tqc-hud__prompt .tqc-glyph')).toHaveAttribute('data-text', 'A');
 
     // LT aims, RT fires: one round leaves the magazine.
     await page.evaluate(() => (window as unknown as { __press: (i: number, d: boolean) => void }).__press(6, true));

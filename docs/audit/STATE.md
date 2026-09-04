@@ -9,6 +9,26 @@ Resume from this file, not from scratch.
 - Reference screenshots stay outside the repo (scratchpad only). Only pack `.md` files are committed.
 
 ## Phase / wave
+- **Free-asset pipeline / characters / enemy / dressed test area wave (2026-09-04) — complete; see the
+  "Asset wave" section of 10_RELEASE_GATE.md for the gate table.**
+  - Provenance: `scripts/assets/sources.mjs` → `assets/ledger.json` + `docs/assets/ASSET_LEDGER.md` (62 sources, 344 files,
+    all CC0); `pnpm check:assets` (inside `check:bundle`) fails on unlisted files, disallowed licences, a stale ledger or
+    anything left in `assets/incoming/`. Quaternius packs download through itch.io's anonymous flow (`scripts/assets/fetch.mjs`).
+  - Pipeline (`pnpm assets:build`, Basis Universal wasm encoder fetched into `assets/.cache`): 5 Kenney kit glTF libraries
+    (meshopt + KTX2 colormap), two skinned characters (resident / affected, shared 1K KTX2 set, 2K streamed), a 20-clip
+    animation glTF, four ambientCG PBR sets, HDRI at 512×256 (1024×512 streamed), 166-glyph prompt sprite, 48 CC0 cues,
+    the recast navmesh. 85 outputs, ~7.5 MB precached, ~5.4 MB streamed; `public/assets/manifest.json` mirrors into
+    `src/assets/manifest.generated.json`.
+  - Runtime: `AssetLibrary` preload at boot (progress on the boot screen), `AnimatedRig` (lower/upper layers, aim blend,
+    one-shots, strafe twist, animation-driven footsteps; procedural `CharacterRig` stays as fallback), `RecastNavigation`
+    crowd (doors as tile-cache obstacles, grid A* fallback, `tests/unit/level/navSignature.test.ts` fails on a stale bake),
+    `WorldModels` instancing + metric-UV PBR materials + HDRI environment (`src/config/lighting.ts`), item registry
+    (`src/game/items/registry.ts`: examine / use / combine; dressing + antiseptic → first-aid kit), three new documents,
+    Kenney prompt icons (`PromptSprite`), `SampleBank` behind the mixer with synth fallbacks, radio static near the save
+    point, sampled night bed streamed after boot.
+  - Known gaps carried forward: outfit mesh is a PLACEHOLDER (Standard base pack has none; see `assets/incoming/README.md`),
+    the wreck bus is still a box, 8-direction locomotion is a single forward walk with pelvis/spine twist (the free library
+    has no strafe clips), touch icons and HUD silhouettes stay original.
 - **Touch look / weapon / prop / touch-HUD wave (2026-09-04) — complete, all gates green.**
   Root causes fixed: vertical look inverted on every source (TQC-050, `Simulation.applyLook` added
   screen-down Y to pitch); camera over the left shoulder and mirrored strafe (TQC-051, negated right vector
@@ -61,7 +81,9 @@ Resume from this file, not from scratch.
   Wave 10 release gate (10_RELEASE_GATE.md), handoff.
 
 ## Verification commands
-- `pnpm lint && pnpm typecheck && pnpm test` (unit: 93 tests) · `pnpm build && pnpm check:bundle` (build fails on a bad touch preset)
+- `pnpm assets:fetch && pnpm assets:build` when sources or level colliders change (navmesh bake); `pnpm assets:ledger` after editing `scripts/assets/sources.mjs`
+- `pnpm lint && pnpm typecheck && pnpm test` (unit: 99 tests) · `pnpm build && pnpm check:bundle` (bundle hygiene + asset licence gate; build fails on a bad touch preset)
+- `pnpm exec playwright test tests/e2e/nav.spec.ts tests/e2e/memory.spec.ts tests/e2e/perf.spec.ts --project=desktop-1080p` (crowd, heap over three cycles, frame-time floor → `docs/audit/perf/`)
 - `pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/screens.spec.ts tests/e2e/loop.spec.ts --project=desktop-1080p`
 - `pnpm exec playwright test tests/e2e/touch.spec.ts tests/e2e/touch-presets.spec.ts tests/e2e/weapon.spec.ts --project=phone-landscape`
 

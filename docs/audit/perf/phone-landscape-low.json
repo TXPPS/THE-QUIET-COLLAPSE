@@ -5,9 +5,9 @@
   "windowMs": 8000,
   "drawCalls": 122,
   "renderer": "headless Chromium + SwiftShader (software GL)",
-  "medianMs": 216.8000030517578,
-  "worstMs": 1666.5999755859375,
-  "fps": 4.612546060533333,
-  "samples": 29,
-  "at": "2026-09-04T21:47:56.019Z"
+  "medianMs": 283.20001220703125,
+  "worstMs": 1833.199951171875,
+  "fps": 3.531073294124569,
+  "samples": 30,
+  "at": "2026-09-04T22:07:00.224Z"
 }

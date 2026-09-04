@@ -10,7 +10,7 @@ import { captureConsole } from './helpers';
  * HUD reads. Output: docs/audit/touch/after/<preset>-<aspect>[-stick].png
  */
 test.skip(({ hasTouch }) => !hasTouch, 'touch project only');
-test.setTimeout(600_000);
+test.setTimeout(1_500_000);
 
 const OUT_DIR = 'docs/audit/touch/after';
 
