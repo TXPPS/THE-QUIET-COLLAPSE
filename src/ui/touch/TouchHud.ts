@@ -1,7 +1,7 @@
 import { DisposeBag } from '@/core/DisposeBag';
 import type { ButtonAction } from '@/input/actions';
 import type { TouchSource } from '@/input/TouchSource';
-import { el, setHidden, toggleClass } from '@/ui/dom';
+import { el, setHidden, toggleClass, capturePointer } from '@/ui/dom';
 import { touchIconNode } from './touchIcons';
 import { CONTROL_LABELS, controlRect, type TouchControlId, type TouchProfile, type Viewport } from './touchProfiles';
 
@@ -107,6 +107,7 @@ export class TouchHud {
   setVisible(visible: boolean): void {
     this.gameplayActive = visible;
     setHidden(this.root, !visible);
+    document.documentElement.dataset['touchHud'] = String(visible);
     if (!visible) this.releaseAll();
   }
 
@@ -147,7 +148,7 @@ export class TouchHud {
     if (entry.pointerId !== null) return;
     event.preventDefault();
     entry.pointerId = event.pointerId;
-    entry.element.setPointerCapture(event.pointerId);
+    capturePointer(entry.element, event.pointerId);
     entry.element.classList.add('is-down');
     this.source.markActivity();
     if (LATCHING.has(entry.id)) {
@@ -185,7 +186,7 @@ export class TouchHud {
     if (this.stickPointer !== null || !this.gameplayActive) return;
     event.preventDefault();
     this.stickPointer = event.pointerId;
-    this.moveZone.setPointerCapture(event.pointerId);
+    capturePointer(this.moveZone, event.pointerId);
     const rect = controlRect(this.profile.controls.joystick, this.viewport);
     // Floating joystick: it appears where the thumb lands inside the movement zone.
     this.stickOrigin = { x: event.clientX, y: event.clientY };
@@ -253,7 +254,7 @@ export class TouchHud {
     if (this.lookPointer !== null || !this.gameplayActive) return;
     event.preventDefault();
     this.lookPointer = event.pointerId;
-    this.lookZone.setPointerCapture(event.pointerId);
+    capturePointer(this.lookZone, event.pointerId);
     this.lookLast = { x: event.clientX, y: event.clientY };
     this.source.markActivity();
   }

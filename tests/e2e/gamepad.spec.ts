@@ -51,8 +51,7 @@ test.describe('emulated controller', () => {
     await expect(page.locator('.tqc-footer .tqc-glyph').first()).toHaveClass(/tqc-glyph--family-xbox/);
     await expect(page.locator('.tqc-footer').getByText('A', { exact: true })).toBeVisible();
 
-    // Start a run with the pad: New run is the second row.
-    await tap(page, 13);
+    // Start a run with the pad: Continue is disabled with no save, so New run is the first focusable row.
     await tap(page, 0);
     await expect(page.getByRole('heading', { name: 'Start a new run' })).toBeVisible();
     await tap(page, 13); // difficulty row → slot 1

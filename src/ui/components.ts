@@ -3,7 +3,7 @@ import type { Action } from '@/input/actions';
 import type { DisposeBag } from '@/core/DisposeBag';
 import type { FocusManager } from './FocusManager';
 import type { Prompts } from './Prompts';
-import { el, setText } from './dom';
+import { el, setText, capturePointer } from './dom';
 
 export interface MenuItemOptions {
   label: string;
@@ -83,7 +83,7 @@ export function sliderItem(focus: FocusManager, bag: DisposeBag, options: Slider
   };
   bag.listen(track, 'pointerdown', (event) => {
     event.stopPropagation();
-    track.setPointerCapture(event.pointerId);
+    capturePointer(track, event.pointerId);
     onPointer(event);
   });
   bag.listen(track, 'pointermove', (event) => {

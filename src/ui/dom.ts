@@ -35,3 +35,12 @@ export function toggleClass(node: HTMLElement, className: string, on: boolean): 
 export function setHidden(node: HTMLElement, hidden: boolean): void {
   if (node.hidden !== hidden) node.hidden = hidden;
 }
+
+/** Pointer capture can throw when the pointer is already gone (or synthetic); never let that abort input. */
+export function capturePointer(element: Element, pointerId: number): void {
+  try {
+    element.setPointerCapture(pointerId);
+  } catch {
+    // The gesture continues without capture; handlers still clean up on pointerup/cancel.
+  }
+}

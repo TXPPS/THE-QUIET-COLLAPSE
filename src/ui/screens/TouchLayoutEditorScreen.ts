@@ -1,6 +1,6 @@
 import type { App } from '@/app/App';
 import { clamp } from '@/core/math';
-import { el, setText, toggleClass } from '@/ui/dom';
+import { el, setText, toggleClass, capturePointer } from '@/ui/dom';
 import { menuItem, menuList, selectItem, sliderItem, toggleItem } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
 import { readViewport } from '@/ui/touch/TouchHud';
@@ -185,7 +185,7 @@ export class TouchLayoutEditorScreen extends Screen {
     event.preventDefault();
     const node = this.nodes.get(id);
     if (!node || this.drag) return;
-    node.setPointerCapture(event.pointerId);
+    capturePointer(node, event.pointerId);
     const rect = controlRect(this.draft.controls[id], this.viewport);
     this.drag = { id, pointerId: event.pointerId, offsetX: event.clientX - rect.cx, offsetY: event.clientY - rect.cy };
     if (this.selected !== id) {

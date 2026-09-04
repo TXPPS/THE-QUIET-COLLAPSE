@@ -9,7 +9,20 @@
   transition: opacity var(--tqc-motion-base);
 }
 .tqc-hud[hidden] { display: none; }
-.tqc-hud.is-dimmed { opacity: 0.35; }
+.tqc-hud.is-dimmed { opacity: 0; }
+
+/* With on-screen controls the bottom corners belong to the thumbs: vitals and item move to the top. */
+:root[data-touch-hud='true'] .tqc-hud__vitals {
+  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 3.4rem);
+  bottom: auto;
+}
+:root[data-touch-hud='true'] .tqc-hud__item {
+  top: calc(var(--tqc-space-4) + var(--tqc-safe-top));
+  bottom: auto;
+}
+:root[data-touch-hud='true'] .tqc-hud__prompt { bottom: auto; top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 7.5rem); }
+:root[data-touch-hud='true'] .tqc-hud__caption { bottom: calc(var(--hud-pad-y) + 0.5rem); }
+:root[data-touch-hud='true'] .tqc-toasts { top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 6.2rem); }
 
 .tqc-hud__vitals {
   position: absolute;
