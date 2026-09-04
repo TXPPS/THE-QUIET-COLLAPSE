@@ -1,7 +1,7 @@
 import { DisposeBag } from '@/core/DisposeBag';
 import type { FrameStats } from '@/core/GameLoop';
 import { PROJECT_BUILD_STAMP } from '@/config/project';
-import { el, setHidden, setText } from '@/ui/dom';
+import { el, setHidden, setText, toggleClass } from '@/ui/dom';
 
 export interface DebugSnapshot {
   stats: FrameStats;
@@ -11,6 +11,8 @@ export interface DebugSnapshot {
   cssHeight: number;
   renderScale: number;
   inputSource: string;
+  /** Touch pointers currently owned, e.g. "1:joystick 2:look". */
+  touchPointers: string;
   swState: string;
   online: boolean;
   scene: string;
@@ -18,17 +20,21 @@ export interface DebugSnapshot {
 
 const THREE_FINGER_WINDOW_MS = 400;
 const REFRESH_MS = 250;
-const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'sw', 'scene'] as const;
+const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'touch', 'sw', 'scene'] as const;
 
 /**
  * Hidden QA overlay toggled with F9 or a three-finger tap. Costs nothing while hidden: the host
- * only calls `update` when `visible` is true and the DOM is untouched otherwise.
+ * only calls `update` when `visible` is true and the DOM is untouched otherwise. F10 (or the
+ * button) toggles the spawn-ray debug draw that shows where props and pickups were grounded.
  */
 export class DebugOverlay {
   readonly root: HTMLElement;
   visible = false;
+  spawnRays = false;
+  onSpawnRays: ((visible: boolean) => void) | null = null;
   private readonly bag = new DisposeBag();
   private readonly lines = new Map<string, HTMLElement>();
+  private readonly raysButton: HTMLButtonElement;
   private lastRender = 0;
   private readonly activeTouches = new Set<number>();
   private threeFingerAt = 0;
@@ -45,11 +51,18 @@ export class DebugOverlay {
       this.root.append(line);
     }
     this.line('build').textContent = PROJECT_BUILD_STAMP;
+    this.raysButton = el('button', { class: 'tqc-debug__toggle', text: 'spawn rays: off', attrs: { type: 'button', 'aria-pressed': 'false' } });
+    this.root.append(this.raysButton);
     layer.append(this.root);
+    this.bag.listen(this.raysButton, 'click', () => this.toggleSpawnRays());
     this.bag.listen(window, 'keydown', (event) => {
-      if (event.code !== 'F9') return;
-      event.preventDefault();
-      this.toggle();
+      if (event.code === 'F9') {
+        event.preventDefault();
+        this.toggle();
+      } else if (event.code === 'F10') {
+        event.preventDefault();
+        this.toggleSpawnRays();
+      }
     });
     this.bag.listen(window, 'pointerdown', (event) => this.onPointerDown(event), { passive: true });
     this.bag.listen(window, 'pointerup', (event) => this.activeTouches.delete(event.pointerId), { passive: true });
@@ -62,6 +75,14 @@ export class DebugOverlay {
     this.onToggle(this.visible);
   }
 
+  toggleSpawnRays(): void {
+    this.spawnRays = !this.spawnRays;
+    setText(this.raysButton, `spawn rays: ${this.spawnRays ? 'on' : 'off'}`);
+    this.raysButton.setAttribute('aria-pressed', String(this.spawnRays));
+    toggleClass(this.raysButton, 'is-on', this.spawnRays);
+    this.onSpawnRays?.(this.spawnRays);
+  }
+
   update(now: number, snapshot: DebugSnapshot): void {
     if (!this.visible || now - this.lastRender < REFRESH_MS) return;
     this.lastRender = now;
@@ -70,6 +91,7 @@ export class DebugOverlay {
     setText(this.line('frame'), `frame ${stats.medianMs.toFixed(1)} ms median / ${stats.worstMs.toFixed(1)} ms worst`);
     setText(this.line('res'), `buffer ${snapshot.bufferWidth}x${snapshot.bufferHeight} / css ${snapshot.cssWidth}x${snapshot.cssHeight} / scale ${snapshot.renderScale.toFixed(2)}`);
     setText(this.line('input'), `input ${snapshot.inputSource}`);
+    setText(this.line('touch'), `touch ${snapshot.touchPointers || '-'}`);
     setText(this.line('sw'), `sw ${snapshot.swState} / ${snapshot.online ? 'online' : 'offline'}`);
     setText(this.line('scene'), `scene ${snapshot.scene}`);
   }

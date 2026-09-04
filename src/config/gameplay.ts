@@ -114,6 +114,20 @@ export const FLASHLIGHT = {
   intensity: 260,
 } as const;
 
+/** Spawn grounding: everything placed in the world drops onto the nearest surface below it. */
+export const SPAWN = {
+  /** Probe starts this far above the authored height so an item authored exactly on a surface still hits it. */
+  probeLift: 0.5,
+  /** Spawns with no surface within this distance below the probe are skipped. */
+  maxDrop: 4,
+  /** Authored height assumed when an entity has none. */
+  defaultProbeHeight: 1.5,
+  /** Half heights of the markers so their bottoms sit on the surface. */
+  pickupLift: 0.09,
+  documentLift: 0.01,
+  radioLift: 0.1,
+} as const;
+
 export const RUN = {
   deathToGameOverDelay: 1.6,
   endingFadeDelay: 1.2,

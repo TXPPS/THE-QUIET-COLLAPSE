@@ -60,8 +60,8 @@ export const DOCUMENTS: DocumentDef[] = [
   {
     id: 'doc_rationing',
     x: 41.6,
-    z: 39.4,
-    y: 1.0,
+    z: 40.2,
+    y: 1.2,
     style: 'print',
     title: 'Sign on the counter',
     body: [
@@ -75,8 +75,8 @@ export const DOCUMENTS: DocumentDef[] = [
   {
     id: 'doc_transcript',
     x: 70.6,
-    z: 34.3,
-    y: 1.0,
+    z: 34.15,
+    y: 1.2,
     style: 'handwritten',
     title: 'Attendant’s notebook',
     body: [

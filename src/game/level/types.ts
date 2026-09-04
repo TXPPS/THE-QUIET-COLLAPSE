@@ -36,6 +36,21 @@ export interface BlockDef {
   noCollide?: boolean;
   /** Skip the visual (invisible blocker). */
   invisible?: boolean;
+  /** Set by the prop builders: grounded onto the surface below at level build time. */
+  prop?: boolean;
+  /** A prop that deliberately hangs above the ground on something else (a barrier arm on its post). */
+  elevated?: boolean;
+}
+
+/** One grounding probe recorded at level build time (drawn by the QA overlay). */
+export interface SpawnRay {
+  id: string;
+  kind: 'prop' | 'pickup' | 'document' | 'interactable';
+  x: number;
+  z: number;
+  fromY: number;
+  hitY: number | null;
+  placed: boolean;
 }
 
 export interface SurfaceDef {
@@ -179,4 +194,6 @@ export interface LevelData {
   decals: DecalDef[];
   /** Map annotations for the district map screen. */
   mapLabels: Array<{ x: number; z: number; text: string }>;
+  /** Grounding probes recorded when the level was built (QA overlay). */
+  spawnRays?: SpawnRay[];
 }

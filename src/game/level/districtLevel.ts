@@ -1,6 +1,7 @@
 import { CANON } from '@/config/canon';
 import { box, car, door, light, pillar, prop, surface, zone } from './builders';
 import { DOCUMENTS } from './documents';
+import { groundLevel } from './grounding';
 import type { BlockDef, LevelData } from './types';
 
 /* Coordinates in metres on the XZ plane. +X is east, +Z is south. Yaw 0 faces +Z. */
@@ -80,15 +81,21 @@ const streetProps: BlockDef[] = [
   prop('dumpster', 53.2, 29.2, 2.2, 1.4, 1.4, 'rust'),
   prop('barricade', 53.4, 17.4, 2.4, 0.4, 1.1, 'barrier', 0.2, { lowObstacle: true }),
   prop('barricade', 54.2, 26.5, 2.4, 0.4, 1.1, 'barrier', -0.3, { lowObstacle: true }),
+  // Abandoned luggage: people left in a hurry, and on foot.
   prop('luggage', 36.5, 27.8, 0.7, 0.5, 0.45, 'tarp', 0.6, { noCollide: true }),
   prop('luggage', 47.2, 18.6, 0.6, 0.4, 0.4, 'tarp', -0.4, { noCollide: true }),
-  prop('papers', 40, 24, 3, 2, 0.02, 'paper', 0.3, { noCollide: true }),
   // The crashed bus and the wreckage that seals Route 4
   prop('bus', 61.2, 34.2, 2.7, 12, 3.2, 'bus', 0.42),
   prop('jersey', 56.9, 33, 2.2, 1.0, 1.0, 'barrier', 0.1, { lowObstacle: true }),
   prop('jersey', 65.4, 36.2, 2.2, 1.0, 1.0, 'barrier', -0.2, { lowObstacle: true }),
   prop('rubble', 61.8, 36.6, 12.6, 1.6, 1.2, 'concrete', 0, { lowObstacle: true }),
-  prop('sign_closed', 61, 31.2, 1.6, 0.1, 1.2, 'barrier', 0, { noCollide: true, y: 0.6 }),
+  // "Road closed" board on its own stand in front of the wreck.
+  prop('sign_closed', 61, 31.2, 1.6, 0.12, 1.8, 'barrier', 0, { noCollide: true }),
+];
+
+const stairwellProps: BlockDef[] = [
+  // A dropped bag by the stairwell door; the flashlight sits on it.
+  prop('bag', 9.4, 12.8, 0.6, 0.4, 0.35, 'tarp', 0.4, { noCollide: true }),
 ];
 
 const pharmacyProps: BlockDef[] = [
@@ -111,7 +118,11 @@ const parkingProps: BlockDef[] = [
   car(84, 48.6, 0.1, 'rust'),
   car(90.4, 40, Math.PI / 2 + 0.2),
   prop('booth', 70.6, 33, 2.4, 2.0, 2.4, 'metal'),
-  prop('barrier_arm', 74, 33.5, 3.6, 0.15, 0.1, 'barrier', 0, { noCollide: true, y: 0.9 }),
+  // Attendant's ledge under the booth window (the notebook rests on it).
+  prop('ledge', 70.6, 34.15, 1.2, 0.3, 0.95, 'metal', 0, { noCollide: true }),
+  // Barrier arm on its post: the arm is the one deliberately elevated prop.
+  prop('post', 72.3, 33.5, 0.22, 0.22, 1.0, 'metal'),
+  prop('barrier_arm', 74, 33.5, 3.6, 0.15, 0.1, 'barrier', 0, { noCollide: true, y: 0.9, elevated: true }),
 ];
 
 const southProps: BlockDef[] = [
@@ -124,13 +135,13 @@ const southProps: BlockDef[] = [
   prop('generator', 66.8, 75.6, 1.4, 0.9, 1.1, 'metal'),
 ];
 
-export const DISTRICT_LEVEL: LevelData = {
+const RAW_LEVEL: LevelData = {
   id: 'district',
   name: CANON.districtName,
   bounds: { minX: -12, minZ: -6, maxX: 112, maxZ: 92 },
   playerStart: { x: 11.2, z: 10.6, yaw: 0 },
   lookStart: { yaw: 0, pitch: 0.12 },
-  blocks: [...buildings, ...streetProps, ...pharmacyProps, ...parkingProps, ...southProps],
+  blocks: [...buildings, ...stairwellProps, ...streetProps, ...pharmacyProps, ...parkingProps, ...southProps],
   surfaces: [
     surface(-12, -6, 112, 92, 'concrete', -0.02),
     surface(-6, 18, 104, 28, 'asphalt'),
@@ -165,18 +176,19 @@ export const DISTRICT_LEVEL: LevelData = {
     door('door_parking_gate', 74, 30.5, 4, WALL, 3, 'Parking gate', 0, 'metal'),
     door('door_parking_exit', 68.5, 48, 4, WALL, 2.6, 'Parking exit', Math.PI / 2, 'metal'),
   ],
+  // Authored heights are probe starts: every pickup is dropped onto the surface below it.
   pickups: [
-    { id: 'pk_flashlight', x: 9.4, z: 12.8, y: 0.9, kind: 'flashlight', amount: 1, label: 'Flashlight' },
-    { id: 'pk_ammo_car', x: 31.6, z: 21.2, y: 0.9, kind: 'ammo', amount: 4, label: 'Loose rounds' },
-    { id: 'pk_medkit_pharmacy', x: 35, z: 36.1, y: 1.0, kind: 'medkit', amount: 1, label: 'First-aid kit' },
-    { id: 'pk_ammo_pharmacy', x: 42.6, z: 41.6, y: 1.05, kind: 'ammo', amount: 6, label: 'Box of rounds' },
-    { id: 'pk_ammo_parking', x: 72.3, z: 33.4, y: 1.0, kind: 'ammo', amount: 4, label: 'Loose rounds' },
-    { id: 'pk_medkit_plaza', x: 47.2, z: 72.6, y: 0.6, kind: 'medkit', amount: 1, label: 'Field dressing' },
+    { id: 'pk_flashlight', x: 9.4, z: 12.8, y: 0.6, kind: 'flashlight', amount: 1, label: 'Flashlight' }, // on the bag
+    { id: 'pk_ammo_car', x: 31.6, z: 21.2, y: 0.5, kind: 'ammo', amount: 4, label: 'Loose rounds' }, // spilled beside the car
+    { id: 'pk_medkit_pharmacy', x: 35, z: 35.6, y: 2.0, kind: 'medkit', amount: 1, label: 'First-aid kit' }, // on the shelf
+    { id: 'pk_ammo_pharmacy', x: 42.6, z: 40.7, y: 1.2, kind: 'ammo', amount: 6, label: 'Box of rounds' }, // on the counter
+    { id: 'pk_ammo_parking', x: 72.3, z: 34.6, y: 0.5, kind: 'ammo', amount: 4, label: 'Loose rounds' }, // deck by the post
+    { id: 'pk_medkit_plaza', x: 47.2, z: 72.6, y: 0.5, kind: 'medkit', amount: 1, label: 'Field dressing' }, // outside the tent
   ],
   documents: DOCUMENTS,
   interactables: [
     { id: 'it_blocked', x: 61, z: 31.6, y: 1.2, kind: 'blocked', label: 'Wreckage', message: 'The bus is wedged against the barriers. There is no way through here.' },
-    { id: 'it_radio', x: 47.8, z: 41.6, y: 1.0, kind: 'radio', label: 'Radio', message: 'The radio still has power. A good place to stop and take stock.' },
+    { id: 'it_radio', x: 47.8, z: 42.0, y: 1.0, kind: 'radio', label: 'Radio', message: 'The radio still has power. A good place to stop and take stock.' }, // on the desk
     { id: 'it_gate', x: 61, z: 77.4, y: 1.3, kind: 'gate', label: 'Crossing gate' },
   ],
   zones: [
@@ -227,3 +239,8 @@ export const DISTRICT_LEVEL: LevelData = {
     { x: 61, z: 74, text: 'Crossing' },
   ],
 };
+
+const grounded = groundLevel(RAW_LEVEL);
+/** The playable district with every prop, pickup, loose document and the radio grounded. */
+export const DISTRICT_LEVEL: LevelData = grounded.level;
+export const DISTRICT_GROUNDING = grounded.report;

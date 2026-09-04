@@ -107,16 +107,35 @@ export class WorldRenderer {
     };
     for (const pickup of this.level.pickups) {
       const mesh = new THREE.Mesh(pickupGeometry, pickupMaterials[pickup.kind]);
-      mesh.position.set(pickup.x, pickup.y ?? 0.4, pickup.z);
+      mesh.position.set(pickup.x, pickup.y ?? 0.09, pickup.z);
       this.group.add(mesh);
       this.pickups.set(pickup.id, mesh);
     }
+    this.buildRadios();
     const docMaterial = new THREE.MeshStandardMaterial({ color: 0xb8b09a, roughness: 1, side: THREE.DoubleSide, emissive: 0x2a2820 });
     for (const doc of this.level.documents) {
       const mesh = new THREE.Mesh(docGeometry, docMaterial);
       mesh.position.set(doc.x, doc.y ?? 1, doc.z);
       if (doc.yaw !== undefined) mesh.rotation.y = doc.yaw;
       else mesh.rotation.x = -Math.PI / 2;
+      this.group.add(mesh);
+    }
+  }
+
+  /** The radio is the manual save point; it needs a body and a lit dial to be found in the dark. */
+  private buildRadios(): void {
+    const body = new THREE.BoxGeometry(0.34, 0.2, 0.16);
+    const dial = new THREE.BoxGeometry(0.06, 0.03, 0.01);
+    this.geometries.push(body, dial);
+    const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0x3f4a44, roughness: 0.6, metalness: 0.3, emissive: 0x0d1210 });
+    const dialMaterial = new THREE.MeshStandardMaterial({ color: 0xe0782a, emissive: 0xe0782a, emissiveIntensity: 1.5 });
+    for (const item of this.level.interactables) {
+      if (item.kind !== 'radio') continue;
+      const mesh = new THREE.Mesh(body, bodyMaterial);
+      mesh.position.set(item.x, item.y ?? 0.1, item.z);
+      const light = new THREE.Mesh(dial, dialMaterial);
+      light.position.set(0.08, 0.04, -0.085);
+      mesh.add(light);
       this.group.add(mesh);
     }
   }

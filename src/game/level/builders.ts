@@ -14,7 +14,7 @@ export function box(id: string, x0: number, z0: number, x1: number, z1: number, 
 
 /** Block from centre, size and rotation (props). */
 export function prop(prefix: string, x: number, z: number, w: number, d: number, h: number, material: MaterialKey, rot = 0, extra: Partial<BlockDef> = {}): BlockDef {
-  return { id: nextId(prefix), x, z, w, d, h, rot, material, ...extra };
+  return { id: nextId(prefix), x, z, w, d, h, rot, material, prop: true, ...extra };
 }
 
 export function surface(x0: number, z0: number, x1: number, z1: number, kind: SurfaceKind, y = 0): SurfaceDef {

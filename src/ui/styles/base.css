@@ -399,3 +399,15 @@ body {
   white-space: nowrap;
 }
 .tqc-debug[hidden] { display: none; }
+.tqc-debug__toggle {
+  margin-top: var(--tqc-space-1);
+  padding: 2px var(--tqc-space-2);
+  border: 1px solid var(--tqc-border);
+  background: transparent;
+  color: var(--tqc-text-muted);
+  font: inherit;
+  pointer-events: auto;
+  cursor: pointer;
+  min-height: 28px;
+}
+.tqc-debug__toggle.is-on { color: var(--tqc-accent); border-color: var(--tqc-accent); }
