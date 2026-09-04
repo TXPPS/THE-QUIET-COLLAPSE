@@ -134,8 +134,9 @@ function handleMovement(world: World, input: PlayerInput, dt: number): void {
   const camYaw = world.look.yaw;
   const fx = Math.sin(camYaw);
   const fz = Math.cos(camYaw);
-  const rx = Math.cos(camYaw);
-  const rz = -Math.sin(camYaw);
+  // Screen-right for a camera facing (fx, fz) is forward x up = (-fz, fx): +X is on the LEFT at yaw 0.
+  const rx = -Math.cos(camYaw);
+  const rz = Math.sin(camYaw);
   let dirX = rx * move.x + fx * move.y;
   let dirZ = rz * move.x + fz * move.y;
   const magnitude = length2(dirX, dirZ);

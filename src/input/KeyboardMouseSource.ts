@@ -87,10 +87,8 @@ export class KeyboardMouseSource implements InputSource {
     if (context === 'game') {
       this.pollAxis(frame, 'Move');
       const s = CAMERA.lookSensitivityBase * this.tuning.mouseSensitivity;
-      if (this.isPointerLocked) {
-        frame.lookDeltaX += this.mouseDx * s * (this.tuning.invertX ? -1 : 1);
-        frame.lookDeltaY += this.mouseDy * s * (this.tuning.invertY ? -1 : 1);
-      }
+      // movementY grows downward, matching the Look convention (positive = look down).
+      if (this.isPointerLocked) frame.addLook(this.mouseDx * s * (this.tuning.invertX ? -1 : 1), this.mouseDy * s * (this.tuning.invertY ? -1 : 1));
     } else {
       this.pollAxis(frame, 'Navigate');
     }

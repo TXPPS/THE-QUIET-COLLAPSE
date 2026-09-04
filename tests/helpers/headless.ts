@@ -85,8 +85,9 @@ export function walkTo(h: Headless, target: Vec2, maxSeconds = 60, tolerance = 0
     const dx = next.x - p.x;
     const dz = next.z - p.z;
     const len = Math.hypot(dx, dz) || 1;
+    // Camera at yaw 0 faces +Z, so screen-right is -X: Move.x must be negated to travel +X.
     world.look.yaw = 0;
-    input.move = { x: dx / len, y: dz / len };
+    input.move = { x: -dx / len, y: dz / len };
     stepOnce(h);
   }
   input.move = { x: 0, y: 0 };

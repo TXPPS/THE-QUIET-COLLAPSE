@@ -1,4 +1,4 @@
-export const SETTINGS_VERSION = 1;
+export const SETTINGS_VERSION = 2;
 
 export type QualityId = 'auto' | 'low' | 'balanced' | 'high';
 export type ControlPolicy = 'auto' | 'locked';
@@ -6,6 +6,8 @@ export type HoldMode = 'hold' | 'toggle';
 export type GlyphFamilyOverride = 'auto' | 'xbox' | 'playstation' | 'nintendo' | 'generic';
 export type ReducedMotionPref = 'system' | 'on' | 'off';
 export type NintendoConfirmPolicy = 'east' | 'south';
+/** How the right thumb looks around on touch: drag anywhere in the look zone, or a visible stick. */
+export type TouchLookControl = 'drag' | 'stick';
 
 export interface VideoSettings {
   quality: QualityId;
@@ -30,7 +32,10 @@ export interface ControlSettings {
   primarySource: string | null;
   mouseSensitivity: number;
   stickSensitivity: number;
-  invertY: boolean;
+  /** Invert vertical look, per input source (each device has its own habit). */
+  invertYMouse: boolean;
+  invertYGamepad: boolean;
+  invertYTouch: boolean;
   invertX: boolean;
   aimMode: HoldMode;
   sprintMode: HoldMode;
@@ -44,6 +49,7 @@ export interface ControlSettings {
   touchDeadZone: number;
   touchSprintThreshold: number;
   touchSprintLock: boolean;
+  touchLookControl: TouchLookControl;
 }
 
 export interface AccessibilitySettings {
@@ -60,6 +66,8 @@ export interface MetaSettings {
   controlsChooserSeen: boolean;
   lastSlot: number | null;
   difficulty: 'normal' | 'hard';
+  /** The drag-to-look hint has been shown and used once. */
+  touchLookHintSeen: boolean;
 }
 
 export interface Settings {
@@ -78,7 +86,9 @@ export const DEFAULT_SETTINGS: Settings = {
     primarySource: null,
     mouseSensitivity: 1,
     stickSensitivity: 1,
-    invertY: false,
+    invertYMouse: false,
+    invertYGamepad: false,
+    invertYTouch: false,
     invertX: false,
     aimMode: 'hold',
     sprintMode: 'hold',
@@ -92,6 +102,7 @@ export const DEFAULT_SETTINGS: Settings = {
     touchDeadZone: 0.12,
     touchSprintThreshold: 0.92,
     touchSprintLock: true,
+    touchLookControl: 'drag',
   },
   accessibility: {
     reducedMotion: 'system',
@@ -101,7 +112,7 @@ export const DEFAULT_SETTINGS: Settings = {
     largeHud: false,
     colorSafeHud: false,
   },
-  meta: { warningsAccepted: false, controlsChooserSeen: false, lastSlot: null, difficulty: 'normal' },
+  meta: { warningsAccepted: false, controlsChooserSeen: false, lastSlot: null, difficulty: 'normal', touchLookHintSeen: false },
 };
 
 /** Numeric ranges used to clamp persisted values (corrupted or hand-edited storage). */
@@ -132,6 +143,27 @@ export const SETTINGS_ENUMS: Record<string, readonly string[]> = {
   'controls.sprintMode': ['hold', 'toggle'],
   'controls.glyphFamilyOverride': ['auto', 'xbox', 'playstation', 'nintendo', 'generic'],
   'controls.nintendoConfirm': ['east', 'south'],
+  'controls.touchLookControl': ['drag', 'stick'],
   'accessibility.reducedMotion': ['system', 'on', 'off'],
   'meta.difficulty': ['normal', 'hard'],
 };
+
+/**
+ * Version migrations. v1 -> v2: the single `controls.invertY` became one flag per input source, so
+ * a player who had inverted look keeps it on every device.
+ */
+export function migrateSettings(fromVersion: number, data: unknown): unknown {
+  if (typeof data !== 'object' || data === null) return data;
+  const record = data as Record<string, unknown>;
+  const controls = record['controls'];
+  if (fromVersion < 2 && typeof controls === 'object' && controls !== null) {
+    const c = controls as Record<string, unknown>;
+    if (c['invertY'] === true) {
+      c['invertYMouse'] = c['invertYMouse'] ?? true;
+      c['invertYGamepad'] = c['invertYGamepad'] ?? true;
+      c['invertYTouch'] = c['invertYTouch'] ?? true;
+    }
+    delete c['invertY'];
+  }
+  return record;
+}

@@ -42,7 +42,8 @@ export class CameraRig {
     const pitch = world.look.pitch;
     this.pivot.set(px, CAMERA.height * (p.dead ? 0.35 : 1), pz);
     this.forward.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
-    this.right.set(Math.cos(yaw), 0, -Math.sin(yaw));
+    // Camera right = forward x up; the boom sits over the player's right shoulder (the gun side).
+    this.right.set(-Math.cos(yaw), 0, Math.sin(yaw));
     const shoulder = lerp(CAMERA.shoulderOffset, CAMERA.aimShoulderOffset, this.aimBlend);
     const targetDistance = lerp(CAMERA.distance, CAMERA.aimDistance, this.aimBlend) * (p.dead ? 1.6 : 1);
     const distance = this.sweep(world, targetDistance, shoulder);

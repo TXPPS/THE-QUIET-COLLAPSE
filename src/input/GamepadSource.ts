@@ -26,6 +26,11 @@ export interface RawPadState {
   axes: number[];
 }
 
+/** Exponential response for stick look: fine control near centre, fast turns at the edge. */
+export function lookCurve(v: number): number {
+  return Math.sign(v) * v * v;
+}
+
 /** Applies a radial dead zone (magnitude) then an axial dead zone (per component) and rescales. */
 export function applyDeadZones(x: number, y: number, radial: number, axial: number): { x: number; y: number } {
   const magnitude = Math.hypot(x, y);
@@ -134,10 +139,9 @@ export class GamepadSource implements InputSource {
       if (move.x !== 0 || move.y !== 0) frame.addAxis('Move', move.x, -move.y);
       const look = this.readStick('Look');
       if (look.x !== 0 || look.y !== 0) {
+        // Stick Y grows when pushed down, matching the Look convention (positive = look down).
         const rate = CAMERA.stickLookRateBase * this.tuning.stickSensitivity * dt;
-        const curve = (v: number) => Math.sign(v) * v * v;
-        frame.lookDeltaX += curve(look.x) * rate * (this.tuning.invertX ? -1 : 1);
-        frame.lookDeltaY += curve(look.y) * rate * (this.tuning.invertY ? -1 : 1);
+        frame.addLook(lookCurve(look.x) * rate * (this.tuning.invertX ? -1 : 1), lookCurve(look.y) * rate * (this.tuning.invertY ? -1 : 1));
       }
     } else {
       const nav = this.readStick('Navigate');

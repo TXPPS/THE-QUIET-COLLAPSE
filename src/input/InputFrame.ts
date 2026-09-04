@@ -10,7 +10,12 @@ export class InputFrame {
     Look: { x: 0, y: 0 },
     Navigate: { x: 0, y: 0 },
   };
-  /** Look delta expressed in radians for pointer-style sources (added on top of stick look). */
+  /**
+   * The Look action for this frame, in radians. One sign convention for every source:
+   * `x > 0` turns right, `y > 0` looks DOWN (screen Y grows downward, so an un-inverted mouse
+   * moved toward the player, a stick pushed down and a finger dragged down all produce `y > 0`).
+   * Sources apply their own invert options before calling `addLook`; consumers never re-sign.
+   */
   lookDeltaX = 0;
   lookDeltaY = 0;
 
@@ -42,6 +47,12 @@ export class InputFrame {
     const axis = this.axes[action];
     axis.x += x;
     axis.y += y;
+  }
+
+  /** Adds to the Look action (see `lookDeltaX`/`lookDeltaY` for the sign convention). */
+  addLook(dx: number, dy: number): void {
+    this.lookDeltaX += dx;
+    this.lookDeltaY += dy;
   }
 }
 

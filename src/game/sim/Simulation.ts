@@ -35,11 +35,15 @@ export class Simulation {
     this.offNoise();
   }
 
-  /** Applies look input; called every render frame for responsiveness. */
+  /**
+   * Applies the Look action; called every render frame for responsiveness. Input convention:
+   * `dx > 0` turns right, `dy > 0` looks down (screen Y is down). Positive pitch looks up, so the
+   * vertical delta is subtracted.
+   */
   applyLook(dx: number, dy: number): void {
     const look = this.world.look;
     look.yaw = wrapAngle(look.yaw - dx);
-    look.pitch = clamp(look.pitch + dy, CAMERA.minPitch, CAMERA.maxPitch);
+    look.pitch = clamp(look.pitch - dy, CAMERA.minPitch, CAMERA.maxPitch);
   }
 
   step(input: SimInput, dt: number): void {

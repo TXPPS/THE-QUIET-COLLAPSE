@@ -196,12 +196,12 @@ export class InputManager implements ActionSnapshot {
   private applySettings(s: Settings): void {
     this.keyboardMouse.tuning = {
       mouseSensitivity: s.controls.mouseSensitivity,
-      invertY: s.controls.invertY,
+      invertY: s.controls.invertYMouse,
       invertX: s.controls.invertX,
     };
     this.registry.setPadTuning(padTuningFrom(s));
     this.registry.setPolicy(s.controls.policy, s.controls.primarySource);
-    this.touch.setTuning({ stickSensitivity: s.controls.stickSensitivity, invertY: s.controls.invertY });
+    this.touch.setTuning({ stickSensitivity: s.controls.stickSensitivity, invertY: s.controls.invertYTouch });
   }
 
   /** Convenience for screens: list of sources for the chooser. */
@@ -215,7 +215,7 @@ export function padTuningFrom(s: Settings): PadTuning {
     deadZoneRadial: s.controls.deadZoneRadial,
     deadZoneAxial: s.controls.deadZoneAxial,
     stickSensitivity: s.controls.stickSensitivity,
-    invertY: s.controls.invertY,
+    invertY: s.controls.invertYGamepad,
     invertX: s.controls.invertX,
     glyphFamilyOverride: s.controls.glyphFamilyOverride,
     nintendoConfirm: s.controls.nintendoConfirm,

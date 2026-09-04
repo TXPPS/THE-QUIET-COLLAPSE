@@ -121,7 +121,9 @@ export class OptionsScreen extends Screen {
       menuItem({ label: 'Touch layout', hint: 'Position, size and opacity of on-screen controls.', onSelect: () => this.app.openTouchEditor() }),
       sliderItem(this.focus, this.bag, { label: 'Mouse sensitivity', min: 0.2, max: 3, step: 0.1, get: () => s.get().controls.mouseSensitivity, set: (v) => s.update({ controls: { mouseSensitivity: v } }), format: (v) => v.toFixed(1) }),
       sliderItem(this.focus, this.bag, { label: 'Stick / touch sensitivity', min: 0.2, max: 3, step: 0.1, get: () => s.get().controls.stickSensitivity, set: (v) => s.update({ controls: { stickSensitivity: v } }), format: (v) => v.toFixed(1) }),
-      toggleItem(this.focus, { label: 'Invert vertical look', get: () => s.get().controls.invertY, set: (v) => s.update({ controls: { invertY: v } }) }),
+      toggleItem(this.focus, { label: 'Invert vertical look (mouse)', get: () => s.get().controls.invertYMouse, set: (v) => s.update({ controls: { invertYMouse: v } }) }),
+      toggleItem(this.focus, { label: 'Invert vertical look (controller)', get: () => s.get().controls.invertYGamepad, set: (v) => s.update({ controls: { invertYGamepad: v } }) }),
+      toggleItem(this.focus, { label: 'Invert vertical look (touch)', get: () => s.get().controls.invertYTouch, set: (v) => s.update({ controls: { invertYTouch: v } }) }),
       holdToggle('Aim', 'aimMode'),
       holdToggle('Sprint', 'sprintMode'),
       sliderItem(this.focus, this.bag, { label: 'Stick dead zone', hint: 'Radial dead zone for both sticks.', min: 0, max: 0.6, step: 0.02, get: () => s.get().controls.deadZoneRadial, set: (v) => s.update({ controls: { deadZoneRadial: v } }), format: (v) => v.toFixed(2) }),
@@ -145,6 +147,14 @@ export class OptionsScreen extends Screen {
       sliderItem(this.focus, this.bag, { label: 'Touch joystick dead zone', min: 0, max: 0.4, step: 0.02, get: () => s.get().controls.touchDeadZone, set: (v) => s.update({ controls: { touchDeadZone: v } }), format: (v) => v.toFixed(2) }),
       sliderItem(this.focus, this.bag, { label: 'Touch sprint threshold', hint: 'How far the joystick must be pushed before you start running.', min: 0.6, max: 1, step: 0.02, get: () => s.get().controls.touchSprintThreshold, set: (v) => s.update({ controls: { touchSprintThreshold: v } }), format: (v) => `${Math.round(v * 100)}%` }),
       toggleItem(this.focus, { label: 'Touch sprint lock', hint: 'Keep running until the joystick relaxes.', get: () => s.get().controls.touchSprintLock, set: (v) => s.update({ controls: { touchSprintLock: v } }) }),
+      selectItem(this.focus, {
+        label: 'Look control',
+        hint: 'Drag anywhere on the right half of the screen, or use a visible right stick.',
+        values: ['drag', 'stick'] as const,
+        get: () => s.get().controls.touchLookControl,
+        set: (v) => s.update({ controls: { touchLookControl: v } }),
+        format: (v) => (v === 'drag' ? 'Drag zone' : 'Right stick'),
+      }),
     ];
   }
 

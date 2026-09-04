@@ -1,7 +1,7 @@
 import { EventBus } from '@/core/EventBus';
 import { readVersioned, writeVersioned, removeRaw, isRecord } from './Storage';
 import { sanitize } from './sanitize';
-import { DEFAULT_SETTINGS, SETTINGS_ENUMS, SETTINGS_RANGES, SETTINGS_VERSION, type Settings } from './settingsSchema';
+import { DEFAULT_SETTINGS, SETTINGS_ENUMS, SETTINGS_RANGES, SETTINGS_VERSION, migrateSettings, type Settings } from './settingsSchema';
 
 const STORAGE_NAME = 'settings';
 
@@ -21,7 +21,7 @@ export class SettingsStore {
   private current: Settings;
 
   constructor() {
-    const result = readVersioned<unknown>(STORAGE_NAME, SETTINGS_VERSION, isRecord, (_from, data) => data);
+    const result = readVersioned<unknown>(STORAGE_NAME, SETTINGS_VERSION, isRecord, migrateSettings);
     if (result.ok) {
       this.current = sanitize(DEFAULT_SETTINGS, result.value, { ranges: SETTINGS_RANGES, enums: SETTINGS_ENUMS });
       this.loadStatus = 'ok';
