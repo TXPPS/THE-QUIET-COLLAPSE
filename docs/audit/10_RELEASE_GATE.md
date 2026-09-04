@@ -10,8 +10,8 @@ evidence produced in this session.
 |---|---|---|
 | Lint | `pnpm lint` | 0 errors (warnings: none) |
 | Type check | `pnpm typecheck` | clean |
-| Unit tests | `pnpm test` | 16 files, 68 tests passing |
-| Production build | `pnpm build` | clean; `dist/` with manifest + service worker |
+| Unit tests | `pnpm test` | 19 files, 93 tests passing (2026-09-04 wave) |
+| Production build | `pnpm build` | clean; `dist/` with manifest + service worker; `tqc-touch-layout-check` reports 4 presets clean at 4 aspect ratios (build fails on overlap / edge / look-zone violations) |
 | Bundle hygiene | `pnpm check:bundle` | "production output contains no reference screenshots" |
 | §0.1 loop, desktop KBM | `pnpm exec playwright test tests/e2e/loop.spec.ts --project=desktop-1080p` | PASS (1.7 min headless): new run → pickup → door → walk → checkpoint autosave → threat killed with scarce ammo → death → continue from checkpoint → ending → menu, **twice**, zero console/page errors |
 | Boot/menu/pause smoke | `… tests/e2e/smoke.spec.ts --project=desktop-1080p` | PASS (boot → warning → menu → new run → pause → resume → quit, zero errors) |
@@ -76,3 +76,17 @@ untested** and must be run before a public release:
 | Live checks | `/`, `/manifest.webmanifest`, `/sw.js`, `/precache-manifest.json` and all three hashed assets return 200; hashed assets `immutable`, shell/worker `no-cache`; CSP, nosniff, referrer and permissions headers present; no `http://` references in the shell |
 | Offline | `tests/e2e/offline.spec.ts`: first load installs the worker and precaches; offline reload boots; new run → first interaction → checkpoint save → offline reload → Continue restores the run. PASS locally (12.3 s) and against https://quiet-collapse.pages.dev (`E2E_BASE_URL`, 2 passed incl. `live-boot.spec.ts`: no console errors, worker `activated`, stamp `0.1.0 · b7901e9`). |
 | Reference hygiene | `pnpm check:bundle` on the deployed `dist/`: zero reference-screenshot hits |
+
+## Touch look / weapon / grounding wave (2026-09-04)
+
+| Check | Command | Result |
+|---|---|---|
+| Look convention, per-source invert, strafe direction, settings migration | `pnpm test` (`tests/unit/input/lookConvention.test.ts`, 7 tests) | PASS |
+| Touch pointer ownership: move + look simultaneously, cancel, button/zone exclusivity, hit-reject, hint, right stick, contextual buttons | `tests/unit/ui/touchHud.test.ts` (12 tests) | PASS |
+| Presets at 19.5:9, 20:9, 4:3, 16:10 in drag and stick modes: >= 56 / 72 px, 12 px gaps, 8 px safe margin, no look-zone intrusion, >= 60 % free look zone, top-centre band empty | `tests/unit/ui/touchLayout.test.ts` + Vite build plugin | PASS (build gate active) |
+| Spawn grounding (synthetic + whole district, nothing skipped) | `tests/unit/level/grounding.test.ts` | PASS |
+| Emulated touch run: two fingers move + look every frame, aim + fire while moving, drag-down lowers pitch, drag-right turns right, backgrounding releases every pointer, nothing sticks after resume | `... tests/e2e/touch.spec.ts --project=phone-landscape` | PASS (2 tests, 21 s) |
+| Preset screenshots, every preset at every aspect (+ right-stick variant) | `... tests/e2e/touch-presets.spec.ts --project=phone-landscape` | PASS; 20 files in `docs/audit/touch/after/` |
+| Held weapon: carry, aim (camera over the right shoulder), fire from the muzzle socket, reload motion | `... tests/e2e/weapon.spec.ts` (desktop-1080p, phone-landscape) | PASS; `evidence/*-3x-weapon-*.png` |
+| Regression: desktop loop x2, smoke, emulated controller, screens, offline | `... smoke/loop/gamepad/screens --project=desktop-1080p`, `pnpm test:offline` | PASS |
+| QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev (deployment id in STATE.md) |

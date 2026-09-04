@@ -9,6 +9,19 @@ Resume from this file, not from scratch.
 - Reference screenshots stay outside the repo (scratchpad only). Only pack `.md` files are committed.
 
 ## Phase / wave
+- **Touch look / weapon / prop / touch-HUD wave (2026-09-04) — complete, all gates green.**
+  Root causes fixed: vertical look inverted on every source (TQC-050, `Simulation.applyLook` added
+  screen-down Y to pitch); camera over the left shoulder and mirrored strafe (TQC-051, negated right vector
+  in `player.ts` / `CameraRig.ts`); look zone ignoring safe insets with top-centre buttons inside it (TQC-052);
+  presets not edge-anchored / no build gate (TQC-053); no held weapon (TQC-054); floating pickups, radio
+  without a mesh, scattered decoration (TQC-055); touch ammo readout collisions (TQC-056).
+  New: `InputFrame.addLook` convention, per-source invert (settings v2), `PointerOwners`, `touchLayout.ts`
+  + `touchPresets.ts` (profiles v2, v1 layouts reset), right-stick look option, first-use look glyph,
+  `WeaponRig`, `groundLevel` + `SpawnRayDebug` (F10 / overlay button), `vite-plugin-touch-layout-check`.
+  Unit: 19 files, 93 tests. e2e green: smoke, loop, gamepad, screens, weapon (desktop); touch (2 tests),
+  touch-presets (20 captures in `docs/audit/touch/after/`), weapon, screens (phone); offline.
+  Behaviour change to note for real-device testers: mouse/controller vertical look is now un-inverted
+  (standard) and the camera sits over the right shoulder.
 - **All gates passed in headless Chromium**: desktop loop (KBM) ×2, emulated controller flow, phone touch
   loop, smoke, evidence screenshots (1080p, phone; 1366×768 run last). Unit: 69 tests. See 10_RELEASE_GATE.md.
 - Remaining work is real-device verification (no GPU/hardware in this session) — see the manual matrix.
@@ -45,9 +58,9 @@ Resume from this file, not from scratch.
   Wave 10 release gate (10_RELEASE_GATE.md), handoff.
 
 ## Verification commands
-- `pnpm lint && pnpm typecheck && pnpm test` (unit: 55 tests) · `pnpm build && pnpm check:bundle`
+- `pnpm lint && pnpm typecheck && pnpm test` (unit: 93 tests) · `pnpm build && pnpm check:bundle` (build fails on a bad touch preset)
 - `pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/screens.spec.ts tests/e2e/loop.spec.ts --project=desktop-1080p`
-- `pnpm exec playwright test tests/e2e/touch.spec.ts --project=phone-landscape`
+- `pnpm exec playwright test tests/e2e/touch.spec.ts tests/e2e/touch-presets.spec.ts tests/e2e/weapon.spec.ts --project=phone-landscape`
 
 ## Open blockers
 - None.

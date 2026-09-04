@@ -75,3 +75,23 @@ Ordered regex table (`FAMILY_RULES`, `:23-31`): PlayStation 0.95, Nintendo 0.95,
 - Keyboard/mouse source ignores the first mouse movement after a pointer-lock change and discards single
   movement deltas above 250 px, which browsers (and headless Chromium) can report as the cursor snaps.
 - Losing pointer lock during play opens the pause menu (`PointerLockController`).
+
+## Addendum 2 (touch look / weapon / grounding wave, 2026-09-04)
+
+- **One Look action.** `InputFrame.addLook(dx, dy)` is the only way a source contributes look; `+x` turns right,
+  `+y` looks down (screen Y grows downward). Mouse (`movementY`), right stick (`axes[3]`) and touch drag all
+  produce `+y` for a downward input; each applies its own invert flag (`controls.invertYMouse / invertYGamepad /
+  invertYTouch`, settings v2, old `invertY` migrated onto all three). `Simulation.applyLook` subtracts `y`
+  from pitch. Before this wave every source looked up on a downward input (TQC-050).
+- **Screen-right.** The camera and strafe right vector is `(-cos yaw, 0, sin yaw)` (forward × up). The
+  previous sign put the camera over the left shoulder and mirrored A/D (TQC-051).
+- **Touch HUD.** `PointerOwners` gives every control at most one pointer id; the look zone is the right half of
+  the surface inside the safe-area insets minus visible button hit circles; a drag that starts on a button is
+  refused and a button never fires for a pointer the look zone owns. Optional right stick (`controls.touchLookControl`)
+  with the shared radial dead zone and the same squared response as the gamepad. Layout coordinates are
+  edge-anchored (`src/ui/touch/touchLayout.ts`); presets are checked at 19.5:9, 20:9, 4:3 and 16:10 in both look modes
+  by `touchLayout.test.ts` and by the Vite build plugin. Contextual buttons: Use only with a prompt, Reload only when
+  a reload is possible, Fire only with a pistol or a medkit to use.
+- Tests added: `lookConvention.test.ts`, `touchLayout.test.ts`, rewritten `touchHud.test.ts` / `touchProfiles.test.ts`,
+  `grounding.test.ts`; e2e `touch.spec.ts` (move + look at once, aim + fire while moving, pitch direction, backgrounding),
+  `touch-presets.spec.ts` (20 screenshots), `weapon.spec.ts`.
