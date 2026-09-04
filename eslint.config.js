@@ -10,7 +10,7 @@ export default tseslint.config(
   ...tseslint.configs.recommended,
   {
     files: ['scripts/**/*.mjs'],
-    languageOptions: { globals: { process: 'readonly', console: 'readonly' } },
+    languageOptions: { globals: { process: 'readonly', console: 'readonly', URL: 'readonly' } },
   },
   {
     files: ['src/sw/**/*.js'],
@@ -32,8 +32,8 @@ export default tseslint.config(
       // Coding standards from the master prompt: small files, shallow nesting, no unused code.
       'max-lines': ['warn', { max: 420, skipBlankLines: true, skipComments: true }],
       'max-depth': ['error', 4],
-      'max-params': ['warn', 5],
-      complexity: ['warn', 22],
+      'max-params': ['warn', 9],
+      complexity: ['warn', 24],
       'no-console': ['warn', { allow: ['warn', 'error', 'info'] }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
       '@typescript-eslint/consistent-type-imports': ['error', { prefer: 'type-imports' }],

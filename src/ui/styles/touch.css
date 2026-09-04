@@ -1,0 +1,132 @@
+.tqc-touch {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+.tqc-touch[hidden] { display: none; }
+.tqc-touch__zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  pointer-events: auto;
+}
+.tqc-touch__zone--move { left: 0; width: 45%; }
+.tqc-touch__zone--look { right: 0; width: 55%; }
+
+.tqc-touch__stick {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid rgba(214, 210, 200, 0.45);
+  background: rgba(10, 11, 12, 0.35);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 120ms;
+}
+.tqc-touch__stick.is-active { opacity: 1; }
+.tqc-touch__stick.is-fixed { opacity: 0.55; }
+.tqc-touch__stick.is-fixed.is-active { opacity: 1; }
+.tqc-touch__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 38%;
+  height: 38%;
+  border-radius: 50%;
+  background: rgba(214, 210, 200, 0.8);
+  transform: translate(-50%, -50%);
+}
+.tqc-touch__stick.is-sprint .tqc-touch__knob { background: var(--tqc-accent); }
+
+.tqc-touch__btn {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid rgba(214, 210, 200, 0.5);
+  background: rgba(10, 11, 12, 0.45);
+  color: var(--tqc-text);
+  font-family: var(--tqc-font);
+  font-size: clamp(0.62rem, 1.6vmin, 0.85rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  transition: background 90ms, border-color 90ms, opacity 160ms;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+.tqc-touch__btn.is-down { background: rgba(214, 210, 200, 0.28); border-color: var(--tqc-focus); }
+.tqc-touch__btn.is-latched { border-color: var(--tqc-accent); }
+.tqc-touch__btn.is-hinted { border-color: var(--tqc-accent); box-shadow: 0 0 0 2px rgba(201, 154, 58, 0.35); }
+.tqc-touch__btn[hidden] { display: none; }
+.tqc-touch__btn--primary { border-width: 2px; }
+.tqc-touch__btn svg { width: 46%; height: 46%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.tqc-touch__btn span { font-size: 0.85em; margin-top: 2px; }
+
+.tqc-touch__crosshair-hint { position: absolute; left: 50%; top: 50%; }
+
+/* ---------- layout editor ---------- */
+.tqc-editor {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  background: rgba(8, 9, 10, 0.55);
+}
+.tqc-editor__safe {
+  position: absolute;
+  border: 1px dashed rgba(201, 154, 58, 0.6);
+  pointer-events: none;
+}
+.tqc-editor__control {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1.5px solid rgba(214, 210, 200, 0.55);
+  background: rgba(10, 11, 12, 0.5);
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.6rem, 1.5vmin, 0.8rem);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--tqc-text);
+  cursor: grab;
+  touch-action: none;
+  pointer-events: auto;
+}
+.tqc-editor__control.is-selected { border-color: var(--tqc-focus); box-shadow: 0 0 0 2px rgba(230, 220, 195, 0.35); }
+.tqc-editor__control.is-overlap { border-color: var(--tqc-danger); }
+.tqc-editor__control.is-hidden-control { opacity: 0.3; border-style: dashed; }
+.tqc-editor__panel {
+  position: absolute;
+  top: calc(var(--tqc-space-3) + var(--tqc-safe-top));
+  left: calc(var(--tqc-space-3) + var(--tqc-safe-left));
+  width: min(22rem, 46vw);
+  max-height: calc(100% - var(--tqc-space-6) - var(--tqc-safe-top) - var(--tqc-safe-bottom));
+  overflow: auto;
+  padding: var(--tqc-space-3);
+  background: var(--tqc-surface-raised);
+  border: 1px solid var(--tqc-border);
+  display: grid;
+  gap: var(--tqc-space-2);
+  pointer-events: auto;
+}
+.tqc-editor__panel .tqc-item { min-height: 40px; }
+.tqc-editor__warning { font-size: var(--tqc-fs-xs); color: var(--tqc-warning); letter-spacing: 0.06em; text-transform: uppercase; min-height: 1.2em; }
+
+.tqc-rotate {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--tqc-bg);
+  text-align: center;
+  padding: var(--tqc-space-5);
+  pointer-events: auto;
+}
+.tqc-rotate[hidden] { display: none; }
+.tqc-rotate__icon { width: 3rem; height: 3rem; margin: 0 auto var(--tqc-space-4); border: 2px solid var(--tqc-text-muted); border-radius: 6px; animation: tqc-rotate-hint 2.4s ease-in-out infinite; }
+@keyframes tqc-rotate-hint { 0%, 30% { transform: rotate(0); } 60%, 100% { transform: rotate(90deg); } }

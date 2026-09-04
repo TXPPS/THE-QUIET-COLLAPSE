@@ -1,0 +1,94 @@
+/* THE QUIET COLLAPSE — design tokens. Derived from the night-district environment palette:
+   charcoal ground, concrete, smoke, dirty sodium light, faded institutional signage. */
+:root {
+  --tqc-bg: #0b0c0d;
+  --tqc-bg-deep: #050606;
+  --tqc-surface: rgba(18, 20, 21, 0.92);
+  --tqc-surface-raised: rgba(28, 30, 32, 0.96);
+  --tqc-surface-dim: rgba(8, 9, 10, 0.72);
+  --tqc-border: rgba(140, 136, 126, 0.22);
+  --tqc-border-strong: rgba(190, 184, 170, 0.5);
+  --tqc-text: #d6d2c8;
+  --tqc-text-muted: #8a867d;
+  --tqc-text-faint: #5b5952;
+  --tqc-accent: #c99a3a; /* dirty sodium amber — used sparingly */
+  --tqc-danger: #b8412f;
+  --tqc-warning: #c99a3a;
+  --tqc-health: #a8b58c;
+  --tqc-health-hurt: #c99a3a;
+  --tqc-health-critical: #b8412f;
+  --tqc-stamina: #8ea0a8;
+  --tqc-focus: #e6dcc3;
+  --tqc-disabled: #4a4944;
+  --tqc-institutional: #6e8a7a; /* faded municipal green */
+
+  --tqc-space-1: 0.25rem;
+  --tqc-space-2: 0.5rem;
+  --tqc-space-3: 0.75rem;
+  --tqc-space-4: 1rem;
+  --tqc-space-5: 1.5rem;
+  --tqc-space-6: 2.25rem;
+  --tqc-space-7: 3.5rem;
+
+  --tqc-radius-sm: 2px;
+  --tqc-radius-md: 4px;
+  --tqc-radius-pill: 999px;
+
+  --tqc-font: 'Inter', 'Segoe UI', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif;
+  --tqc-font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  --tqc-text-scale: 1;
+  --tqc-fs-xs: calc(clamp(0.7rem, 0.62rem + 0.35vw, 0.82rem) * var(--tqc-text-scale));
+  --tqc-fs-sm: calc(clamp(0.8rem, 0.7rem + 0.4vw, 0.95rem) * var(--tqc-text-scale));
+  --tqc-fs-md: calc(clamp(0.92rem, 0.8rem + 0.5vw, 1.1rem) * var(--tqc-text-scale));
+  --tqc-fs-lg: calc(clamp(1.15rem, 0.95rem + 0.9vw, 1.6rem) * var(--tqc-text-scale));
+  --tqc-fs-xl: calc(clamp(1.6rem, 1.2rem + 1.8vw, 2.6rem) * var(--tqc-text-scale));
+  --tqc-fs-title: calc(clamp(1.9rem, 1.4rem + 2.6vw, 3.6rem) * var(--tqc-text-scale));
+  --tqc-tracking-wide: 0.18em;
+  --tqc-tracking-title: 0.32em;
+
+  --tqc-motion-fast: 120ms;
+  --tqc-motion-base: 220ms;
+  --tqc-motion-slow: 480ms;
+  --tqc-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+
+  --tqc-z-world: 0;
+  --tqc-z-hud: 10;
+  --tqc-z-touch: 20;
+  --tqc-z-screen: 30;
+  --tqc-z-modal: 40;
+  --tqc-z-toast: 50;
+  --tqc-z-system: 60;
+
+  --tqc-safe-top: env(safe-area-inset-top, 0px);
+  --tqc-safe-right: env(safe-area-inset-right, 0px);
+  --tqc-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --tqc-safe-left: env(safe-area-inset-left, 0px);
+
+  --tqc-hit-min: 48px;
+  --tqc-hud-scale: 1;
+}
+
+:root[data-high-contrast='true'] {
+  --tqc-surface: rgba(6, 7, 8, 0.98);
+  --tqc-surface-raised: rgba(12, 13, 14, 1);
+  --tqc-border: rgba(220, 214, 200, 0.5);
+  --tqc-border-strong: rgba(240, 236, 226, 0.85);
+  --tqc-text: #f2eee6;
+  --tqc-text-muted: #c5c0b4;
+  --tqc-text-faint: #9a958a;
+  --tqc-focus: #ffffff;
+}
+
+:root[data-reduced-motion='true'] {
+  --tqc-motion-fast: 0ms;
+  --tqc-motion-base: 0ms;
+  --tqc-motion-slow: 0ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduced-motion='false']) {
+    --tqc-motion-fast: 0ms;
+    --tqc-motion-base: 0ms;
+    --tqc-motion-slow: 0ms;
+  }
+}
