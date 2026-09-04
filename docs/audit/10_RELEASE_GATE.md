@@ -69,10 +69,10 @@ untested** and must be run before a public release:
 |---|---|
 | Account | Toppsmusicproductions@gmail.com's Account (`63ff72fccc00cfe5ba217f8931f09724`), OAuth login via `wrangler login` with `pages (write)` scope |
 | Project | `quiet-collapse` (derived from `PROJECT_SHORT_TITLE`; production branch `main`) |
-| Production | https://quiet-collapse.pages.dev (deployment `aebb277c`) |
-| QA preview | https://qa.quiet-collapse.pages.dev (deployment `1151e2cf`) |
+| Production | https://quiet-collapse.pages.dev (deployment `2da5bb15`, commit `b7901e9`) |
+| QA preview | https://qa.quiet-collapse.pages.dev (deployment `7237fadf`, same build) |
 | Commands | `pnpm build && pnpm check:bundle && pnpm deploy:pages` · `pnpm deploy:qa` (see README) |
 | Precache | 9 files, 0.71 MB (`dist/precache-manifest.json`); largest `assets/three-*.js` 511 KB, `assets/index-*.js` 199 KB; source maps (2.7 MB) deployed but not precached; no file near the 25 MB Pages limit |
 | Live checks | `/`, `/manifest.webmanifest`, `/sw.js`, `/precache-manifest.json` and all three hashed assets return 200; hashed assets `immutable`, shell/worker `no-cache`; CSP, nosniff, referrer and permissions headers present; no `http://` references in the shell |
-| Offline | `tests/e2e/offline.spec.ts`: first load installs the worker and precaches; offline reload boots; new run → first interaction → checkpoint save → offline reload → Continue restores the run (results recorded below) |
+| Offline | `tests/e2e/offline.spec.ts`: first load installs the worker and precaches; offline reload boots; new run → first interaction → checkpoint save → offline reload → Continue restores the run. PASS locally (12.3 s) and against https://quiet-collapse.pages.dev (`E2E_BASE_URL`, 2 passed incl. `live-boot.spec.ts`: no console errors, worker `activated`, stamp `0.1.0 · b7901e9`). |
 | Reference hygiene | `pnpm check:bundle` on the deployed `dist/`: zero reference-screenshot hits |
