@@ -19,6 +19,7 @@ evidence produced in this session.
 | Emulated controller | `… tests/e2e/gamepad.spec.ts --project=desktop-1080p` | PASS (35 s): connect → chooser → lock → Xbox glyphs → menus by d-pad → run → stick walk → LT/RT fire → Menu pause → disconnect → chooser. Emulated pad, no hardware. |
 | §0.1 loop by touch, phone viewport | `… tests/e2e/touch.spec.ts --project=phone-landscape` | PASS (1.2 min): menu taps → new run → Use (pickup, door) → joystick walk → objective → latched Aim + Fire kills the resident → death → Continue → pause/resume via touch buttons → ending → menu, zero errors. Emulated phone viewport (844×390, DPR 3, touch pointer events). |
 | Screen evidence (phone) | `… tests/e2e/screens.spec.ts --project=phone-landscape` | PASS; `docs/audit/evidence/phone-landscape-*.png` |
+| Smoke + evidence at 1366×768 | `… tests/e2e/smoke.spec.ts tests/e2e/screens.spec.ts --project=desktop-1366` | PASS (3.0 min); `docs/audit/evidence/desktop-1366-*.png` |
 
 ## Acceptance criteria (§13)
 
