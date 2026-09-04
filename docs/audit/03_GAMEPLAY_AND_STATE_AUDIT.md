@@ -83,6 +83,6 @@ Test hook: `App.debugAdvance(seconds)` runs fixed steps synchronously through th
   completed slot offers a fresh run in that slot instead of dropping the player back onto the plaza.
 - Pointer-lock loss (the browser swallows Escape while locked) pauses the game; three uncaught errors
   within ten seconds end the session and show the recoverable error screen.
-- Gate status: `tests/e2e/loop.spec.ts` drives new run → pickup → door → walk to checkpoint → threat kill →
+- Gate status (PASSED, run 12): `tests/e2e/loop.spec.ts` drives new run → pickup → door → walk to checkpoint → threat kill →
   death → continue → ending → menu twice; the shooting beat places the target on the aim line and fires in
   one synchronous in-page step so the headless renderer's low frame rate cannot make it flaky.

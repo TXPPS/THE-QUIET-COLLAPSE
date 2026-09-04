@@ -9,7 +9,9 @@ Resume from this file, not from scratch.
 - Reference screenshots stay outside the repo (scratchpad only). Only pack `.md` files are committed.
 
 ## Phase / wave
-- Wave 1 (playable loop): code complete; Playwright loop spec (tests/e2e/loop.spec.ts) being stabilised.
+- **Wave 1 gate PASSED**: tests/e2e/loop.spec.ts (desktop KBM) runs the full §0.1 loop twice with zero
+  console errors (run 12, 1.7 min headless). Remaining specs (smoke, screens, gamepad, phone touch) running.
+- Wave 1 (playable loop): code complete; Playwright loop spec (tests/e2e/loop.spec.ts) stabilised.
   Found and fixed so far: per-step input sampling (pending edges), pointer-lock jump delta (ignore first
   move + clamp), first-install service-worker reload (only reload after an accepted update), synthetic
   input ordering under software rendering (tests now wait for the input layer's lastRawBinding).
