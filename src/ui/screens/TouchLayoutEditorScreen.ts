@@ -1,16 +1,19 @@
 import type { App } from '@/app/App';
-import { clamp } from '@/core/math';
 import { el, setText, toggleClass, capturePointer } from '@/ui/dom';
 import { menuItem, menuList, selectItem, sliderItem, toggleItem } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
 import { readViewport } from '@/ui/touch/TouchHud';
 import {
+  checkLayout,
   clampProfile,
   CONTROL_LABELS,
   controlRect,
+  describeReport,
   ESSENTIAL_CONTROLS,
-  findOverlaps,
+  layoutFromCentre,
+  lookZoneRect,
   OPACITY_RANGE,
+  PRESET_IDS,
   PRESETS,
   presetProfile,
   SIZE_RANGE,
@@ -24,7 +27,8 @@ import {
 
 /**
  * Touch layout editor: drag controls within the safe area, adjust size/opacity/visibility, apply
- * presets, switch between phone and tablet profiles, and see overlap warnings before saving.
+ * presets, switch between phone and tablet profiles and between the drag zone and the right stick,
+ * and see overlap / edge / look-zone warnings before saving.
  */
 export class TouchLayoutEditorScreen extends Screen {
   readonly id = 'touchEditor';
@@ -35,6 +39,7 @@ export class TouchLayoutEditorScreen extends Screen {
   private panel!: HTMLElement;
   private warning!: HTMLElement;
   private safeGuide!: HTMLElement;
+  private lookGuide!: HTMLElement;
   private readonly nodes = new Map<TouchControlId, HTMLElement>();
   private viewport: Viewport = { width: 1, height: 1, safe: { top: 0, right: 0, bottom: 0, left: 0 } };
   private drag: { id: TouchControlId; pointerId: number; offsetX: number; offsetY: number } | null = null;
@@ -46,9 +51,14 @@ export class TouchLayoutEditorScreen extends Screen {
     this.draft = structuredClone(app.touchProfiles[this.kind]);
   }
 
+  private get lookControl(): 'drag' | 'stick' {
+    return this.app.settings.get().controls.touchLookControl;
+  }
+
   protected build(): void {
     this.safeGuide = el('div', { class: 'tqc-editor__safe', attrs: { 'aria-hidden': 'true' } });
-    this.canvas = el('div', { attrs: { style: 'position:absolute;inset:0' } }, [this.safeGuide]);
+    this.lookGuide = el('div', { class: 'tqc-editor__look', attrs: { 'aria-hidden': 'true' } }, [el('span', { text: 'Look zone' })]);
+    this.canvas = el('div', { attrs: { style: 'position:absolute;inset:0' } }, [this.safeGuide, this.lookGuide]);
     this.warning = el('div', { class: 'tqc-editor__warning', attrs: { 'aria-live': 'polite' } });
     this.panel = el('div', { class: 'tqc-editor__panel' });
     this.root.append(this.canvas, this.panel);
@@ -66,34 +76,50 @@ export class TouchLayoutEditorScreen extends Screen {
     this.renderPanel();
   }
 
+  /** The look stick only counts when the right-stick mode is on; the drag zone is drawn otherwise. */
+  private effectiveDraft(): TouchProfile {
+    const profile = structuredClone(this.draft);
+    if (this.lookControl !== 'stick') profile.controls.lookStick.visible = false;
+    return profile;
+  }
+
   private layout(): void {
     this.viewport = readViewport(this.root);
-    this.draft = clampProfile(this.draft, this.viewport);
+    this.draft = clampProfile(this.draft);
     const { safe, width, height } = this.viewport;
     this.safeGuide.style.left = `${safe.left}px`;
     this.safeGuide.style.top = `${safe.top}px`;
     this.safeGuide.style.width = `${width - safe.left - safe.right}px`;
     this.safeGuide.style.height = `${height - safe.top - safe.bottom}px`;
-    const overlaps = findOverlaps(this.draft, this.viewport);
-    const overlapping = new Set(overlaps.flat());
+    const zone = lookZoneRect(this.viewport);
+    this.lookGuide.style.left = `${zone.x0}px`;
+    this.lookGuide.style.top = `${zone.y0}px`;
+    this.lookGuide.style.width = `${zone.x1 - zone.x0}px`;
+    this.lookGuide.style.height = `${zone.y1 - zone.y0}px`;
+    this.lookGuide.hidden = this.lookControl === 'stick';
+    const effective = this.effectiveDraft();
+    const report = checkLayout(effective, this.viewport);
+    const flagged = new Set<TouchControlId>([...report.overlaps.flat(), ...report.safeViolations, ...report.lookIntrusions]);
     for (const [id, node] of this.nodes) {
       const layout = this.draft.controls[id];
-      const rect = controlRect(layout, this.viewport);
+      const rect = controlRect(id, layout, this.viewport);
       node.style.left = `${rect.cx}px`;
       node.style.top = `${rect.cy}px`;
       node.style.width = `${rect.d}px`;
       node.style.height = `${rect.d}px`;
       node.style.opacity = String(Math.max(0.35, layout.opacity));
+      node.hidden = id === 'lookStick' && this.lookControl !== 'stick';
       toggleClass(node, 'is-selected', id === this.selected);
-      toggleClass(node, 'is-overlap', overlapping.has(id));
+      toggleClass(node, 'is-overlap', flagged.has(id));
       toggleClass(node, 'is-hidden-control', !layout.visible);
     }
-    setText(this.warning, overlaps.length > 0 ? `Overlapping: ${overlaps.map(([a, b]) => `${CONTROL_LABELS[a]} / ${CONTROL_LABELS[b]}`).join(', ')}` : '');
+    setText(this.warning, describeReport(report, CONTROL_LABELS));
   }
 
   private renderPanel(): void {
     const layout = this.draft.controls[this.selected];
     const essential = ESSENTIAL_CONTROLS.includes(this.selected);
+    const controlIds = this.lookControl === 'stick' ? TOUCH_CONTROL_IDS : TOUCH_CONTROL_IDS.filter((id) => id !== 'lookStick');
     const rows = [
       selectItem(this.focus, {
         label: 'Profile',
@@ -103,9 +129,17 @@ export class TouchLayoutEditorScreen extends Screen {
         format: (v) => (v === 'phone' ? 'Phone' : 'Tablet'),
       }),
       selectItem(this.focus, {
+        label: 'Look control',
+        hint: 'Drag anywhere on the right half, or a visible right stick with its own position and size.',
+        values: ['drag', 'stick'] as const,
+        get: () => this.lookControl,
+        set: (v) => this.setLookControl(v),
+        format: (v) => (v === 'drag' ? 'Drag zone' : 'Right stick'),
+      }),
+      selectItem(this.focus, {
         label: 'Preset',
         hint: this.draft.preset === 'custom' ? 'Custom layout' : PRESETS[this.draft.preset].hint,
-        values: ['twoThumb', 'leftFire', 'compactPhone', 'tablet'] as const,
+        values: PRESET_IDS,
         get: () => (this.draft.preset === 'custom' ? 'twoThumb' : this.draft.preset),
         set: (preset) => this.applyPreset(preset),
         format: (v) => PRESETS[v].label,
@@ -113,7 +147,7 @@ export class TouchLayoutEditorScreen extends Screen {
       selectItem(this.focus, {
         label: 'Control',
         hint: 'Drag any control on screen, or pick one here.',
-        values: TOUCH_CONTROL_IDS,
+        values: controlIds,
         get: () => this.selected,
         set: (id) => this.select(id),
         format: (v) => CONTROL_LABELS[v],
@@ -150,6 +184,14 @@ export class TouchLayoutEditorScreen extends Screen {
     this.focus.refresh();
   }
 
+  private setLookControl(mode: 'drag' | 'stick'): void {
+    this.app.settings.update({ controls: { touchLookControl: mode } });
+    if (mode === 'stick') this.draft.controls.lookStick.visible = true;
+    if (mode === 'drag' && this.selected === 'lookStick') this.selected = 'fire';
+    this.layout();
+    this.renderPanel();
+  }
+
   private switchKind(kind: ProfileKind): void {
     this.kind = kind;
     this.draft = structuredClone(this.app.touchProfiles[kind]);
@@ -159,6 +201,7 @@ export class TouchLayoutEditorScreen extends Screen {
 
   private applyPreset(preset: PresetId): void {
     this.draft = presetProfile(preset);
+    if (this.lookControl === 'stick') this.draft.controls.lookStick.visible = true;
     this.layout();
     this.renderPanel();
   }
@@ -176,7 +219,7 @@ export class TouchLayoutEditorScreen extends Screen {
   }
 
   private save(): void {
-    this.app.saveTouchProfile(this.kind, clampProfile(this.draft, this.viewport));
+    this.app.saveTouchProfile(this.kind, clampProfile(this.draft));
     this.app.toasts.show('Touch layout saved', 'info', 2);
     this.app.screens.pop();
   }
@@ -186,7 +229,7 @@ export class TouchLayoutEditorScreen extends Screen {
     const node = this.nodes.get(id);
     if (!node || this.drag) return;
     capturePointer(node, event.pointerId);
-    const rect = controlRect(this.draft.controls[id], this.viewport);
+    const rect = controlRect(id, this.draft.controls[id], this.viewport);
     this.drag = { id, pointerId: event.pointerId, offsetX: event.clientX - rect.cx, offsetY: event.clientY - rect.cy };
     if (this.selected !== id) {
       this.selected = id;
@@ -196,14 +239,10 @@ export class TouchLayoutEditorScreen extends Screen {
 
   private onDragMove(event: PointerEvent): void {
     if (!this.drag || event.pointerId !== this.drag.pointerId) return;
-    const { safe, width, height } = this.viewport;
-    const innerW = width - safe.left - safe.right;
-    const innerH = height - safe.top - safe.bottom;
-    const cx = event.clientX - this.drag.offsetX;
-    const cy = event.clientY - this.drag.offsetY;
     const layout = this.draft.controls[this.drag.id];
-    layout.x = clamp((cx - safe.left) / innerW, 0, 1);
-    layout.y = clamp((cy - safe.top) / innerH, 0, 1);
+    const next = layoutFromCentre(this.drag.id, layout, this.viewport, event.clientX - this.drag.offsetX, event.clientY - this.drag.offsetY);
+    layout.x = next.x;
+    layout.y = next.y;
     this.draft.preset = 'custom';
     this.layout();
   }

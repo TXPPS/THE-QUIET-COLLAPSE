@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 import { projectMetaPlugin } from './scripts/vite-plugin-project-meta';
 import { serviceWorkerPlugin } from './scripts/vite-plugin-service-worker';
+import { touchLayoutCheckPlugin } from './scripts/vite-plugin-touch-layout-check';
 
 const pkg = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')) as {
   version: string;
@@ -29,7 +30,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
-  plugins: [projectMetaPlugin(), serviceWorkerPlugin()],
+  plugins: [projectMetaPlugin(), serviceWorkerPlugin(), touchLayoutCheckPlugin()],
   build: {
     target: 'es2022',
     sourcemap: true,

@@ -125,6 +125,7 @@ export class App {
     this.device.events.on('change', () => this.onDeviceChanged());
     this.input.registry.events.on('gamepadConnected', ({ source }) => this.onGamepadConnected(source.label));
     this.input.registry.events.on('primaryLost', ({ source }) => this.onPrimaryLost(source.label));
+    this.touch.onLookHintUsed = () => this.settings.update({ meta: { touchLookHintSeen: true } });
   }
 
   /* ---------- boot ---------- */
@@ -154,6 +155,7 @@ export class App {
       if (this.settings.get().meta.warningsAccepted) this.showMainMenu();
       else this.screens.reset(new WarningScreen(this));
       this.debug = new DebugOverlay(this.layers.system, () => this.loop.resetStats());
+      this.debug.onSpawnRays = (visible) => this.session?.view.setSpawnRays(visible);
       if (import.meta.env.PROD) {
         const bypassed = await SwClient.bypassIfRequested();
         if (bypassed) this.toasts.show('Caches cleared: fresh load', 'info', 4);
@@ -365,6 +367,7 @@ export class App {
     this.gameAudio = new GameAudio(this.audio, this.session.world, { caption: (text, seconds) => hud.showCaption(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
     this.autoQuality.reset();
     if (runState.checkpointId === 'start' && runState.playtimeSec < 1) this.session.save('checkpoint');
+    if (this.debug?.spawnRays) this.session.view.setSpawnRays(true);
     hud.setVisible(true);
     this.screens.clear();
     this.loop.resetClock();
@@ -446,7 +449,12 @@ export class App {
     if (this.session) {
       const p = this.session.world.player;
       this.touch.update(
-        { equippedPistol: p.equipped === 'pistol', canReload: p.ammoLoaded < PISTOL.magazine && p.ammoReserve > 0, hasFlashlight: p.hasFlashlight, promptVisible: this.session.sim.prompt !== null },
+        {
+          fireVisible: p.equipped === 'pistol' || p.medkits > 0,
+          canReload: p.equipped === 'pistol' && p.ammoLoaded < PISTOL.magazine && p.ammoReserve > 0,
+          hasFlashlight: p.hasFlashlight,
+          promptVisible: this.session.sim.prompt !== null,
+        },
         dt,
       );
     }
@@ -468,6 +476,8 @@ export class App {
     root.dataset['colorSafe'] = String(s.accessibility.colorSafeHud);
     this.screens.setRepeat(s.controls.menuRepeatDelay, s.controls.menuRepeatRate);
     this.touch.setTuning({ deadZone: s.controls.touchDeadZone, sprintThreshold: s.controls.touchSprintThreshold, sprintLock: s.controls.touchSprintLock });
+    this.touch.setLookControl(s.controls.touchLookControl);
+    this.touch.setLookHint(!s.meta.touchLookHintSeen);
     this.audio.applySettings(s.audio);
     this.applyRenderQuality(s);
   }
@@ -483,6 +493,7 @@ export class App {
       cssHeight: window.innerHeight,
       renderScale: this.settings.get().video.quality === 'auto' ? this.autoQuality.scale : 1,
       inputSource: `${this.input.registry.activeSource?.label ?? 'none'} (${this.input.registry.currentPolicy})`,
+      touchPointers: Array.from(this.touch.hud?.ownedPointers ?? [], ([id, owner]) => `${id}:${owner}`).join(' '),
       swState: this.sw.state,
       online: navigator.onLine,
       scene: top ? top.id : this.session ? `gameplay / ${this.session.world.currentObjective()?.id ?? '-'}` : 'idle',

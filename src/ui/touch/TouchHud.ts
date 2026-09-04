@@ -1,15 +1,20 @@
 import { DisposeBag } from '@/core/DisposeBag';
 import type { ButtonAction } from '@/input/actions';
 import type { TouchSource } from '@/input/TouchSource';
+import type { TouchLookControl } from '@/persistence/settingsSchema';
 import { el, setHidden, toggleClass, capturePointer } from '@/ui/dom';
-import { touchIconNode } from './touchIcons';
-import { CONTROL_LABELS, controlRect, type TouchControlId, type TouchProfile, type Viewport } from './touchProfiles';
+import { lookHintNode, touchIconNode } from './touchIcons';
+import { controlRect, lookZoneRect, moveZoneRect, type ControlRect, type TouchControlId, type TouchProfile, type Viewport } from './touchLayout';
+import { CONTROL_LABELS } from './touchPresets';
+import { PointerOwners, stickVector } from './touchStick';
 
 const STICK_SPRINT_HOLD_SECONDS = 0.35;
-const LOOK_PIXELS_TO_UNITS = 1;
+/** Movement before the first-use look hint is considered understood. */
+const LOOK_HINT_DISMISS_PX = 8;
+const KNOB_TRAVEL = 0.6;
 
 export interface TouchTuning {
-  /** Radial dead zone of the joystick (fraction of its radius). */
+  /** Radial dead zone of both sticks (fraction of the radius). */
   deadZone: number;
   /** Deflection at which sprint engages. */
   sprintThreshold: number;
@@ -19,8 +24,9 @@ export interface TouchTuning {
 
 export const DEFAULT_TOUCH_TUNING: TouchTuning = { deadZone: 0.12, sprintThreshold: 0.92, sprintLock: true };
 
+/** Contextual state: only actions valid right now get a button. */
 export interface TouchHudState {
-  equippedPistol: boolean;
+  fireVisible: boolean;
   canReload: boolean;
   hasFlashlight: boolean;
   promptVisible: boolean;
@@ -43,38 +49,53 @@ const BUTTON_ACTIONS: Partial<Record<TouchControlId, ButtonAction>> = {
 
 /** Buttons that latch when tapped instead of requiring a hold (aim stays engaged until tapped again). */
 const LATCHING: ReadonlySet<TouchControlId> = new Set(['aim']);
+const OWNER_MOVE = 'joystick';
+const OWNER_LOOK = 'look';
+const OWNER_LOOK_STICK = 'lookStick';
 
 interface ButtonEntry {
   id: TouchControlId;
   element: HTMLButtonElement;
   action: ButtonAction;
-  pointerId: number | null;
   latched: boolean;
+  /** Visible in the profile (before contextual rules). */
+  enabled: boolean;
+  rect: ControlRect;
 }
 
 /**
- * On-screen touch controls. One pointer per control, pointer capture on every button, and a full
- * release on pointercancel, blur and visibility loss so no move or fire state can ever stick.
+ * On-screen touch controls. Every control owns at most one pointer id through a shared registry,
+ * so a finger that started on a button can never drive the look zone and vice versa. Pointer
+ * capture keeps each finger with its control; everything releases on pointerup, pointercancel,
+ * lostpointercapture, blur and visibility loss so no move, look or fire state can stick.
  */
 export class TouchHud {
   readonly root: HTMLElement;
+  tuning: TouchTuning = { ...DEFAULT_TOUCH_TUNING };
+  /** Called the first time the player drags to look (dismisses the hint for good). */
+  onLookUsed: (() => void) | null = null;
   private readonly bag = new DisposeBag();
+  private readonly owners = new PointerOwners();
   private readonly moveZone: HTMLElement;
   private readonly lookZone: HTMLElement;
+  private readonly lookHint: HTMLElement;
   private readonly stick: HTMLElement;
   private readonly knob: HTMLElement;
+  private readonly lookStick: HTMLElement;
+  private readonly lookKnob: HTMLElement;
   private readonly buttons = new Map<TouchControlId, ButtonEntry>();
   private profile: TouchProfile;
-  tuning: TouchTuning = { ...DEFAULT_TOUCH_TUNING };
   private viewport: Viewport = { width: 1, height: 1, safe: { top: 0, right: 0, bottom: 0, left: 0 } };
-  private stickPointer: number | null = null;
+  private lookControl: TouchLookControl = 'drag';
+  private hintWanted = false;
+  private gameplayActive = false;
   private stickOrigin = { x: 0, y: 0 };
   private stickRadius = 60;
+  private lookStickRect: ControlRect = { cx: 0, cy: 0, d: 1, r: 0.5 };
   private sprintHold = 0;
   private sprintLatched = false;
-  private lookPointer: number | null = null;
   private lookLast = { x: 0, y: 0 };
-  private gameplayActive = false;
+  private lookTravel = 0;
 
   constructor(
     layer: HTMLElement,
@@ -83,10 +104,13 @@ export class TouchHud {
   ) {
     this.profile = profile;
     this.knob = el('div', { class: 'tqc-touch__knob' });
-    this.stick = el('div', { class: 'tqc-touch__stick', attrs: { 'aria-hidden': 'true' } }, [this.knob]);
+    this.stick = el('div', { class: 'tqc-touch__stick tqc-touch__stick--move', attrs: { 'aria-hidden': 'true' } }, [this.knob]);
+    this.lookKnob = el('div', { class: 'tqc-touch__knob' });
+    this.lookStick = el('div', { class: 'tqc-touch__stick tqc-touch__stick--look', attrs: { 'aria-label': CONTROL_LABELS.lookStick, role: 'application', 'data-touch-control': 'lookStick' } }, [this.lookKnob]);
+    this.lookHint = el('div', { class: 'tqc-touch__look-hint', attrs: { 'aria-hidden': 'true' } }, [lookHintNode(), el('span', { text: 'Drag to look' })]);
     this.moveZone = el('div', { class: 'tqc-touch__zone tqc-touch__zone--move', attrs: { 'aria-label': 'Movement joystick area', role: 'application' } });
-    this.lookZone = el('div', { class: 'tqc-touch__zone tqc-touch__zone--look', attrs: { 'aria-label': 'Look area', role: 'application' } });
-    this.root = el('div', { class: 'tqc-touch', attrs: { 'aria-label': 'Touch controls' } }, [this.moveZone, this.lookZone, this.stick]);
+    this.lookZone = el('div', { class: 'tqc-touch__zone tqc-touch__zone--look', attrs: { 'aria-label': 'Look area', role: 'application' } }, [this.lookHint]);
+    this.root = el('div', { class: 'tqc-touch', attrs: { 'aria-label': 'Touch controls' } }, [this.moveZone, this.lookZone, this.stick, this.lookStick]);
     layer.append(this.root);
     for (const [id, action] of Object.entries(BUTTON_ACTIONS) as Array<[TouchControlId, ButtonAction]>) this.createButton(id, action);
     this.bindZones();
@@ -104,37 +128,60 @@ export class TouchHud {
     this.layout();
   }
 
+  setLookControl(mode: TouchLookControl): void {
+    if (this.lookControl === mode) return;
+    this.lookControl = mode;
+    this.releaseLook();
+    this.releaseLookStick();
+    this.layout();
+  }
+
+  /** Shows the subtle first-use hint in the drag zone until the player has dragged once. */
+  setLookHint(wanted: boolean): void {
+    this.hintWanted = wanted;
+    this.updateHint();
+  }
+
   setVisible(visible: boolean): void {
     this.gameplayActive = visible;
     setHidden(this.root, !visible);
     document.documentElement.dataset['touchHud'] = String(visible);
     if (!visible) this.releaseAll();
+    this.updateHint();
   }
 
   /** Contextual visibility: only actions valid for the current state are shown. */
   update(state: TouchHudState, dt: number): void {
-    const show = (id: TouchControlId, on: boolean) => {
-      const entry = this.buttons.get(id);
-      if (entry) setHidden(entry.element, !on || !this.profile.controls[id].visible);
-    };
-    show('fire', state.equippedPistol);
-    show('fireLeft', state.equippedPistol);
-    show('reload', state.equippedPistol && state.canReload);
-    show('flashlight', state.hasFlashlight);
-    const interact = this.buttons.get('interact');
-    if (interact) toggleClass(interact.element, 'is-hinted', state.promptVisible);
+    this.show('fire', state.fireVisible);
+    this.show('fireLeft', state.fireVisible);
+    this.show('reload', state.fireVisible && state.canReload);
+    this.show('flashlight', state.hasFlashlight);
+    this.show('interact', state.promptVisible);
     this.updateSprint(dt);
+  }
+
+  /** Pointer ids currently owned, keyed by control (tests and the QA overlay). */
+  get ownedPointers(): ReadonlyMap<number, string> {
+    return this.owners.entries();
+  }
+
+  private show(id: TouchControlId, on: boolean): void {
+    const entry = this.buttons.get(id);
+    if (!entry) return;
+    const visible = on && entry.enabled;
+    setHidden(entry.element, !visible);
+    if (!visible) this.releaseButton(entry);
   }
 
   private createButton(id: TouchControlId, action: ButtonAction): void {
     const element = el('button', {
-      class: `tqc-touch__btn${id === 'fire' || id === 'aim' ? ' tqc-touch__btn--primary' : ''}`,
+      class: `tqc-touch__btn${id === 'fire' || id === 'fireLeft' || id === 'aim' ? ' tqc-touch__btn--primary' : ''}`,
       attrs: { type: 'button', 'aria-label': CONTROL_LABELS[id], 'data-touch-control': id },
     });
     const icon = touchIconNode(id);
     if (icon) element.append(icon);
     element.append(el('span', { text: CONTROL_LABELS[id] }));
-    const entry: ButtonEntry = { id, element, action, pointerId: null, latched: false };
+    const entry: ButtonEntry = { id, element, action, latched: false, enabled: true, rect: { cx: 0, cy: 0, d: 1, r: 0.5 } };
     this.buttons.set(id, entry);
     this.root.append(element);
     this.bag.listen(element, 'pointerdown', (event) => this.onButtonDown(entry, event));
@@ -145,9 +192,10 @@ export class TouchHud {
   }
 
   private onButtonDown(entry: ButtonEntry, event: PointerEvent): void {
-    if (entry.pointerId !== null) return;
+    if (!this.gameplayActive || entry.element.hidden) return;
+    if (this.owners.pointerOf(entry.id) !== null || !this.owners.claim(event.pointerId, entry.id)) return;
     event.preventDefault();
-    entry.pointerId = event.pointerId;
+    event.stopPropagation();
     capturePointer(entry.element, event.pointerId);
     entry.element.classList.add('is-down');
     this.source.markActivity();
@@ -162,35 +210,55 @@ export class TouchHud {
   }
 
   private onButtonUp(entry: ButtonEntry, event: PointerEvent): void {
-    if (entry.pointerId !== event.pointerId) return;
-    entry.pointerId = null;
+    if (this.owners.ownerOf(event.pointerId) !== entry.id) return;
+    this.owners.release(event.pointerId, entry.id);
+    entry.element.classList.remove('is-down');
+    if (!LATCHING.has(entry.id)) this.source.release(entry.action);
+  }
+
+  private releaseButton(entry: ButtonEntry): void {
+    const pointerId = this.owners.pointerOf(entry.id);
+    if (pointerId !== null) this.owners.release(pointerId, entry.id);
     entry.element.classList.remove('is-down');
     if (!LATCHING.has(entry.id)) this.source.release(entry.action);
   }
 
   private bindZones(): void {
-    this.bag.listen(this.moveZone, 'pointerdown', (event) => this.onStickDown(event));
-    this.bag.listen(this.moveZone, 'pointermove', (event) => this.onStickMove(event));
-    this.bag.listen(this.moveZone, 'pointerup', (event) => this.onStickUp(event));
-    this.bag.listen(this.moveZone, 'pointercancel', (event) => this.onStickUp(event));
-    this.bag.listen(this.moveZone, 'lostpointercapture', (event) => this.onStickUp(event));
-    this.bag.listen(this.lookZone, 'pointerdown', (event) => this.onLookDown(event));
-    this.bag.listen(this.lookZone, 'pointermove', (event) => this.onLookMove(event));
-    this.bag.listen(this.lookZone, 'pointerup', (event) => this.onLookUp(event));
-    this.bag.listen(this.lookZone, 'pointercancel', (event) => this.onLookUp(event));
-    this.bag.listen(this.lookZone, 'lostpointercapture', (event) => this.onLookUp(event));
-    for (const zone of [this.moveZone, this.lookZone]) this.bag.listen(zone, 'contextmenu', (event) => event.preventDefault());
+    const zones: Array<[HTMLElement, (e: PointerEvent) => void, (e: PointerEvent) => void, (e: PointerEvent) => void]> = [
+      [this.moveZone, (e) => this.onStickDown(e), (e) => this.onStickMove(e), (e) => this.onStickUp(e)],
+      [this.lookZone, (e) => this.onLookDown(e), (e) => this.onLookMove(e), (e) => this.onLookUp(e)],
+      [this.lookStick, (e) => this.onLookStickDown(e), (e) => this.onLookStickMove(e), (e) => this.onLookStickUp(e)],
+    ];
+    for (const [zone, down, move, up] of zones) {
+      this.bag.listen(zone, 'pointerdown', down);
+      this.bag.listen(zone, 'pointermove', move);
+      this.bag.listen(zone, 'pointerup', up);
+      this.bag.listen(zone, 'pointercancel', up);
+      this.bag.listen(zone, 'lostpointercapture', up);
+      this.bag.listen(zone, 'contextmenu', (event) => event.preventDefault());
+    }
   }
 
+  /** True when a point lies on a visible button's hit circle (the look zone must never start there). */
+  private hitsButton(x: number, y: number): boolean {
+    for (const entry of this.buttons.values()) {
+      if (entry.element.hidden) continue;
+      if (Math.hypot(entry.rect.cx - x, entry.rect.cy - y) <= entry.rect.r) return true;
+    }
+    return this.lookControl === 'stick' && Math.hypot(this.lookStickRect.cx - x, this.lookStickRect.cy - y) <= this.lookStickRect.r;
+  }
+
+  /* ---------- move stick ---------- */
+
   private onStickDown(event: PointerEvent): void {
-    if (this.stickPointer !== null || !this.gameplayActive) return;
+    if (!this.gameplayActive || this.owners.pointerOf(OWNER_MOVE) !== null) return;
+    if (this.hitsButton(event.clientX, event.clientY) || !this.owners.claim(event.pointerId, OWNER_MOVE)) return;
     event.preventDefault();
-    this.stickPointer = event.pointerId;
     capturePointer(this.moveZone, event.pointerId);
-    const rect = controlRect(this.profile.controls.joystick, this.viewport);
+    const rect = controlRect('joystick', this.profile.controls.joystick, this.viewport);
     // Floating joystick: it appears where the thumb lands inside the movement zone.
     this.stickOrigin = { x: event.clientX, y: event.clientY };
-    this.stickRadius = rect.d / 2;
+    this.stickRadius = rect.r;
     this.stick.style.left = `${this.stickOrigin.x}px`;
     this.stick.style.top = `${this.stickOrigin.y}px`;
     this.stick.classList.add('is-active');
@@ -199,38 +267,37 @@ export class TouchHud {
   }
 
   private onStickMove(event: PointerEvent): void {
-    if (event.pointerId !== this.stickPointer) return;
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_MOVE) return;
     this.updateStick(event.clientX, event.clientY);
   }
 
   private onStickUp(event: PointerEvent): void {
-    if (event.pointerId !== this.stickPointer) return;
-    this.stickPointer = null;
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_MOVE) return;
+    this.owners.release(event.pointerId, OWNER_MOVE);
+    this.releaseMove();
+  }
+
+  private releaseMove(): void {
+    const pointerId = this.owners.pointerOf(OWNER_MOVE);
+    if (pointerId !== null) this.owners.release(pointerId, OWNER_MOVE);
     this.source.setMove(0, 0);
     this.stick.classList.remove('is-active', 'is-sprint');
     this.knob.style.transform = 'translate(-50%, -50%)';
     this.sprintHold = 0;
     this.sprintLatched = false;
     this.source.release('Sprint');
-    this.placeStickAtRest();
+    this.placeSticksAtRest();
   }
 
   private updateStick(clientX: number, clientY: number): void {
-    const dx = clientX - this.stickOrigin.x;
-    const dy = clientY - this.stickOrigin.y;
-    const distance = Math.hypot(dx, dy);
-    const raw = Math.min(1, distance / this.stickRadius);
-    const dead = this.tuning.deadZone;
-    const clamped = raw <= dead ? 0 : (raw - dead) / (1 - dead);
-    const nx = distance > 0 ? (dx / distance) * clamped : 0;
-    const ny = distance > 0 ? (dy / distance) * clamped : 0;
-    this.source.setMove(nx, -ny);
-    this.knob.style.transform = `translate(calc(-50% + ${nx * this.stickRadius * 0.6}px), calc(-50% + ${ny * this.stickRadius * 0.6}px))`;
+    const v = stickVector(clientX - this.stickOrigin.x, clientY - this.stickOrigin.y, this.stickRadius, this.tuning.deadZone);
+    this.source.setMove(v.x, v.y === 0 ? 0 : -v.y);
+    this.knob.style.transform = `translate(calc(-50% + ${v.x * this.stickRadius * KNOB_TRAVEL}px), calc(-50% + ${v.y * this.stickRadius * KNOB_TRAVEL}px))`;
   }
 
-  /** Pushing the stick to its edge for a moment engages sprint; it stays engaged until the stick relaxes. */
+  /** Pushing the stick past the threshold for a moment engages sprint; it stays engaged until the stick relaxes. */
   private updateSprint(dt: number): void {
-    if (this.stickPointer === null) return;
+    if (this.owners.pointerOf(OWNER_MOVE) === null) return;
     const magnitude = Math.hypot(this.source.moveX, this.source.moveY);
     const releaseBelow = this.tuning.sprintLock ? 0.5 : this.tuning.sprintThreshold - 0.08;
     if (magnitude >= this.tuning.sprintThreshold) {
@@ -250,60 +317,140 @@ export class TouchHud {
     }
   }
 
+  /* ---------- drag-to-look zone ---------- */
+
   private onLookDown(event: PointerEvent): void {
-    if (this.lookPointer !== null || !this.gameplayActive) return;
+    if (!this.gameplayActive || this.lookControl !== 'drag' || this.owners.pointerOf(OWNER_LOOK) !== null) return;
+    if (this.hitsButton(event.clientX, event.clientY) || !this.owners.claim(event.pointerId, OWNER_LOOK)) return;
     event.preventDefault();
-    this.lookPointer = event.pointerId;
     capturePointer(this.lookZone, event.pointerId);
     this.lookLast = { x: event.clientX, y: event.clientY };
+    this.lookTravel = 0;
     this.source.markActivity();
   }
 
   private onLookMove(event: PointerEvent): void {
-    if (event.pointerId !== this.lookPointer) return;
-    const dx = (event.clientX - this.lookLast.x) * LOOK_PIXELS_TO_UNITS;
-    const dy = (event.clientY - this.lookLast.y) * LOOK_PIXELS_TO_UNITS;
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_LOOK) return;
+    const dx = event.clientX - this.lookLast.x;
+    const dy = event.clientY - this.lookLast.y;
     this.lookLast = { x: event.clientX, y: event.clientY };
     this.source.addLook(dx, dy);
+    if (this.hintWanted) {
+      this.lookTravel += Math.abs(dx) + Math.abs(dy);
+      if (this.lookTravel >= LOOK_HINT_DISMISS_PX) {
+        this.hintWanted = false;
+        this.updateHint();
+        this.onLookUsed?.();
+      }
+    }
   }
 
   private onLookUp(event: PointerEvent): void {
-    if (event.pointerId !== this.lookPointer) return;
-    this.lookPointer = null;
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_LOOK) return;
+    this.owners.release(event.pointerId, OWNER_LOOK);
   }
+
+  private releaseLook(): void {
+    const pointerId = this.owners.pointerOf(OWNER_LOOK);
+    if (pointerId !== null) this.owners.release(pointerId, OWNER_LOOK);
+  }
+
+  private updateHint(): void {
+    toggleClass(this.lookHint, 'is-visible', this.hintWanted && this.gameplayActive && this.lookControl === 'drag');
+  }
+
+  /* ---------- optional right look stick ---------- */
+
+  private onLookStickDown(event: PointerEvent): void {
+    if (!this.gameplayActive || this.lookControl !== 'stick' || this.owners.pointerOf(OWNER_LOOK_STICK) !== null) return;
+    if (!this.owners.claim(event.pointerId, OWNER_LOOK_STICK)) return;
+    event.preventDefault();
+    event.stopPropagation();
+    capturePointer(this.lookStick, event.pointerId);
+    this.lookStick.classList.add('is-active');
+    this.source.markActivity();
+    this.updateLookStick(event.clientX, event.clientY);
+  }
+
+  private onLookStickMove(event: PointerEvent): void {
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_LOOK_STICK) return;
+    this.updateLookStick(event.clientX, event.clientY);
+  }
+
+  private onLookStickUp(event: PointerEvent): void {
+    if (this.owners.ownerOf(event.pointerId) !== OWNER_LOOK_STICK) return;
+    this.owners.release(event.pointerId, OWNER_LOOK_STICK);
+    this.releaseLookStick();
+  }
+
+  private releaseLookStick(): void {
+    const pointerId = this.owners.pointerOf(OWNER_LOOK_STICK);
+    if (pointerId !== null) this.owners.release(pointerId, OWNER_LOOK_STICK);
+    this.source.setLookStick(0, 0);
+    this.lookStick.classList.remove('is-active');
+    this.lookKnob.style.transform = 'translate(-50%, -50%)';
+  }
+
+  private updateLookStick(clientX: number, clientY: number): void {
+    const { cx, cy, r } = this.lookStickRect;
+    const v = stickVector(clientX - cx, clientY - cy, r, this.tuning.deadZone);
+    this.source.setLookStick(v.x, v.y);
+    this.lookKnob.style.transform = `translate(calc(-50% + ${v.x * r * KNOB_TRAVEL}px), calc(-50% + ${v.y * r * KNOB_TRAVEL}px))`;
+  }
+
+  /* ---------- lifecycle ---------- */
 
   /** Releases every pointer-held state (window blur, tab hidden, OS gesture interruption). */
   releaseAll(): void {
-    this.stickPointer = null;
-    this.lookPointer = null;
+    this.owners.clear();
     this.sprintHold = 0;
     this.sprintLatched = false;
     this.stick.classList.remove('is-active', 'is-sprint');
+    this.lookStick.classList.remove('is-active');
+    this.lookKnob.style.transform = 'translate(-50%, -50%)';
     for (const entry of this.buttons.values()) {
-      entry.pointerId = null;
       entry.latched = false;
       entry.element.classList.remove('is-down', 'is-latched');
     }
     this.source.clear();
-    this.placeStickAtRest();
+    this.placeSticksAtRest();
   }
 
-  private placeStickAtRest(): void {
-    const rect = controlRect(this.profile.controls.joystick, this.viewport);
+  private placeSticksAtRest(): void {
+    const rect = controlRect('joystick', this.profile.controls.joystick, this.viewport);
     this.stick.style.left = `${rect.cx}px`;
     this.stick.style.top = `${rect.cy}px`;
     this.stick.style.width = `${rect.d}px`;
     this.stick.style.height = `${rect.d}px`;
     this.stick.style.opacity = String(this.profile.controls.joystick.opacity);
     this.stick.classList.add('is-fixed');
+    const look = this.profile.controls.lookStick;
+    this.lookStickRect = controlRect('lookStick', look, this.viewport);
+    this.lookStick.style.left = `${this.lookStickRect.cx}px`;
+    this.lookStick.style.top = `${this.lookStickRect.cy}px`;
+    this.lookStick.style.width = `${this.lookStickRect.d}px`;
+    this.lookStick.style.height = `${this.lookStickRect.d}px`;
+    this.lookStick.style.opacity = String(look.opacity);
+    setHidden(this.lookStick, !(this.lookControl === 'stick' && look.visible));
   }
 
-  /** Positions every control from the profile for the current viewport and safe-area insets. */
+  private placeZone(zone: HTMLElement, rect: { x0: number; y0: number; x1: number; y1: number }): void {
+    zone.style.left = `${rect.x0}px`;
+    zone.style.top = `${rect.y0}px`;
+    zone.style.width = `${Math.max(0, rect.x1 - rect.x0)}px`;
+    zone.style.height = `${Math.max(0, rect.y1 - rect.y0)}px`;
+  }
+
+  /** Positions every control and both zones from the profile, viewport and safe-area insets. */
   layout(): void {
     this.viewport = readViewport(this.root);
+    this.placeZone(this.moveZone, moveZoneRect(this.viewport));
+    this.placeZone(this.lookZone, lookZoneRect(this.viewport));
     for (const entry of this.buttons.values()) {
       const layout = this.profile.controls[entry.id];
-      const rect = controlRect(layout, this.viewport);
+      const rect = controlRect(entry.id, layout, this.viewport);
+      entry.rect = rect;
+      entry.enabled = layout.visible;
       const element = entry.element;
       element.style.left = `${rect.cx}px`;
       element.style.top = `${rect.cy}px`;
@@ -312,7 +459,18 @@ export class TouchHud {
       element.style.opacity = String(layout.opacity);
       setHidden(element, !layout.visible);
     }
-    this.placeStickAtRest();
+    this.placeSticksAtRest();
+    this.publishTopCluster();
+  }
+
+  /** Tells the HUD how far the top-right button row reaches so the ammo readout sits under it. */
+  private publishTopCluster(): void {
+    let bottom = this.viewport.safe.top;
+    for (const entry of this.buttons.values()) {
+      if (!entry.enabled || entry.rect.cy > this.viewport.height * 0.3) continue;
+      bottom = Math.max(bottom, entry.rect.cy + entry.rect.r);
+    }
+    document.documentElement.style.setProperty('--tqc-touch-top-cluster', `${Math.round(bottom)}px`);
   }
 
   dispose(): void {

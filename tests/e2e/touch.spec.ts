@@ -155,3 +155,113 @@ test('phone: menu, run, joystick, use, fire, checkpoint, death, continue, ending
   await expect(page.getByRole('heading', { name: 'THE QUIET COLLAPSE' })).toBeVisible();
   expect(capture.errors).toEqual([]);
 });
+
+/** Dispatches a touch pointer event on an element at absolute page coordinates. */
+async function pointer(page: Page, selector: string, type: string, pointerId: number, x: number, y: number): Promise<void> {
+  await page.evaluate(
+    ({ selector, type, pointerId, x, y }) => {
+      const target = document.querySelector(selector) as HTMLElement;
+      target.dispatchEvent(new PointerEvent(type, { pointerId, pointerType: 'touch', clientX: x, clientY: y, isPrimary: pointerId === 1, bubbles: true }));
+    },
+    { selector, type, pointerId, x, y },
+  );
+}
+
+test('phone: move and look at once, aim and fire while moving, pitch direction, nothing sticks after backgrounding', async ({ page }) => {
+  const capture = captureConsole(page);
+  await openGame(page);
+  const cont = page.getByRole('button', { name: /^Continue$/ });
+  if (await cont.isVisible().catch(() => false)) await cont.tap();
+  await page.getByRole('button', { name: /New run/ }).tap();
+  await page.getByRole('button', { name: /^Slot 1/ }).tap();
+  const overwrite = page.getByRole('button', { name: /^Overwrite$/ });
+  if (await overwrite.isVisible().catch(() => false)) await overwrite.tap();
+  await expect(page.locator('.tqc-touch')).toBeVisible();
+  await teleport(page, 12, 20.5, 0);
+  await advance(page, 0.2);
+
+  // Two fingers: id 1 pushes the stick forward, id 2 drags right and down in the look zone.
+  const moveBox = (await page.locator('.tqc-touch__zone--move').boundingBox())!;
+  const sx = moveBox.x + moveBox.width * 0.35;
+  const sy = moveBox.y + moveBox.height * 0.75;
+  const lx = 560;
+  const ly = 120;
+  await pointer(page, '.tqc-touch__zone--move', 'pointerdown', 1, sx, sy);
+  await pointer(page, '.tqc-touch__zone--look', 'pointerdown', 2, lx, ly);
+  const before = await page.evaluate(() => {
+    const w = window.__tqc!.session!.world;
+    return { z: w.player.z, yaw: w.look.yaw, pitch: w.look.pitch };
+  });
+  for (let i = 1; i <= 6; i += 1) {
+    await pointer(page, '.tqc-touch__zone--move', 'pointermove', 1, sx, sy - 60);
+    await pointer(page, '.tqc-touch__zone--look', 'pointermove', 2, lx + i * 12, ly + i * 6);
+    await advance(page, 0.25);
+    const owned = await page.evaluate(() => Array.from(window.__tqc!.touch.hud!.ownedPointers.entries()));
+    expect(owned).toEqual([
+      [1, 'joystick'],
+      [2, 'look'],
+    ]);
+  }
+  const during = await page.evaluate(() => {
+    const app = window.__tqc!;
+    const w = app.session!.world;
+    return { z: w.player.z, yaw: w.look.yaw, pitch: w.look.pitch, moveY: app.input.touch.moveY, hintSeen: app.settings.get().meta.touchLookHintSeen };
+  });
+  expect(during.z).toBeGreaterThan(before.z + 0.5);
+  expect(during.moveY).toBeGreaterThan(0.5);
+  expect(during.yaw).toBeLessThan(before.yaw); // drag right turns right (yaw decreases)
+  expect(during.pitch).toBeLessThan(before.pitch); // drag down looks down
+  expect(during.hintSeen).toBe(true);
+
+  // Lift the look finger: look stops, movement continues.
+  await pointer(page, '.tqc-touch__zone--look', 'pointerup', 2, lx + 80, ly + 40);
+  const afterLift = await page.evaluate(() => window.__tqc!.session!.world.look.pitch);
+  await pointer(page, '.tqc-touch__zone--look', 'pointermove', 2, lx + 200, ly + 200);
+  await advance(page, 0.3);
+  const stillMoving = await page.evaluate(() => ({ pitch: window.__tqc!.session!.world.look.pitch, moveY: window.__tqc!.input.touch.moveY }));
+  expect(stillMoving.pitch).toBeCloseTo(afterLift, 6);
+  expect(stillMoving.moveY).toBeGreaterThan(0.5);
+
+  // Aim (latched) and fire while the move finger is still down.
+  await touchButton(page, 'aim');
+  await advance(page, 0.4);
+  const ammoBefore = await page.evaluate(() => window.__tqc!.session!.world.player.ammoLoaded);
+  await touchButton(page, 'fire');
+  await advance(page, 0.3);
+  const shot = await page.evaluate(() => {
+    const app = window.__tqc!;
+    const p = app.session!.world.player;
+    return { ammo: p.ammoLoaded, moveY: app.input.touch.moveY, aiming: p.aiming, speed: Math.hypot(p.velX, p.velZ) };
+  });
+  expect(shot.ammo).toBe(ammoBefore - 1);
+  expect(shot.moveY).toBeGreaterThan(0.5);
+  expect(shot.aiming).toBe(true);
+  expect(shot.speed).toBeGreaterThan(0.2);
+
+  // Background the tab with fingers down: every pointer releases and nothing sticks.
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect(page.getByRole('heading', { name: 'Paused' })).toBeVisible();
+  const released = await page.evaluate(() => {
+    const app = window.__tqc!;
+    return { owned: app.touch.hud!.ownedPointers.size, moveX: app.input.touch.moveX, moveY: app.input.touch.moveY, aim: app.input.touch.isHeld('Aim'), fire: app.input.touch.isHeld('Fire') };
+  });
+  expect(released).toEqual({ owned: 0, moveX: 0, moveY: 0, aim: false, fire: false });
+  await page.evaluate(() => {
+    Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await page.getByRole('button', { name: /^Resume/ }).tap();
+  await expect(page.locator('.tqc-touch')).toBeVisible();
+  await pointer(page, '.tqc-touch__zone--move', 'pointermove', 1, sx, sy - 60);
+  await advance(page, 0.3);
+  expect(await page.evaluate(() => window.__tqc!.input.touch.moveY)).toBe(0); // the old pointer is gone
+  const speed = await page.evaluate(() => {
+    const p = window.__tqc!.session!.world.player;
+    return Math.hypot(p.velX, p.velZ);
+  });
+  expect(speed).toBeLessThan(0.05);
+  expect(capture.errors).toEqual([]);
+});

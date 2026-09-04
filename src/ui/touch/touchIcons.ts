@@ -1,4 +1,4 @@
-import type { TouchControlId } from './touchProfiles';
+import type { TouchControlId } from './touchLayout';
 
 /** Original, minimal line icons for touch controls (inline SVG, no external assets). */
 const ICONS: Partial<Record<TouchControlId, string>> = {
@@ -14,13 +14,24 @@ const ICONS: Partial<Record<TouchControlId, string>> = {
   pause: '<path d="M9 5v14M15 5v14"/>',
   inventory: '<rect x="4" y="7" width="16" height="13" rx="1"/><path d="M9 7V5h6v2"/><path d="M4 12h16"/>',
   map: '<path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2z"/><path d="M9 4v14M15 6v14"/>',
+  lookStick: '<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
 };
 
-/** Builds the icon as a DOM node through the XML parser (no innerHTML on live elements). */
-export function touchIconNode(id: TouchControlId): SVGElement | null {
-  const body = ICONS[id];
-  if (!body) return null;
-  const doc = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true">${body}</svg>`, 'image/svg+xml');
+/** First-use glyph for the drag-to-look zone: a fingertip with a curved sweep either side. */
+const LOOK_HINT = '<circle cx="24" cy="26" r="5"/><path d="M8 20a18 18 0 0 1 8-9"/><path d="M40 20a18 18 0 0 0-8-9"/><path d="M8 20l-1-5M8 20l5-1"/><path d="M40 20l1-5M40 20l-5-1"/>';
+
+/** Builds an SVG as a DOM node through the XML parser (no innerHTML on live elements). */
+export function svgNode(body: string, viewBox = '0 0 24 24'): SVGElement | null {
+  const doc = new DOMParser().parseFromString(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" aria-hidden="true">${body}</svg>`, 'image/svg+xml');
   const svg = doc.documentElement;
   return svg instanceof SVGElement ? (document.importNode(svg, true) as SVGElement) : null;
+}
+
+export function touchIconNode(id: TouchControlId): SVGElement | null {
+  const body = ICONS[id];
+  return body ? svgNode(body) : null;
+}
+
+export function lookHintNode(): SVGElement | null {
+  return svgNode(LOOK_HINT, '0 0 48 40');
 }

@@ -11,22 +11,38 @@
 .tqc-hud[hidden] { display: none; }
 .tqc-hud.is-dimmed { opacity: 0; }
 
-/* With on-screen controls the bottom corners belong to the thumbs: vitals and item move to the top. */
-:root[data-touch-hud='true'] .tqc-hud__objective { max-width: min(18rem, 34vw); }
-:root[data-touch-hud='true'] .tqc-hud__objective-label { font-size: calc(var(--tqc-fs-sm) * var(--tqc-hud-scale)); }
+/*
+ * With on-screen controls the bottom corners belong to the thumbs. Top-left: condition and stamina,
+ * then the objective. Top-right: pause and swap buttons in the corner with the ammo readout below
+ * them. The top-centre band stays free of controls; transient text sits below it.
+ */
+:root[data-touch-hud='true'] .tqc-hud { --hud-pad-x: calc(var(--tqc-space-3) + 8px + var(--tqc-safe-left)); }
 :root[data-touch-hud='true'] .tqc-hud__vitals {
-  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 5.2rem);
+  top: calc(var(--tqc-space-3) + var(--tqc-safe-top));
   bottom: auto;
 }
+:root[data-touch-hud='true'] .tqc-hud__objective { top: calc(var(--tqc-space-3) + var(--tqc-safe-top) + 4.4rem); max-width: min(18rem, 34vw); }
+:root[data-touch-hud='true'] .tqc-hud__objective-label { font-size: calc(var(--tqc-fs-sm) * var(--tqc-hud-scale)); }
 :root[data-touch-hud='true'] .tqc-hud__item {
-  top: calc(var(--tqc-space-4) + var(--tqc-safe-top));
+  top: calc(var(--tqc-touch-top-cluster, calc(var(--tqc-safe-top) + 64px)) + 8px);
+  right: calc(var(--tqc-space-3) + 8px + var(--tqc-safe-right));
   bottom: auto;
+  grid-template-columns: auto auto;
+  grid-template-areas: 'icon name' 'icon ammo' 'status status';
+  column-gap: var(--tqc-space-2);
+  align-items: center;
 }
-:root[data-touch-hud='true'] .tqc-hud__message { top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 6.4rem); }
-:root[data-touch-hud='true'] .tqc-hud__prompt { bottom: auto; top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 8.6rem); }
+:root[data-touch-hud='true'] .tqc-hud__item-icon { grid-area: icon; width: calc(2.2rem * var(--tqc-hud-scale)); height: calc(1.5rem * var(--tqc-hud-scale)); }
+:root[data-touch-hud='true'] .tqc-hud__item-name { grid-area: name; }
+:root[data-touch-hud='true'] .tqc-hud__ammo { grid-area: ammo; line-height: 1; }
+:root[data-touch-hud='true'] .tqc-hud__status { grid-area: status; }
+:root[data-touch-hud='true'] .tqc-hud__secondary { display: none; }
+:root[data-touch-hud='true'] .tqc-hud__message { top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 5.6rem); }
+:root[data-touch-hud='true'] .tqc-hud__prompt { bottom: auto; top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 7.8rem); }
 :root[data-touch-hud='true'] .tqc-hud__caption { bottom: calc(var(--hud-pad-y) + 0.5rem); }
+:root[data-touch-hud='true'] .tqc-hud__hint { display: none; }
 :root[data-touch-hud='true'] .tqc-toasts {
-  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 3.4rem);
+  top: calc(var(--tqc-space-4) + var(--tqc-safe-top) + 4.6rem);
   right: auto;
   left: 50%;
   transform: translateX(-50%);
@@ -71,6 +87,8 @@
   display: grid;
   gap: 2px;
 }
+.tqc-hud__item-icon { justify-self: end; width: calc(2.6rem * var(--tqc-hud-scale)); height: calc(1.8rem * var(--tqc-hud-scale)); color: var(--tqc-text); opacity: 0.9; }
+.tqc-hud__item-icon svg { width: 100%; height: 100%; fill: currentColor; stroke: none; }
 .tqc-hud__item-name {
   font-size: calc(var(--tqc-fs-xs) * var(--tqc-hud-scale));
   letter-spacing: var(--tqc-tracking-wide);

@@ -7,14 +7,12 @@
   overflow: hidden;
 }
 .tqc-touch[hidden] { display: none; }
+/* Zones are positioned by TouchHud.layout(): left/right halves inside the safe-area insets. */
 .tqc-touch__zone {
   position: absolute;
-  top: 0;
-  bottom: 0;
   pointer-events: auto;
+  touch-action: none;
 }
-.tqc-touch__zone--move { left: 0; width: 45%; }
-.tqc-touch__zone--look { right: 0; width: 55%; }
 
 .tqc-touch__stick {
   position: absolute;
@@ -25,10 +23,24 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 120ms;
+  touch-action: none;
 }
 .tqc-touch__stick.is-active { opacity: 1; }
 .tqc-touch__stick.is-fixed { opacity: 0.55; }
 .tqc-touch__stick.is-fixed.is-active { opacity: 1; }
+.tqc-touch__stick--look { pointer-events: auto; opacity: 0.55; }
+.tqc-touch__stick--look[hidden] { display: none; }
+.tqc-touch__stick--look::before,
+.tqc-touch__stick--look::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  background: rgba(214, 210, 200, 0.22);
+  transform: translate(-50%, -50%);
+}
+.tqc-touch__stick--look::before { width: 1px; height: 70%; }
+.tqc-touch__stick--look::after { width: 70%; height: 1px; }
 .tqc-touch__knob {
   position: absolute;
   left: 50%;
@@ -40,6 +52,28 @@
   transform: translate(-50%, -50%);
 }
 .tqc-touch__stick.is-sprint .tqc-touch__knob { background: var(--tqc-accent); }
+
+.tqc-touch__look-hint {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  color: rgba(214, 210, 200, 0.55);
+  font-family: var(--tqc-font);
+  font-size: clamp(0.6rem, 1.5vmin, 0.8rem);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 400ms;
+}
+.tqc-touch__look-hint.is-visible { opacity: 1; animation: tqc-look-hint 2.6s ease-in-out infinite; }
+.tqc-touch__look-hint svg { width: clamp(44px, 9vmin, 64px); height: auto; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes tqc-look-hint { 0%, 100% { transform: translate(-52%, -50%); } 50% { transform: translate(-48%, -50%); } }
+:root[data-reduced-motion='true'] .tqc-touch__look-hint.is-visible { animation: none; }
 
 .tqc-touch__btn {
   position: absolute;
@@ -55,19 +89,17 @@
   text-transform: uppercase;
   transform: translate(-50%, -50%);
   pointer-events: auto;
+  touch-action: none;
   transition: background 90ms, border-color 90ms, opacity 160ms;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
 }
 .tqc-touch__btn.is-down { background: rgba(214, 210, 200, 0.28); border-color: var(--tqc-focus); }
 .tqc-touch__btn.is-latched { border-color: var(--tqc-accent); }
-.tqc-touch__btn.is-hinted { border-color: var(--tqc-accent); box-shadow: 0 0 0 2px rgba(201, 154, 58, 0.35); }
 .tqc-touch__btn[hidden] { display: none; }
-.tqc-touch__btn--primary { border-width: 2px; }
+.tqc-touch__btn--primary { border-width: 2px; background: rgba(10, 11, 12, 0.55); }
 .tqc-touch__btn svg { width: 46%; height: 46%; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .tqc-touch__btn span { font-size: 0.85em; margin-top: 2px; }
-
-.tqc-touch__crosshair-hint { position: absolute; left: 50%; top: 50%; }
 
 /* ---------- layout editor ---------- */
 .tqc-editor {
@@ -80,6 +112,22 @@
   position: absolute;
   border: 1px dashed rgba(201, 154, 58, 0.6);
   pointer-events: none;
+}
+.tqc-editor__look {
+  position: absolute;
+  border: 1px dotted rgba(142, 160, 168, 0.5);
+  background: rgba(142, 160, 168, 0.06);
+  pointer-events: none;
+}
+.tqc-editor__look[hidden] { display: none; }
+.tqc-editor__look span {
+  position: absolute;
+  right: var(--tqc-space-2);
+  bottom: var(--tqc-space-2);
+  font-size: var(--tqc-fs-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(142, 160, 168, 0.7);
 }
 .tqc-editor__control {
   position: absolute;
@@ -97,6 +145,7 @@
   touch-action: none;
   pointer-events: auto;
 }
+.tqc-editor__control[hidden] { display: none; }
 .tqc-editor__control.is-selected { border-color: var(--tqc-focus); box-shadow: 0 0 0 2px rgba(230, 220, 195, 0.35); }
 .tqc-editor__control.is-overlap { border-color: var(--tqc-danger); }
 .tqc-editor__control.is-hidden-control { opacity: 0.3; border-style: dashed; }
