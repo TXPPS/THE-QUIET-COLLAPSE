@@ -95,14 +95,16 @@ export class KeyboardMouseSource implements InputSource {
     for (const action of BUTTON_ACTIONS) {
       const meta = ACTION_META[action];
       if (meta.context !== 'both' && meta.context !== context) continue;
-      if (this.isSlotActive(action, context)) frame.press(action);
+      if (this.isSlotFresh(action, context)) frame.pulse(action);
+      else if (this.isSlotActive(action, context)) frame.press(action);
     }
     this.endFrame();
   }
 
   /** Emergency contribution when this source is not the locked primary: Escape still pauses. */
   pollEmergency(frame: InputFrame): void {
-    if (this.keys.has('Escape') || this.keysPulsed.has('Escape')) frame.press('Pause');
+    if (this.keysPulsed.has('Escape')) frame.pulse('Pause');
+    else if (this.keys.has('Escape')) frame.press('Pause');
     this.endFrame();
   }
 
@@ -118,6 +120,16 @@ export class KeyboardMouseSource implements InputSource {
     const x = (this.isSlotActive(`${action}.right`, 'game') ? 1 : 0) - (this.isSlotActive(`${action}.left`, 'game') ? 1 : 0);
     const y = (this.isSlotActive(`${action}.up`, 'game') ? 1 : 0) - (this.isSlotActive(`${action}.down`, 'game') ? 1 : 0);
     if (x !== 0 || y !== 0) frame.addAxis(action, x, y);
+  }
+
+  /** True when a binding of the slot was newly pressed since the last poll. */
+  private isSlotFresh(slot: BindingSlot, context: SourceContext): boolean {
+    for (const binding of this.bindings.kbmFor(slot)) {
+      if (binding.type === 'key' && this.keysPulsed.has(binding.code)) return true;
+      if (binding.type === 'mouse' && context === 'game' && this.buttonsPulsed.has(binding.button)) return true;
+      if (binding.type === 'wheel' && context === 'game' && this.wheelPulse === binding.dir) return true;
+    }
+    return false;
   }
 
   private isSlotActive(slot: BindingSlot, context: SourceContext): boolean {

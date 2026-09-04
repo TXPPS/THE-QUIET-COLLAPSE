@@ -28,6 +28,27 @@ describe('InputManager edges', () => {
     expect(input.justPressed('Interact')).toBe(false);
   });
 
+  it('counts a fresh tap as a new edge even when the previous frame also saw the key down', () => {
+    key('keydown', 'KeyG');
+    key('keyup', 'KeyG');
+    input.update(1 / 60);
+    input.consumeGameEdges();
+    // Second tap arrives before the next sample: still an edge, not a hold.
+    key('keydown', 'KeyG');
+    key('keyup', 'KeyG');
+    input.update(1 / 60);
+    expect(input.justPressed('Fire' as never)).toBe(false); // KeyG is unbound by default
+    input.consumeGameEdges();
+    key('keydown', 'KeyR');
+    key('keyup', 'KeyR');
+    input.update(1 / 60);
+    key('keydown', 'KeyR');
+    key('keyup', 'KeyR');
+    input.update(1 / 60);
+    expect(input.justPressed('Reload')).toBe(true);
+    expect(input.game.justPressed('Reload')).toBe(true);
+  });
+
   it('latches gameplay edges until a fixed step consumes them, even across frames with no step', () => {
     key('keydown', 'KeyR');
     key('keyup', 'KeyR');

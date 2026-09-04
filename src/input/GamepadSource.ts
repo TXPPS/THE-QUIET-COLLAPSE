@@ -150,9 +150,18 @@ export class GamepadSource implements InputSource {
     for (const action of BUTTON_ACTIONS) {
       const meta = ACTION_META[action];
       if (meta.context !== 'both' && meta.context !== context) continue;
-      if (this.isSlotActive(this.remapForFamily(action, context))) frame.press(action);
+      const slot = this.remapForFamily(action, context);
+      if (this.isSlotFresh(slot)) frame.pulse(action);
+      else if (this.isSlotActive(slot)) frame.press(action);
     }
     this.pulsed.clear();
+  }
+
+  private isSlotFresh(slot: BindingSlot): boolean {
+    for (const binding of this.bindings.padFor(slot)) {
+      if (binding.type === 'button' && this.pulsed.has(binding.index)) return true;
+    }
+    return false;
   }
 
   /** Nintendo layouts: with the "east confirms" policy, swap Confirm/Cancel so A confirms. */

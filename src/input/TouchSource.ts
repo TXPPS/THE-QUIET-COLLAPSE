@@ -98,7 +98,7 @@ export class TouchSource implements InputSource {
       frame.addAxis('Navigate', this.navigateX, this.navigateY);
     }
     for (const action of this.held) frame.press(action);
-    for (const action of this.pulsed) frame.press(action);
+    for (const action of this.pulsed) frame.pulse(action);
     this.pulsed.clear();
     this.lookDx = 0;
     this.lookDy = 0;

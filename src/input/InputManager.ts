@@ -134,7 +134,7 @@ export class InputManager implements ActionSnapshot {
       this.lookX = 0;
       this.lookY = 0;
     }
-    for (const action of this.current.down) if (!this.previous.down.has(action)) this.pendingPressed.add(action);
+    for (const action of this.current.down) if (!this.previous.down.has(action) || this.current.pressedNow.has(action)) this.pendingPressed.add(action);
     for (const action of this.previous.down) if (!this.current.down.has(action)) this.pendingReleased.add(action);
     this.updateToggles();
   }
@@ -152,7 +152,7 @@ export class InputManager implements ActionSnapshot {
 
   justPressed(action: Action): boolean {
     if (isAxisAction(action)) return false;
-    return this.current.down.has(action) && !this.previous.down.has(action);
+    return this.current.down.has(action) && (!this.previous.down.has(action) || this.current.pressedNow.has(action));
   }
 
   justReleased(action: Action): boolean {
