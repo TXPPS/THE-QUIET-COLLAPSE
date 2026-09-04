@@ -16,6 +16,7 @@ export class AudioEngine {
   private settings: AudioSettings;
   private duck = 1;
   private unlocked = false;
+  private readonly unlockListeners: Array<(ctx: AudioContext) => void> = [];
   readonly listener = { x: 0, y: 1.5, z: 0, fx: 0, fz: 1 };
 
   constructor(settings: AudioSettings) {
@@ -67,7 +68,16 @@ export class AudioEngine {
         return;
       }
     }
-    this.unlocked = true;
+    if (!this.unlocked) {
+      this.unlocked = true;
+      for (const listener of this.unlockListeners) listener(this.context);
+    }
+  }
+
+  /** Runs once the context is running (immediately when it already is): sample decoding hooks here. */
+  onUnlocked(listener: (ctx: AudioContext) => void): void {
+    if (this.unlocked && this.context) listener(this.context);
+    else this.unlockListeners.push(listener);
   }
 
   applySettings(settings: AudioSettings): void {

@@ -4,6 +4,7 @@ import type { BindingStore } from './BindingStore';
 import { PAD, type PadBinding } from './bindings';
 import type { GlyphFamily } from './InputSource';
 import type { InputSourceRegistry } from './InputSourceRegistry';
+import { ARROWS_ICON, kbmIcon, MOUSE_LOOK_ICON, padIcon, stickIcon } from './glyphIcons';
 import { kbmBindingLabel } from './keyLabels';
 
 export type GlyphShape = 'key' | 'mouse' | 'wheel' | 'face' | 'shoulder' | 'trigger' | 'stick' | 'dpad' | 'system' | 'touch' | 'axis';
@@ -15,6 +16,8 @@ export interface Glyph {
   aria: string;
   shape: GlyphShape;
   family: GlyphFamily;
+  /** Sprite symbol id (Kenney Input Prompts) when one exists for the binding. */
+  icon?: string;
 }
 
 export interface GlyphEvents extends Record<string, unknown> {
@@ -149,7 +152,7 @@ export class PromptGlyphService {
   glyphsFor(action: Action, family: GlyphFamily = this.family): Glyph[] {
     if (family === 'keyboard') {
       if (isAxisAction(action)) return [this.keyboardGlyph(action)];
-      return this.bindings.kbmFor(action).map((binding) => ({ ...kbmBindingLabel(binding), shape: shapeOfKbm(binding.type), family }));
+      return this.bindings.kbmFor(action).map((binding) => ({ ...kbmBindingLabel(binding), shape: shapeOfKbm(binding.type), family, icon: kbmIcon(binding) ?? undefined }));
     }
     if (family === 'touch') return [this.glyph(action, family)];
     if (isAxisAction(action)) return [this.padGlyph(action, family)];
@@ -157,19 +160,18 @@ export class PromptGlyphService {
   }
 
   private keyboardGlyph(action: Action): Glyph {
-    if (action === 'Look') return { text: 'Mouse', aria: 'Move the mouse', shape: 'mouse', family: 'keyboard' };
+    if (action === 'Look') return { text: 'Mouse', aria: 'Move the mouse', shape: 'mouse', family: 'keyboard', icon: MOUSE_LOOK_ICON };
     if (isAxisAction(action)) return this.keyboardAxisGlyph(action);
     const binding = this.bindings.kbmFor(action)[0];
     if (!binding) return { text: '—', aria: 'Unbound', shape: 'key', family: 'keyboard' };
-    return { ...kbmBindingLabel(binding), shape: shapeOfKbm(binding.type), family: 'keyboard' };
+    return { ...kbmBindingLabel(binding), shape: shapeOfKbm(binding.type), family: 'keyboard', icon: kbmIcon(binding) ?? undefined };
   }
 
   private keyboardAxisGlyph(action: AxisAction): Glyph {
-    const parts = (['up', 'left', 'down', 'right'] as const).map((dir) => {
-      const binding = this.bindings.kbmFor(`${action}.${dir}` as BindingSlot)[0];
-      return binding ? kbmBindingLabel(binding).text : '·';
-    });
-    return { text: parts.join(''), aria: `${parts.join(', ')} keys`, shape: 'key', family: 'keyboard' };
+    const bindings = (['up', 'left', 'down', 'right'] as const).map((dir) => this.bindings.kbmFor(`${action}.${dir}` as BindingSlot)[0]);
+    const parts = bindings.map((binding) => (binding ? kbmBindingLabel(binding).text : '·'));
+    const arrows = bindings.every((binding) => binding?.type === 'key' && binding.code.startsWith('Arrow'));
+    return { text: parts.join(''), aria: `${parts.join(', ')} keys`, shape: 'key', family: 'keyboard', icon: arrows ? ARROWS_ICON : undefined };
   }
 
   private padGlyph(action: Action, family: GlyphFamily): Glyph {
@@ -177,10 +179,10 @@ export class PromptGlyphService {
       const binding = this.bindings.padFor(action)[0];
       if (binding?.type === 'stick' && binding.x !== 0) {
         const label = family === 'xbox' ? 'RS' : family === 'generic' ? 'Stick 2' : 'R';
-        return { text: label, aria: 'Right stick', shape: 'stick', family };
+        return { text: label, aria: 'Right stick', shape: 'stick', family, icon: stickIcon(family, true) ?? undefined };
       }
       const [text, aria] = STICK_LABELS[family];
-      return { text, aria, shape: 'stick', family };
+      return { text, aria, shape: 'stick', family, icon: stickIcon(family, false) ?? undefined };
     }
     const binding = this.bindings.padFor(action)[0];
     if (!binding) return { text: '—', aria: 'Unbound', shape: 'face', family };
@@ -190,10 +192,10 @@ export class PromptGlyphService {
   /** Glyph for one concrete gamepad binding under a family (remap screen). */
   padBindingGlyph(binding: PadBinding, family: GlyphFamily): Glyph {
     const table = PAD_TABLES[family];
-    if (!table || binding.type !== 'button') return { ...genericPadGlyph(binding), family };
+    if (!table || binding.type !== 'button') return { ...genericPadGlyph(binding), family, icon: padIcon(binding, family) ?? undefined };
     const entry = table[binding.index];
     if (!entry) return { ...genericPadGlyph(binding), family };
-    return { text: entry[0], aria: entry[1], shape: entry[2], family };
+    return { text: entry[0], aria: entry[1], shape: entry[2], family, icon: padIcon(binding, family) ?? undefined };
   }
 }
 

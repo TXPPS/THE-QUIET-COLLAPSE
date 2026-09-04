@@ -16,6 +16,8 @@ import { assetFile, assetKeys, hasAsset } from '@/assets/manifest';
 import { RecastNavigation } from '@/game/nav/RecastNavigation';
 import { CharacterAssets } from '@/render/character/CharacterAssets';
 import { AudioEngine } from '@/audio/AudioEngine';
+import { SampleBank } from '@/audio/SampleBank';
+import { PromptSprite } from '@/ui/PromptSprite';
 import { GameAudio } from '@/audio/GameAudio';
 import { AutoQuality } from '@/render/AutoQuality';
 import { Vector2 } from 'three';
@@ -85,6 +87,7 @@ export class App {
   readonly touch: TouchShell;
   readonly audio: AudioEngine;
   private gameAudio: GameAudio | null = null;
+  private samples: SampleBank | null = null;
   private backdrop: MenuBackdrop | null = null;
   private readonly autoQuality = new AutoQuality();
   private readonly sw: ServiceWorkerClient;
@@ -184,8 +187,23 @@ export class App {
     await this.characters?.load();
     await this.loadNavigation(assets);
     await this.renderer?.applyEnvironment(assets);
+    await this.installPrompts(assets);
+    this.samples = new SampleBank(assets);
+    this.notices.samples = this.samples;
+    const samples = this.samples;
+    this.audio.onUnlocked((ctx) => void samples.decodePrecached(ctx));
     if (failures.length > 0) console.warn(`[tqc] ${failures.length} asset(s) failed to load; placeholders in use:`, failures.join(', '));
     if (this.characters?.failure) console.warn(`[tqc] character assets unavailable: ${this.characters.failure}`);
+  }
+
+  /** Kenney prompt icons: the sprite goes into the DOM and every chip re-renders with its icon. */
+  private async installPrompts(assets: AssetLibrary): Promise<void> {
+    if (!hasAsset('ui.prompts')) return;
+    try {
+      if (PromptSprite.install(await assets.text('ui.prompts'))) this.prompts.refreshAll();
+    } catch {
+      // Text chips remain.
+    }
   }
 
   private async loadNavigation(assets: AssetLibrary): Promise<void> {
@@ -407,7 +425,7 @@ export class App {
       },
     });
     this.session.world.setNavigation(this.createNavigation());
-    this.gameAudio = new GameAudio(this.audio, this.session.world, { caption: (text, seconds) => hud.showCaption(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
+    this.gameAudio = new GameAudio(this.audio, this.session.world, this.samples, { caption: (text, seconds) => hud.showCaption(text, seconds ?? 2) }, () => this.settings.get().audio.subtitles);
     this.autoQuality.reset();
     if (runState.checkpointId === 'start' && runState.playtimeSec < 1) this.session.save('checkpoint');
     if (this.debug?.spawnRays) this.session.view.setSpawnRays(true);

@@ -238,6 +238,9 @@ body {
 .tqc-glyph--stick { border-radius: var(--tqc-radius-pill); border-style: double; }
 .tqc-glyph--mouse { border-radius: 0.8em / 0.6em; }
 .tqc-glyph--touch { border-style: dashed; }
+/* Sprite icons (Kenney Input Prompts): the chip frame drops away, the icon carries the shape. */
+.tqc-glyph--icon { padding: 0; border-color: transparent; background: transparent; min-width: 0; }
+.tqc-glyph__icon { display: block; width: 1.9em; height: 1.9em; fill: currentColor; }
 
 .tqc-hint {
   display: inline-flex;

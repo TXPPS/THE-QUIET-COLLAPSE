@@ -1,6 +1,7 @@
 import type { Action } from '@/input/actions';
 import type { PromptGlyphService } from '@/input/PromptGlyphService';
 import { el } from './dom';
+import { PromptSprite } from './PromptSprite';
 
 interface Bound {
   element: HTMLElement;
@@ -51,9 +52,16 @@ export class Prompts {
   private render(entry: Bound): void {
     const glyph = this.glyphs.glyph(entry.action);
     const { element } = entry;
-    element.textContent = glyph.text;
+    const icon = glyph.icon && PromptSprite.has(glyph.icon) ? PromptSprite.use(glyph.icon) : null;
+    if (icon) {
+      icon.setAttribute('class', 'tqc-glyph__icon');
+      element.replaceChildren(icon);
+      element.dataset['text'] = glyph.text;
+    } else {
+      element.textContent = glyph.text;
+    }
     element.setAttribute('aria-label', glyph.aria);
     element.title = glyph.aria;
-    element.className = `tqc-glyph tqc-glyph--${glyph.shape} tqc-glyph--family-${glyph.family}`;
+    element.className = `tqc-glyph tqc-glyph--${glyph.shape} tqc-glyph--family-${glyph.family}${icon ? ' tqc-glyph--icon' : ''}`;
   }
 }
