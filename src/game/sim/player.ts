@@ -1,4 +1,5 @@
-import { DIFFICULTY, MEDKIT, PISTOL, PLAYER } from '@/config/gameplay';
+import { DIFFICULTY, PISTOL, PLAYER } from '@/config/gameplay';
+import { consumeItem, countItem, itemDef, type ItemId } from '@/game/items/registry';
 import { clamp, dampAngle, length2 } from '@/core/math';
 import type { ActionSnapshot } from '@/input/InputFrame';
 import { fireHitscan } from './combat';
@@ -113,17 +114,23 @@ function finishReload(world: World): void {
   world.events.emit('reloadDone', undefined);
 }
 
-export function tryMedkit(world: World): void {
+/** Starts applying a medical item (kit by default); the effect lands when its timer runs out. */
+export function tryMedkit(world: World, item: ItemId = 'medkit'): void {
   const p = world.player;
-  if (p.medkits <= 0 || p.health >= PLAYER.maxHealth || p.medkitTimer > 0) return;
-  p.medkitTimer = MEDKIT.useTime;
+  const use = itemDef(item).use;
+  if (!use || use.kind !== 'heal') return;
+  if (countItem(p, item) <= 0 || p.health >= PLAYER.maxHealth || p.medkitTimer > 0) return;
+  p.healingItem = item;
+  p.medkitTimer = use.seconds;
 }
 
 function finishMedkit(world: World): void {
   const p = world.player;
-  p.medkits -= 1;
-  p.health = Math.min(PLAYER.maxHealth, p.health + MEDKIT.heal);
+  const item = p.healingItem as ItemId;
+  const use = itemDef(item).use;
   p.medkitTimer = 0;
+  if (!use || use.kind !== 'heal' || !consumeItem(p, item)) return;
+  p.health = Math.min(PLAYER.maxHealth, p.health + use.amount);
   world.events.emit('medkitUsed', undefined);
   world.events.emit('playerHealed', { health: p.health });
 }

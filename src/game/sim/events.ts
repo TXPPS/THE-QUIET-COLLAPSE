@@ -17,7 +17,8 @@ export interface SimEvents extends Record<string, unknown> {
   playerHurt: { amount: number; health: number };
   playerDied: undefined;
   playerHealed: { health: number };
-  pickup: { id: string; kind: string; label: string; amount: number };
+  pickup: { id: string; item: string; label: string; amount: number };
+  itemCombined: { result: string };
   door: { id: string; open: boolean; label: string };
   document: { document: DocumentDef };
   message: { text: string };

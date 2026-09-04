@@ -45,6 +45,8 @@ export interface PlayerSaveState {
   hasFlashlight: boolean;
   flashlightOn: boolean;
   equipped: EquippedItem;
+  /** Registry items without a dedicated field (dressings, antiseptic, keys). Absent in v1 saves. */
+  items?: Record<string, number>;
 }
 
 export interface LookSaveState {

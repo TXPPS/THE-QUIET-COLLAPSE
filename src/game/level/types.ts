@@ -1,3 +1,4 @@
+import type { ItemId } from '@/game/items/registry';
 import type { NavBounds } from '@/game/sim/navgrid';
 
 export type MaterialKey =
@@ -122,14 +123,13 @@ export interface DoorDef {
   initiallyOpen?: boolean;
 }
 
-export type PickupKind = 'ammo' | 'medkit' | 'flashlight';
-
 export interface PickupDef {
   id: string;
   x: number;
   z: number;
   y?: number;
-  kind: PickupKind;
+  /** Registry item id (see src/game/items/registry.ts). */
+  item: ItemId;
   amount: number;
   label: string;
 }

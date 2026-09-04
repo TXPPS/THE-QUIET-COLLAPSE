@@ -27,6 +27,7 @@ export function createNewRun(level: LevelData, difficulty: DifficultyId, seed = 
       hasFlashlight: false,
       flashlightOn: false,
       equipped: 'pistol',
+      items: {},
     },
     look: { yaw: level.lookStart.yaw, pitch: level.lookStart.pitch },
     threats,
@@ -43,6 +44,8 @@ function isPlayerState(value: unknown): value is PlayerSaveState {
   const numeric = ['x', 'z', 'yaw', 'health', 'stamina', 'ammoLoaded', 'ammoReserve', 'medkits'];
   if (!numeric.every((key) => isFiniteNumber(value[key]))) return false;
   if (typeof value['hasFlashlight'] !== 'boolean' || typeof value['flashlightOn'] !== 'boolean') return false;
+  const items = value['items'];
+  if (items !== undefined && !(isRecord(items) && Object.values(items).every((n) => isFiniteNumber(n) && n >= 0))) return false;
   return value['equipped'] === 'pistol' || value['equipped'] === 'medkit';
 }
 

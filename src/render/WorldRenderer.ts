@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import type { AssetLibrary } from '@/assets/AssetLibrary';
 import { LIGHTING } from '@/config/lighting';
+import { itemDef } from '@/game/items/registry';
 import type { DecalDef, LevelData, LightDef } from '@/game/level/types';
 import { MaterialLibrary, tileSize } from './materials';
 import { WorldModels } from './WorldModels';
@@ -145,14 +146,13 @@ export class WorldRenderer {
     const pickupGeometry = new THREE.BoxGeometry(0.28, 0.18, 0.2);
     const docGeometry = new THREE.PlaneGeometry(0.28, 0.36);
     this.geometries.push(pickupGeometry, docGeometry);
-    const pickupMaterials = {
-      ammo: new THREE.MeshStandardMaterial({ color: 0x6b6f63, roughness: 0.6, metalness: 0.4, emissive: 0x2a2a1a }),
-      medkit: new THREE.MeshStandardMaterial({ color: 0x8a5a4a, roughness: 0.7, emissive: 0x2a0f0a }),
-      flashlight: new THREE.MeshStandardMaterial({ color: 0x4a4e52, roughness: 0.4, metalness: 0.6, emissive: 0x2a2a1a }),
-      supply: new THREE.MeshStandardMaterial({ color: 0x7a7f74, roughness: 0.8, emissive: 0x1e2018 }),
-    };
+    const pickupMaterials = new Map<string, THREE.MeshStandardMaterial>();
     for (const pickup of this.level.pickups) {
-      const material = pickupMaterials[pickup.kind as keyof typeof pickupMaterials] ?? pickupMaterials.supply;
+      let material = pickupMaterials.get(pickup.item);
+      if (!material) {
+        material = new THREE.MeshStandardMaterial({ color: itemDef(pickup.item).mesh.tint, roughness: 0.7, emissive: 0x1e1c16 });
+        pickupMaterials.set(pickup.item, material);
+      }
       const mesh = new THREE.Mesh(pickupGeometry, material);
       mesh.position.set(pickup.x, pickup.y ?? 0.09, pickup.z);
       this.group.add(mesh);

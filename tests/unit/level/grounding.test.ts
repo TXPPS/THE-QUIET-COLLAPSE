@@ -45,8 +45,8 @@ describe('spawn grounding', () => {
     const data = level({
       blocks: [crate],
       pickups: [
-        { id: 'on_crate', x: 2, z: 2, y: 1.5, kind: 'ammo', amount: 1, label: 'a' },
-        { id: 'on_floor', x: -2, z: -2, y: 1.0, kind: 'medkit', amount: 1, label: 'b' },
+        { id: 'on_crate', x: 2, z: 2, y: 1.5, item: 'rounds', amount: 1, label: 'a' },
+        { id: 'on_floor', x: -2, z: -2, y: 1.0, item: 'medkit', amount: 1, label: 'b' },
       ],
     });
     const { level: grounded, report } = groundLevel(data);
@@ -64,7 +64,7 @@ describe('spawn grounding', () => {
     const data = level({
       blocks: [arm, floating],
       surfaces: [surface(-1, -1, 1, 1, 'concrete', 0)],
-      pickups: [{ id: 'off_world', x: 5, z: 5, y: 1, kind: 'ammo', amount: 1, label: 'c' }],
+      pickups: [{ id: 'off_world', x: 5, z: 5, y: 1, item: 'rounds', amount: 1, label: 'c' }],
     });
     const { level: grounded, report } = groundLevel(data);
     expect(grounded.blocks.map((b) => b.id)).toEqual([arm.id]);
@@ -76,7 +76,7 @@ describe('spawn grounding', () => {
 
   it('does not treat invisible blockers or buildings above the probe as ground', () => {
     const blocker = box('blocker', -1, -1, 1, 1, 3, 'concrete', { invisible: true });
-    const data = level({ blocks: [blocker], pickups: [{ id: 'p', x: 0, z: 0, y: 1, kind: 'ammo', amount: 1, label: 'd' }] });
+    const data = level({ blocks: [blocker], pickups: [{ id: 'p', x: 0, z: 0, y: 1, item: 'rounds', amount: 1, label: 'd' }] });
     expect(groundLevel(data).level.pickups[0]?.y).toBeCloseTo(-0.02 + SPAWN.pickupLift, 6);
   });
 

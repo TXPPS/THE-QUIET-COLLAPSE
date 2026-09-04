@@ -19,6 +19,10 @@ export class PlayerRuntime {
   hasFlashlight: boolean;
   flashlightOn: boolean;
   equipped: EquippedItem;
+  /** Carried registry items by id. */
+  readonly items: Record<string, number>;
+  /** Which medical item the current application will consume. */
+  healingItem: string = 'medkit';
   // transient
   sprinting = false;
   aiming = false;
@@ -54,6 +58,7 @@ export class PlayerRuntime {
     this.hasFlashlight = saved.hasFlashlight;
     this.flashlightOn = saved.flashlightOn;
     this.equipped = saved.equipped;
+    this.items = { ...(saved.items ?? {}) };
   }
 
   get radius(): number {
@@ -83,6 +88,7 @@ export class PlayerRuntime {
       hasFlashlight: this.hasFlashlight,
       flashlightOn: this.flashlightOn,
       equipped: this.equipped,
+      items: { ...this.items },
     };
   }
 }

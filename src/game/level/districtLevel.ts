@@ -176,12 +176,15 @@ const RAW_LEVEL: LevelData = {
   ],
   // Authored heights are probe starts: every pickup is dropped onto the surface below it.
   pickups: [
-    { id: 'pk_flashlight', x: 9.4, z: 12.8, y: 0.6, kind: 'flashlight', amount: 1, label: 'Flashlight' }, // on the bag
-    { id: 'pk_ammo_car', x: 31.6, z: 21.2, y: 0.5, kind: 'ammo', amount: 4, label: 'Loose rounds' }, // spilled beside the car
-    { id: 'pk_medkit_pharmacy', x: 35, z: 35.6, y: 2.0, kind: 'medkit', amount: 1, label: 'First-aid kit' }, // on the shelf
-    { id: 'pk_ammo_pharmacy', x: 42.6, z: 40.7, y: 1.2, kind: 'ammo', amount: 6, label: 'Box of rounds' }, // on the counter
-    { id: 'pk_ammo_parking', x: 72.3, z: 34.6, y: 0.5, kind: 'ammo', amount: 4, label: 'Loose rounds' }, // deck by the post
-    { id: 'pk_medkit_plaza', x: 47.2, z: 72.6, y: 0.5, kind: 'medkit', amount: 1, label: 'Field dressing' }, // outside the tent
+    { id: 'pk_flashlight', x: 9.4, z: 12.8, y: 0.6, item: 'flashlight', amount: 1, label: 'Flashlight' }, // on the bag
+    { id: 'pk_ammo_car', x: 31.6, z: 21.2, y: 0.5, item: 'rounds', amount: 4, label: 'Loose rounds' }, // spilled beside the car
+    { id: 'pk_medkit_pharmacy', x: 35, z: 35.6, y: 2.0, item: 'medkit', amount: 1, label: 'First-aid kit' }, // on the shelf
+    { id: 'pk_ammo_pharmacy', x: 42.6, z: 40.7, y: 1.2, item: 'rounds', amount: 6, label: 'Box of rounds' }, // on the counter
+    { id: 'pk_ammo_parking', x: 72.3, z: 34.6, y: 0.5, item: 'rounds', amount: 4, label: 'Loose rounds' }, // deck by the post
+    { id: 'pk_medkit_plaza', x: 47.2, z: 72.6, y: 0.5, item: 'medkit', amount: 1, label: 'First-aid kit' }, // outside the tent
+    { id: 'pk_dressing_shelf', x: 35, z: 40.6, y: 2.0, item: 'dressing', amount: 1, label: 'Field dressing' }, // second shelf
+    { id: 'pk_antiseptic_shelf', x: 41.2, z: 40.9, y: 1.2, item: 'antiseptic', amount: 1, label: 'Antiseptic' }, // on the counter
+    { id: 'pk_dressing_tent', x: 48.6, z: 74.2, y: 1.0, item: 'dressing', amount: 1, label: 'Field dressing' }, // inside the tent
   ],
   documents: DOCUMENTS,
   interactables: [

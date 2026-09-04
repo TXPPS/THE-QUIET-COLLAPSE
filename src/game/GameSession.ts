@@ -70,8 +70,8 @@ export class GameSession {
       events.on('checkpoint', () => {
         if (this.save('checkpoint')) toasts.show('Checkpoint saved', 'info', RUN.autosaveToastSeconds);
       }),
-      events.on('pickup', ({ label, kind, amount }) => {
-        const suffix = kind === 'ammo' ? ` ×${amount}` : '';
+      events.on('pickup', ({ label, item, amount }) => {
+        const suffix = item === 'rounds' ? ` ×${amount}` : '';
         toasts.show(`${label}${suffix}`, 'info', 2.2);
       }),
       events.on('message', ({ text }) => hud.showMessage(text)),

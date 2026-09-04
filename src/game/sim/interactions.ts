@@ -1,4 +1,5 @@
-import { DIFFICULTY, INTERACTION } from '@/config/gameplay';
+import { INTERACTION } from '@/config/gameplay';
+import { grantItem } from '@/game/items/registry';
 import { length2 } from '@/core/math';
 import type { DocumentDef, DoorDef, InteractableDef, PickupDef } from '@/game/level/types';
 import type { World } from './World';
@@ -80,17 +81,10 @@ export function performInteraction(world: World, prompt: InteractionPrompt): boo
 }
 
 function takePickup(world: World, def: PickupDef): boolean {
-  const p = world.player;
   if (world.pickupsTaken[def.id]) return false;
   world.pickupsTaken[def.id] = true;
-  if (def.kind === 'ammo') p.ammoReserve += Math.max(1, Math.round(def.amount * DIFFICULTY[world.difficulty].ammoFound));
-  else if (def.kind === 'medkit') p.medkits += def.amount;
-  else if (def.kind === 'flashlight') {
-    p.hasFlashlight = true;
-    p.flashlightOn = true;
-    world.events.emit('flashlight', { on: true });
-  }
-  world.events.emit('pickup', { id: def.id, kind: def.kind, label: def.label, amount: def.amount });
+  const amount = grantItem(world, def.item, def.amount);
+  world.events.emit('pickup', { id: def.id, item: def.item, label: def.label, amount });
   return true;
 }
 

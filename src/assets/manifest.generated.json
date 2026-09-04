@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generated": "2026-09-04T20:58:54.163Z",
-  "precachedBytes": 7832200,
+  "generated": "2026-09-04T21:28:54.741Z",
+  "precachedBytes": 7835710,
   "streamedBytes": 5661815,
   "files": {
     "audio.ambience-night-1": {
@@ -828,15 +828,15 @@
       ]
     },
     "nav.district": {
-      "path": "nav/district-ebabde35.bin",
-      "bytes": 95656,
+      "path": "nav/district-bb683ea9.bin",
+      "bytes": 99166,
       "sources": [
         "original"
       ],
       "kind": "bin",
       "precache": true,
-      "signature": "03c10c73",
-      "triangles": 986
+      "signature": "91254acb",
+      "triangles": 1094
     },
     "texture.asphalt033.color": {
       "path": "textures/asphalt033-color-682d61eb.ktx2",
