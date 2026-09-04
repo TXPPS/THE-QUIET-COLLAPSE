@@ -51,7 +51,7 @@
         "assets/src/kenney/city-kit-roads/electricity-pole.glb",
         "assets/src/kenney/city-kit-roads/bridge-pillar.glb",
         "assets/src/kenney/city-kit-roads/tile-low.glb",
-        "assets/src/kenney/city-kit-roads/colormap.png",
+        "assets/src/kenney/city-kit-roads/Textures/colormap.png",
         "assets/src/kenney/city-kit-roads/License.txt"
       ],
       "largeFiles": [],
@@ -81,7 +81,7 @@
         "assets/src/kenney/city-kit-suburban/tree-small.glb",
         "assets/src/kenney/city-kit-suburban/tree-large.glb",
         "assets/src/kenney/city-kit-suburban/path-short.glb",
-        "assets/src/kenney/city-kit-suburban/colormap.png",
+        "assets/src/kenney/city-kit-suburban/Textures/colormap.png",
         "assets/src/kenney/city-kit-suburban/License.txt"
       ],
       "largeFiles": [],
@@ -116,7 +116,7 @@
         "assets/src/kenney/city-kit-commercial/detail-awning.glb",
         "assets/src/kenney/city-kit-commercial/detail-awning-wide.glb",
         "assets/src/kenney/city-kit-commercial/detail-overhang.glb",
-        "assets/src/kenney/city-kit-commercial/colormap.png",
+        "assets/src/kenney/city-kit-commercial/Textures/colormap.png",
         "assets/src/kenney/city-kit-commercial/License.txt"
       ],
       "largeFiles": [],
@@ -143,7 +143,7 @@
         "assets/src/kenney/city-kit-industrial/detail-tank-large.glb",
         "assets/src/kenney/city-kit-industrial/water-tower.glb",
         "assets/src/kenney/city-kit-industrial/chimney-small.glb",
-        "assets/src/kenney/city-kit-industrial/colormap.png",
+        "assets/src/kenney/city-kit-industrial/Textures/colormap.png",
         "assets/src/kenney/city-kit-industrial/License.txt"
       ],
       "largeFiles": [],
@@ -177,7 +177,7 @@
         "assets/src/kenney/modular-buildings/roof-flat-awning-a.glb",
         "assets/src/kenney/modular-buildings/detail-ac-a.glb",
         "assets/src/kenney/modular-buildings/building-steps-wide.glb",
-        "assets/src/kenney/modular-buildings/colormap.png",
+        "assets/src/kenney/modular-buildings/Textures/colormap.png",
         "assets/src/kenney/modular-buildings/License.txt"
       ],
       "largeFiles": [],

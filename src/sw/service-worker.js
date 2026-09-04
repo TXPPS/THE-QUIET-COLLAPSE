@@ -3,6 +3,8 @@ const CACHE_NAME = __CACHE_NAME__;
 const PRECACHE = __PRECACHE__;
 const INDEX = './index.html';
 const FRESH_PARAM = 'fresh';
+/** Streamed assets are fetched on first use and kept in the versioned cache from then on. */
+const STREAM_PATH = '/assets/stream/';
 
 self.addEventListener('install', (event) => {
   // Precache the full hashed asset list. Activation waits for the player to accept the update
@@ -57,6 +59,19 @@ function freshResponse(request) {
     .then(() => fetch(request, { cache: 'reload' }));
 }
 
+/** Streamed asset: network, then stored in the versioned cache so it is available offline next time. */
+function streamResponse(request) {
+  return fetch(request)
+    .then((response) => {
+      if (response && response.ok) {
+        const copy = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(request, copy)).catch(() => undefined);
+      }
+      return response;
+    })
+    .catch(() => Response.error());
+}
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -70,8 +85,13 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(shellResponse(request));
     return;
   }
-  // Cache-first for hashed assets; anything else falls through to the network with a cache backstop.
+  // Cache-first for hashed assets; streamed files fill the cache on first fetch; anything else
+  // falls through to the network with a cache backstop.
   event.respondWith(
-    caches.match(request).then((cached) => cached ?? fetch(request).catch(() => Response.error())),
+    caches.match(request).then((cached) => {
+      if (cached) return cached;
+      if (url.pathname.includes(STREAM_PATH)) return streamResponse(request);
+      return fetch(request).catch(() => Response.error());
+    }),
   );
 });

@@ -1,0 +1,1140 @@
+{
+  "version": 1,
+  "generated": "2026-09-04T20:23:00.700Z",
+  "precachedBytes": 8202140,
+  "streamedBytes": 5661815,
+  "files": {
+    "audio.ambience-night-1": {
+      "path": "stream/audio/ambience-night-1-38ef4c95.mp3",
+      "bytes": 1037184,
+      "sources": [
+        "freesound-459675"
+      ],
+      "kind": "audio",
+      "precache": false,
+      "seconds": 44.79
+    },
+    "audio.ambience-night-2": {
+      "path": "stream/audio/ambience-night-2-e14dc7fb.mp3",
+      "bytes": 984384,
+      "sources": [
+        "freesound-699143"
+      ],
+      "kind": "audio",
+      "precache": false,
+      "seconds": 43.41
+    },
+    "audio.body-hit-1": {
+      "path": "audio/body-hit-1-a7a1b91b.mp3",
+      "bytes": 7671,
+      "sources": [
+        "freesound-138481"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.22
+    },
+    "audio.body-hit-2": {
+      "path": "audio/body-hit-2-81f5997c.mp3",
+      "bytes": 21189,
+      "sources": [
+        "freesound-276600"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.84
+    },
+    "audio.door-1": {
+      "path": "audio/door-1-8c48cd96.mp3",
+      "bytes": 28992,
+      "sources": [
+        "freesound-244425"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.07
+    },
+    "audio.door-2": {
+      "path": "audio/door-2-323e3b35.mp3",
+      "bytes": 56352,
+      "sources": [
+        "freesound-547024"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 2.11
+    },
+    "audio.flashlight-click": {
+      "path": "audio/flashlight-click-3cde3dfe.mp3",
+      "bytes": 9504,
+      "sources": [
+        "freesound-617587"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.26
+    },
+    "audio.foot-concrete-1": {
+      "path": "audio/foot-concrete-1-f07525fc.mp3",
+      "bytes": 13568,
+      "sources": [
+        "freesound-166509"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.53
+    },
+    "audio.foot-concrete-2": {
+      "path": "audio/foot-concrete-2-d5f82687.mp3",
+      "bytes": 12734,
+      "sources": [
+        "freesound-166508"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.49
+    },
+    "audio.foot-concrete-3": {
+      "path": "audio/foot-concrete-3-04b0f8c3.mp3",
+      "bytes": 12733,
+      "sources": [
+        "freesound-166507"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.48
+    },
+    "audio.foot-concrete-4": {
+      "path": "audio/foot-concrete-4-bf4adf39.mp3",
+      "bytes": 11168,
+      "sources": [
+        "freesound-166506"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.42
+    },
+    "audio.foot-gravel-1": {
+      "path": "audio/foot-gravel-1-c31f89a8.mp3",
+      "bytes": 17118,
+      "sources": [
+        "freesound-166511"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.68
+    },
+    "audio.foot-gravel-2": {
+      "path": "audio/foot-gravel-2-99ce61b3.mp3",
+      "bytes": 14403,
+      "sources": [
+        "freesound-166510"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.52
+    },
+    "audio.foot-metal-1": {
+      "path": "audio/foot-metal-1-861aa16b.mp3",
+      "bytes": 6990,
+      "sources": [
+        "freesound-398554"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.27
+    },
+    "audio.foot-metal-2": {
+      "path": "audio/foot-metal-2-d38acfc2.mp3",
+      "bytes": 9504,
+      "sources": [
+        "freesound-816413"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.31
+    },
+    "audio.foot-metal-3": {
+      "path": "audio/foot-metal-3-6350e3c9.mp3",
+      "bytes": 12576,
+      "sources": [
+        "freesound-421151"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.43
+    },
+    "audio.foot-wood-1": {
+      "path": "audio/foot-wood-1-3c22a309.mp3",
+      "bytes": 14143,
+      "sources": [
+        "freesound-340983"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.5
+    },
+    "audio.foot-wood-2": {
+      "path": "audio/foot-wood-2-f3faa528.mp3",
+      "bytes": 27936,
+      "sources": [
+        "freesound-812363"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.11
+    },
+    "audio.foot-wood-3": {
+      "path": "audio/foot-wood-3-48294855.mp3",
+      "bytes": 11272,
+      "sources": [
+        "freesound-565489"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.44
+    },
+    "audio.heartbeat": {
+      "path": "audio/heartbeat-995ca4bc.mp3",
+      "bytes": 5844,
+      "sources": [
+        "freesound-784658"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.25
+    },
+    "audio.medkit-use": {
+      "path": "audio/medkit-use-a9033156.mp3",
+      "bytes": 18336,
+      "sources": [
+        "freesound-659458"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.72
+    },
+    "audio.melee-hit-1": {
+      "path": "audio/melee-hit-1-a57b64da.mp3",
+      "bytes": 9446,
+      "sources": [
+        "freesound-496187"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.33
+    },
+    "audio.melee-hit-2": {
+      "path": "audio/melee-hit-2-e77fa9b9.mp3",
+      "bytes": 11568,
+      "sources": [
+        "freesound-842508"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.55
+    },
+    "audio.pickup-1": {
+      "path": "audio/pickup-1-c724f79a.mp3",
+      "bytes": 17588,
+      "sources": [
+        "freesound-175960"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.58
+    },
+    "audio.pickup-2": {
+      "path": "audio/pickup-2-0aadcf39.mp3",
+      "bytes": 15968,
+      "sources": [
+        "freesound-527773"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.72
+    },
+    "audio.pistol-dry": {
+      "path": "audio/pistol-dry-93282074.mp3",
+      "bytes": 6472,
+      "sources": [
+        "freesound-448989"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.15
+    },
+    "audio.pistol-reload-1": {
+      "path": "audio/pistol-reload-1-85140754.mp3",
+      "bytes": 18873,
+      "sources": [
+        "freesound-386744"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.74
+    },
+    "audio.pistol-reload-2": {
+      "path": "audio/pistol-reload-2-6786c0a6.mp3",
+      "bytes": 43049,
+      "sources": [
+        "freesound-159406"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.74
+    },
+    "audio.pistol-shot-1": {
+      "path": "audio/pistol-shot-1-44d3d6e1.mp3",
+      "bytes": 28077,
+      "sources": [
+        "freesound-371440"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.14
+    },
+    "audio.pistol-shot-2": {
+      "path": "audio/pistol-shot-2-5ee2db64.mp3",
+      "bytes": 50927,
+      "sources": [
+        "freesound-385811"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 2.14
+    },
+    "audio.player-death": {
+      "path": "audio/player-death-ee1370ba.mp3",
+      "bytes": 22017,
+      "sources": [
+        "freesound-554443"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.01
+    },
+    "audio.player-hurt-1": {
+      "path": "audio/player-hurt-1-ad2727f3.mp3",
+      "bytes": 12528,
+      "sources": [
+        "freesound-464486"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.57
+    },
+    "audio.player-hurt-2": {
+      "path": "audio/player-hurt-2-0aeee713.mp3",
+      "bytes": 9706,
+      "sources": [
+        "freesound-547209"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.32
+    },
+    "audio.radio-static-1": {
+      "path": "stream/audio/radio-static-1-7df9903c.mp3",
+      "bytes": 452256,
+      "sources": [
+        "freesound-552160"
+      ],
+      "kind": "audio",
+      "precache": false,
+      "seconds": 18.55
+    },
+    "audio.radio-static-2": {
+      "path": "audio/radio-static-2-725438d7.mp3",
+      "bytes": 150408,
+      "sources": [
+        "freesound-684896"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 6.91
+    },
+    "audio.threat-alert-1": {
+      "path": "audio/threat-alert-1-79af71c1.mp3",
+      "bytes": 61780,
+      "sources": [
+        "freesound-555417"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 2.64
+    },
+    "audio.threat-alert-2": {
+      "path": "audio/threat-alert-2-17efb1ac.mp3",
+      "bytes": 90531,
+      "sources": [
+        "freesound-133974"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 3.85
+    },
+    "audio.threat-attack": {
+      "path": "audio/threat-attack-f71c22c3.mp3",
+      "bytes": 34368,
+      "sources": [
+        "freesound-560594"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.41
+    },
+    "audio.threat-death": {
+      "path": "audio/threat-death-cbd26616.mp3",
+      "bytes": 41433,
+      "sources": [
+        "freesound-577033"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.74
+    },
+    "audio.threat-hurt": {
+      "path": "audio/threat-hurt-0161032c.mp3",
+      "bytes": 15289,
+      "sources": [
+        "freesound-555420"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.57
+    },
+    "audio.threat-idle-1": {
+      "path": "audio/threat-idle-1-259be5eb.mp3",
+      "bytes": 80448,
+      "sources": [
+        "freesound-426628"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 4.13
+    },
+    "audio.threat-idle-2": {
+      "path": "audio/threat-idle-2-e2774a73.mp3",
+      "bytes": 41595,
+      "sources": [
+        "freesound-445995"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 1.42
+    },
+    "audio.threat-idle-3": {
+      "path": "audio/threat-idle-3-dc7fa16e.mp3",
+      "bytes": 57492,
+      "sources": [
+        "freesound-323819"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 4.15
+    },
+    "audio.ui-cancel": {
+      "path": "audio/ui-cancel-022832be.mp3",
+      "bytes": 5792,
+      "sources": [
+        "freesound-476817"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.22
+    },
+    "audio.ui-checkpoint": {
+      "path": "audio/ui-checkpoint-14861fe9.mp3",
+      "bytes": 19097,
+      "sources": [
+        "freesound-523763"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.78
+    },
+    "audio.ui-confirm": {
+      "path": "audio/ui-confirm-ebe8a42d.mp3",
+      "bytes": 9080,
+      "sources": [
+        "freesound-455202"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.26
+    },
+    "audio.ui-denied": {
+      "path": "audio/ui-denied-8b5226f0.mp3",
+      "bytes": 23277,
+      "sources": [
+        "freesound-459771"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.72
+    },
+    "audio.ui-move": {
+      "path": "audio/ui-move-90e3f7b3.mp3",
+      "bytes": 3653,
+      "sources": [
+        "freesound-459344"
+      ],
+      "kind": "audio",
+      "precache": true,
+      "seconds": 0.07
+    },
+    "character.affected": {
+      "path": "characters/affected-cb88a149.gltf",
+      "bytes": 25465,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "gltf",
+      "precache": true
+    },
+    "character.affected.bin": {
+      "path": "characters/affected-df0d4010.bin",
+      "bytes": 181620,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "bin",
+      "precache": true
+    },
+    "character.animations": {
+      "path": "characters/animations-a13a746b.glb",
+      "bytes": 3305280,
+      "sources": [
+        "quaternius-universal-animation-library",
+        "quaternius-universal-animation-library-2"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "clips": [
+        "Death01",
+        "Hit_Chest",
+        "Idle_Loop",
+        "Idle_Torch_Loop",
+        "Interact",
+        "Jog_Fwd_Loop",
+        "Pistol_Aim_Down",
+        "Pistol_Aim_Neutral",
+        "Pistol_Aim_Up",
+        "Pistol_Idle_Loop",
+        "Pistol_Reload",
+        "Pistol_Shoot",
+        "Roll",
+        "Sprint_Loop",
+        "Walk_Loop",
+        "Hit_Knockback",
+        "Melee_Hook",
+        "Zombie_Idle_Loop",
+        "Zombie_Scratch",
+        "Zombie_Walk_Fwd_Loop"
+      ]
+    },
+    "character.resident": {
+      "path": "characters/resident-f0e0b4fe.gltf",
+      "bytes": 25468,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "gltf",
+      "precache": true
+    },
+    "character.resident.bin": {
+      "path": "characters/resident-35eb9930.bin",
+      "bytes": 176552,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "bin",
+      "precache": true
+    },
+    "character.tex.affected-albedo.1024": {
+      "path": "characters/textures/affected-albedo-1024-71cff21d.ktx2",
+      "bytes": 85626,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024
+    },
+    "character.tex.affected-albedo.2048": {
+      "path": "stream/characters/textures/affected-albedo-2048-bea1f423.ktx2",
+      "bytes": 354817,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": false,
+      "size": 2048
+    },
+    "character.tex.body-normal.1024": {
+      "path": "characters/textures/body-normal-1024-f7aa33f1.ktx2",
+      "bytes": 126243,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024
+    },
+    "character.tex.body-normal.2048": {
+      "path": "stream/characters/textures/body-normal-2048-ed4593ca.ktx2",
+      "bytes": 383781,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": false,
+      "size": 2048
+    },
+    "character.tex.body-roughness.1024": {
+      "path": "characters/textures/body-roughness-1024-f9a5e9df.ktx2",
+      "bytes": 132261,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024
+    },
+    "character.tex.eye-albedo.256": {
+      "path": "characters/textures/eye-albedo-256-752ad695.ktx2",
+      "bytes": 8448,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 256
+    },
+    "character.tex.eye-normal.256": {
+      "path": "characters/textures/eye-normal-256-753c0f24.ktx2",
+      "bytes": 2498,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 256
+    },
+    "character.tex.hair-albedo.512": {
+      "path": "characters/textures/hair-albedo-512-890c1ef6.ktx2",
+      "bytes": 41131,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 512
+    },
+    "character.tex.hair-normal.512": {
+      "path": "characters/textures/hair-normal-512-f68c2cd3.ktx2",
+      "bytes": 44447,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 512
+    },
+    "character.tex.resident-albedo.1024": {
+      "path": "characters/textures/resident-albedo-1024-4c536ac5.ktx2",
+      "bytes": 84330,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024
+    },
+    "character.tex.resident-albedo.2048": {
+      "path": "stream/characters/textures/resident-albedo-2048-7417b9bb.ktx2",
+      "bytes": 352191,
+      "sources": [
+        "quaternius-universal-base-characters"
+      ],
+      "kind": "ktx2",
+      "precache": false,
+      "size": 2048
+    },
+    "env.dusk": {
+      "path": "env/aarfontein-dusk-512-a02657f1.hdr",
+      "bytes": 524337,
+      "sources": [
+        "polyhaven-aarfontein-dusk"
+      ],
+      "kind": "hdr",
+      "precache": true,
+      "width": 512,
+      "height": 256
+    },
+    "env.dusk.hi": {
+      "path": "stream/env/aarfontein-dusk-1024-302b9a3d.hdr",
+      "bytes": 2097202,
+      "sources": [
+        "polyhaven-aarfontein-dusk"
+      ],
+      "kind": "hdr",
+      "precache": false,
+      "width": 1024,
+      "height": 512
+    },
+    "kit.city-kit-commercial": {
+      "path": "kits/city-kit-commercial-214bafc9.glb",
+      "bytes": 242184,
+      "sources": [
+        "kenney-city-kit-commercial"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "scale": 10,
+      "models": [
+        "building-a",
+        "building-b",
+        "building-c",
+        "building-d",
+        "building-e",
+        "building-f",
+        "building-g",
+        "building-h",
+        "low-detail-building-a",
+        "low-detail-building-b",
+        "low-detail-building-c",
+        "low-detail-building-d",
+        "low-detail-building-e",
+        "low-detail-building-f",
+        "low-detail-building-wide-a",
+        "detail-awning",
+        "detail-awning-wide",
+        "detail-overhang"
+      ]
+    },
+    "kit.city-kit-industrial": {
+      "path": "kits/city-kit-industrial-77c4f255.glb",
+      "bytes": 202224,
+      "sources": [
+        "kenney-city-kit-industrial"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "scale": 10,
+      "models": [
+        "building-a",
+        "building-b",
+        "building-c",
+        "shipping-container-a",
+        "shipping-container-b",
+        "shipping-container-c",
+        "detail-tank",
+        "detail-tank-large",
+        "water-tower",
+        "chimney-small"
+      ]
+    },
+    "kit.city-kit-roads": {
+      "path": "kits/city-kit-roads-aecc85a3.glb",
+      "bytes": 103240,
+      "sources": [
+        "kenney-city-kit-roads"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "scale": 10,
+      "models": [
+        "road-straight",
+        "road-straight-half",
+        "road-crossroad",
+        "road-intersection",
+        "road-bend",
+        "road-end",
+        "road-side",
+        "road-straight-barrier",
+        "road-straight-barrier-half",
+        "road-crossroad-barrier",
+        "construction-barrier",
+        "construction-cone",
+        "construction-fence",
+        "construction-light",
+        "dumpster",
+        "light-curved",
+        "light-square",
+        "road-sign-warning",
+        "road-sign-stop",
+        "road-sign-street",
+        "sign-highway",
+        "traffic-light",
+        "electricity-pole",
+        "bridge-pillar",
+        "tile-low"
+      ]
+    },
+    "kit.city-kit-suburban": {
+      "path": "kits/city-kit-suburban-aa56dd84.glb",
+      "bytes": 208248,
+      "sources": [
+        "kenney-city-kit-suburban"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "scale": 10,
+      "models": [
+        "building-type-a",
+        "building-type-b",
+        "building-type-c",
+        "building-type-d",
+        "building-type-e",
+        "building-type-f",
+        "fence",
+        "fence-low",
+        "fence-1x2",
+        "planter",
+        "tree-small",
+        "tree-large",
+        "path-short"
+      ]
+    },
+    "kit.modular-buildings": {
+      "path": "kits/modular-buildings-3522190b.glb",
+      "bytes": 44444,
+      "sources": [
+        "kenney-modular-buildings"
+      ],
+      "kind": "gltf",
+      "precache": true,
+      "scale": 4,
+      "models": [
+        "building-window",
+        "building-window-sill",
+        "building-door",
+        "building-block",
+        "building-corner",
+        "building-corner-window",
+        "building-windows",
+        "building-window-large",
+        "door-white",
+        "door-brown",
+        "window-white",
+        "roof-flat-center",
+        "roof-flat-border-straight",
+        "roof-flat-border-corner",
+        "roof-flat-awning-a",
+        "detail-ac-a",
+        "building-steps-wide"
+      ]
+    },
+    "texture.asphalt033.color": {
+      "path": "textures/asphalt033-color-682d61eb.ktx2",
+      "bytes": 145069,
+      "sources": [
+        "ambientcg-asphalt033"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": true
+    },
+    "texture.asphalt033.normal": {
+      "path": "textures/asphalt033-normal-b5e64b29.ktx2",
+      "bytes": 103646,
+      "sources": [
+        "ambientcg-asphalt033"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.asphalt033.orm": {
+      "path": "textures/asphalt033-orm-d0907b4b.ktx2",
+      "bytes": 96465,
+      "sources": [
+        "ambientcg-asphalt033"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.bricks104.color": {
+      "path": "textures/bricks104-color-31a37cce.ktx2",
+      "bytes": 163366,
+      "sources": [
+        "ambientcg-bricks104"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": true
+    },
+    "texture.bricks104.normal": {
+      "path": "textures/bricks104-normal-d1aa9a01.ktx2",
+      "bytes": 88934,
+      "sources": [
+        "ambientcg-bricks104"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.bricks104.orm": {
+      "path": "textures/bricks104-orm-051cdd4d.ktx2",
+      "bytes": 100857,
+      "sources": [
+        "ambientcg-bricks104"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.concrete034.color": {
+      "path": "textures/concrete034-color-398cf4bb.ktx2",
+      "bytes": 135332,
+      "sources": [
+        "ambientcg-concrete034"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": true
+    },
+    "texture.concrete034.normal": {
+      "path": "textures/concrete034-normal-96864e7a.ktx2",
+      "bytes": 128892,
+      "sources": [
+        "ambientcg-concrete034"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.concrete034.orm": {
+      "path": "textures/concrete034-orm-e11f1b80.ktx2",
+      "bytes": 61817,
+      "sources": [
+        "ambientcg-concrete034"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.paintedplaster017.color": {
+      "path": "textures/paintedplaster017-color-5cdf2cac.ktx2",
+      "bytes": 125499,
+      "sources": [
+        "ambientcg-paintedplaster017"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": true
+    },
+    "texture.paintedplaster017.normal": {
+      "path": "textures/paintedplaster017-normal-a2a34df7.ktx2",
+      "bytes": 134798,
+      "sources": [
+        "ambientcg-paintedplaster017"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "texture.paintedplaster017.orm": {
+      "path": "textures/paintedplaster017-orm-71d20665.ktx2",
+      "bytes": 48002,
+      "sources": [
+        "ambientcg-paintedplaster017"
+      ],
+      "kind": "ktx2",
+      "precache": true,
+      "size": 1024,
+      "srgb": false
+    },
+    "ui.prompts": {
+      "path": "ui/prompts-1fb0bd51.svg",
+      "bytes": 112922,
+      "sources": [
+        "kenney-input-prompts"
+      ],
+      "kind": "svg",
+      "precache": true,
+      "symbols": [
+        "keyboard_a",
+        "keyboard_b",
+        "keyboard_c",
+        "keyboard_d",
+        "keyboard_e",
+        "keyboard_f",
+        "keyboard_g",
+        "keyboard_h",
+        "keyboard_i",
+        "keyboard_j",
+        "keyboard_k",
+        "keyboard_l",
+        "keyboard_m",
+        "keyboard_n",
+        "keyboard_o",
+        "keyboard_p",
+        "keyboard_q",
+        "keyboard_r",
+        "keyboard_s",
+        "keyboard_t",
+        "keyboard_u",
+        "keyboard_v",
+        "keyboard_w",
+        "keyboard_x",
+        "keyboard_y",
+        "keyboard_z",
+        "keyboard_0",
+        "keyboard_1",
+        "keyboard_2",
+        "keyboard_3",
+        "keyboard_4",
+        "keyboard_5",
+        "keyboard_6",
+        "keyboard_7",
+        "keyboard_8",
+        "keyboard_9",
+        "keyboard_f1",
+        "keyboard_f2",
+        "keyboard_f3",
+        "keyboard_f4",
+        "keyboard_f5",
+        "keyboard_f6",
+        "keyboard_f7",
+        "keyboard_f8",
+        "keyboard_f9",
+        "keyboard_f10",
+        "keyboard_f11",
+        "keyboard_f12",
+        "keyboard_space",
+        "keyboard_shift",
+        "keyboard_ctrl",
+        "keyboard_alt",
+        "keyboard_tab",
+        "keyboard_enter",
+        "keyboard_escape",
+        "keyboard_backspace",
+        "keyboard_arrow_up",
+        "keyboard_arrow_down",
+        "keyboard_arrow_left",
+        "keyboard_arrow_right",
+        "keyboard_arrows_all",
+        "keyboard_page_up",
+        "keyboard_page_down",
+        "keyboard_capslock",
+        "keyboard_home",
+        "keyboard_end",
+        "keyboard_delete",
+        "keyboard_insert",
+        "keyboard_apostrophe",
+        "keyboard_comma",
+        "keyboard_period",
+        "keyboard_slash_forward",
+        "keyboard_slash_back",
+        "keyboard_semicolon",
+        "keyboard_bracket_open",
+        "keyboard_bracket_close",
+        "keyboard_minus",
+        "keyboard_equals",
+        "keyboard_tilde",
+        "keyboard_numpad_enter",
+        "keyboard_any",
+        "mouse",
+        "mouse_left",
+        "mouse_right",
+        "mouse_scroll",
+        "mouse_scroll_up",
+        "mouse_scroll_down",
+        "mouse_move",
+        "mouse_side_back",
+        "mouse_side_forward",
+        "xbox_button_a",
+        "xbox_button_b",
+        "xbox_button_x",
+        "xbox_button_y",
+        "xbox_lb",
+        "xbox_rb",
+        "xbox_lt",
+        "xbox_rt",
+        "xbox_ls",
+        "xbox_rs",
+        "xbox_stick_l",
+        "xbox_stick_r",
+        "xbox_stick_l_press",
+        "xbox_stick_r_press",
+        "xbox_dpad",
+        "xbox_dpad_up",
+        "xbox_dpad_down",
+        "xbox_dpad_left",
+        "xbox_dpad_right",
+        "xbox_dpad_all",
+        "xbox_button_view",
+        "xbox_button_menu",
+        "xbox_guide",
+        "playstation_button_cross",
+        "playstation_button_circle",
+        "playstation_button_square",
+        "playstation_button_triangle",
+        "playstation_trigger_l1",
+        "playstation_trigger_r1",
+        "playstation_trigger_l2",
+        "playstation_trigger_r2",
+        "playstation_button_l3",
+        "playstation_button_r3",
+        "playstation_stick_l",
+        "playstation_stick_r",
+        "playstation_stick_l_press",
+        "playstation_stick_r_press",
+        "playstation_dpad",
+        "playstation_dpad_up",
+        "playstation_dpad_down",
+        "playstation_dpad_left",
+        "playstation_dpad_right",
+        "playstation_dpad_all",
+        "playstation5_button_options",
+        "playstation5_button_create",
+        "playstation4_button_share",
+        "playstation4_button_options",
+        "switch_button_a",
+        "switch_button_b",
+        "switch_button_x",
+        "switch_button_y",
+        "switch_button_l",
+        "switch_button_r",
+        "switch_button_zl",
+        "switch_button_zr",
+        "switch_button_plus",
+        "switch_button_minus",
+        "switch_button_home",
+        "switch_stick_l",
+        "switch_stick_r",
+        "switch_stick_l_press",
+        "switch_stick_r_press",
+        "switch_dpad",
+        "switch_dpad_up",
+        "switch_dpad_down",
+        "switch_dpad_left",
+        "switch_dpad_right",
+        "switch_dpad_all",
+        "generic_button_circle",
+        "generic_button_square",
+        "generic_button_trigger_a",
+        "generic_button_trigger_b",
+        "generic_stick",
+        "generic_stick_press",
+        "generic_joystick",
+        "generic_button"
+      ]
+    }
+  }
+}

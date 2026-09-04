@@ -48,7 +48,7 @@ function kenneyKit(slug, name, version, archive, models, extra = []) {
     retrieved: RETRIEVED,
     files: [
       ...models.map((m) => ({ from: `Models/GLB format/${m}.glb`, to: `${dir}/${m}.glb` })),
-      { from: 'Models/Textures/variation-a.png', to: `${dir}/colormap.png` },
+      { from: 'Models/Textures/variation-a.png', to: `${dir}/Textures/colormap.png` },
       { from: 'License.txt', to: `${dir}/License.txt` },
       ...extra,
     ],

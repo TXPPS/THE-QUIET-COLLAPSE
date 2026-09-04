@@ -15,7 +15,7 @@ pipeline turns it into hashed, compressed files under `public/assets/`.
 ```bash
 pnpm assets:fetch     # download archives into .cache and extract the ledger's files into src/
 pnpm assets:ledger    # regenerate ledger.json and docs/assets/ASSET_LEDGER.md from sources.mjs
-pnpm assets:build     # run the pipeline → public/assets (needs toktx from KTX-Software on PATH or KTX_TOOLS)
+pnpm assets:build     # run the pipeline → public/assets (Basis Universal wasm encoder, fetched into .cache on first run)
 pnpm check:assets     # licence/provenance gate (part of check:bundle)
 ```
 

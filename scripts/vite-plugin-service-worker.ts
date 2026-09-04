@@ -8,6 +8,8 @@ const SW_TEMPLATE = 'src/sw/service-worker.js';
 const SW_OUTPUT = 'sw.js';
 const EXCLUDED_SUFFIXES = ['.map', SW_OUTPUT];
 const EXCLUDED_FILES = ['_headers', '_redirects', 'precache-manifest.json'];
+/** Streamed assets (hi-res textures, ambience beds) are cached on first use, never precached. */
+const EXCLUDED_PREFIXES = ['assets/stream/'];
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
@@ -34,7 +36,7 @@ export function serviceWorkerPlugin(): Plugin {
       const outDir = join(config.root, config.build.outDir);
       const files = walk(outDir)
         .map((file) => relative(outDir, file).split('\\').join('/'))
-        .filter((file) => !EXCLUDED_SUFFIXES.some((suffix) => file.endsWith(suffix)) && !EXCLUDED_FILES.includes(file))
+        .filter((file) => !EXCLUDED_SUFFIXES.some((suffix) => file.endsWith(suffix)) && !EXCLUDED_FILES.includes(file) && !EXCLUDED_PREFIXES.some((prefix) => file.startsWith(prefix)))
         .sort();
       const hash = createHash('sha256');
       for (const file of files) hash.update(readFileSync(join(outDir, file)));
