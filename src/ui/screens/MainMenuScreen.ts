@@ -1,6 +1,6 @@
 import type { App } from '@/app/App';
 import { CANON } from '@/config/canon';
-import { PROJECT_TITLE, PROJECT_VERSION } from '@/config/project';
+import { PROJECT_BUILD_STAMP, PROJECT_TITLE } from '@/config/project';
 import { el } from '@/ui/dom';
 import { footer, menuItem, menuList } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
@@ -41,7 +41,7 @@ export class MainMenuScreen extends Screen {
           ['Navigate', 'Move'],
           ['Confirm', 'Select'],
         ],
-        `${PROJECT_VERSION}`,
+        PROJECT_BUILD_STAMP,
       ),
     );
   }

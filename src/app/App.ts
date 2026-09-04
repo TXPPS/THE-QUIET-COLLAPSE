@@ -14,12 +14,16 @@ import type { Settings } from '@/persistence/settingsSchema';
 import { AudioEngine } from '@/audio/AudioEngine';
 import { GameAudio } from '@/audio/GameAudio';
 import { AutoQuality } from '@/render/AutoQuality';
+import { Vector2 } from 'three';
+import type { FrameStats } from '@/core/GameLoop';
 import { GameView } from '@/render/GameView';
 import { MenuBackdrop } from '@/render/MenuBackdrop';
 import { ServiceWorkerClient } from './ServiceWorkerClient';
 import { ShellNotices } from './ShellNotices';
 import { PointerLockController } from './PointerLockController';
 import { ErrorGuard } from './ErrorGuard';
+import { DebugOverlay } from './DebugOverlay';
+import { ServiceWorkerClient as SwClient } from './ServiceWorkerClient';
 import { QUALITY_PROFILES, Renderer, isWebGLAvailable } from '@/render/Renderer';
 import { Hud } from '@/ui/hud/Hud';
 import { Prompts } from '@/ui/Prompts';
@@ -47,6 +51,8 @@ import type { ProfileKind, TouchProfile, TouchProfiles } from '@/ui/touch/touchP
 import { createLayers, type Layers } from './layers';
 import { TouchShell } from './TouchShell';
 
+
+const DEBUG_SIZE = new Vector2();
 
 /* eslint-disable max-lines -- composition root: wiring and screen flow only; logic lives in the
    extracted controllers (TouchShell, ShellNotices, PointerLockController, ErrorGuard, layers). */
@@ -86,6 +92,7 @@ export class App {
     onLockLost: () => this.pause(),
   });
   private readonly errors = new ErrorGuard((reason) => this.onErrorBurst(reason));
+  private debug: DebugOverlay | null = null;
 
   constructor(private readonly root: HTMLElement) {
     this.layers = createLayers(root);
@@ -146,7 +153,12 @@ export class App {
       if (this.settings.loadStatus === 'recovered') this.toasts.show('Settings were reset after unreadable data was found', 'warning', 6);
       if (this.settings.get().meta.warningsAccepted) this.showMainMenu();
       else this.screens.reset(new WarningScreen(this));
-      if (import.meta.env.PROD) void this.sw.register();
+      this.debug = new DebugOverlay(this.layers.system, () => this.loop.resetStats());
+      if (import.meta.env.PROD) {
+        const bypassed = await SwClient.bypassIfRequested();
+        if (bypassed) this.toasts.show('Caches cleared: fresh load', 'info', 4);
+        void this.sw.register();
+      }
     } catch (error) {
       boot.showFailure(`Startup failed: ${error instanceof Error ? error.message : String(error)}`, () => void this.boot());
     }
@@ -421,6 +433,7 @@ export class App {
     this.device.reportFrameTime(stats.medianMs);
     this.session?.update(dt, alpha, stats.fps);
     this.backdrop?.update(dt);
+    if (this.debug?.visible) this.updateDebug(stats);
     this.gameAudio?.update(dt);
     if (this.session && !this.session.paused && this.settings.get().video.quality === 'auto' && this.autoQuality.update(dt, stats)) {
       this.applyRenderQuality(this.settings.get());
@@ -457,6 +470,23 @@ export class App {
     this.touch.setTuning({ deadZone: s.controls.touchDeadZone, sprintThreshold: s.controls.touchSprintThreshold, sprintLock: s.controls.touchSprintLock });
     this.audio.applySettings(s.audio);
     this.applyRenderQuality(s);
+  }
+
+  private updateDebug(stats: FrameStats): void {
+    const buffer = this.renderer ? this.renderer.three.getDrawingBufferSize(DEBUG_SIZE) : DEBUG_SIZE.set(0, 0);
+    const top = this.screens.top;
+    this.debug?.update(performance.now(), {
+      stats,
+      bufferWidth: Math.round(buffer.x),
+      bufferHeight: Math.round(buffer.y),
+      cssWidth: window.innerWidth,
+      cssHeight: window.innerHeight,
+      renderScale: this.settings.get().video.quality === 'auto' ? this.autoQuality.scale : 1,
+      inputSource: `${this.input.registry.activeSource?.label ?? 'none'} (${this.input.registry.currentPolicy})`,
+      swState: this.sw.state,
+      online: navigator.onLine,
+      scene: top ? top.id : this.session ? `gameplay / ${this.session.world.currentObjective()?.id ?? '-'}` : 'idle',
+    });
   }
 
   private applyRenderQuality(s: Settings): void {

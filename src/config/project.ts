@@ -5,12 +5,18 @@
  */
 declare const __APP_VERSION__: string | undefined;
 declare const __BUILD_TIME__: string | undefined;
+declare const __GIT_SHA__: string | undefined;
 
 export const PROJECT_TITLE = 'THE QUIET COLLAPSE';
 export const PROJECT_SHORT_TITLE = 'QUIET COLLAPSE';
 export const PROJECT_ID = 'the-quiet-collapse';
 export const PROJECT_VERSION: string = typeof __APP_VERSION__ === 'string' ? __APP_VERSION__ : '0.0.0-dev';
 export const PROJECT_BUILD_TIME: string = typeof __BUILD_TIME__ === 'string' ? __BUILD_TIME__ : 'dev';
+export const PROJECT_BUILD_SHA: string = typeof __GIT_SHA__ === 'string' ? __GIT_SHA__ : 'nogit';
+/** Build stamp shown on the title screen and in the debug overlay. */
+export const PROJECT_BUILD_STAMP = `${PROJECT_VERSION} · ${PROJECT_BUILD_SHA} · ${PROJECT_BUILD_TIME}`;
+/** Hosting project name derived from the short title (kebab-case); never hard-code it elsewhere. */
+export const PROJECT_HOSTING_NAME = PROJECT_SHORT_TITLE.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 export const PROJECT_DESCRIPTION = 'A third-person survival game set in the first hours of a spreading disaster.';
 
 /** Colors shared with the manifest and the boot shell; UI tokens live in src/ui/tokens.css. */

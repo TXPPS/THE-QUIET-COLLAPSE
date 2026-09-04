@@ -1,0 +1,41 @@
+name: Deploy to Cloudflare Pages
+
+# Runs only when the repository has CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID secrets.
+# Manual alternative: `pnpm build && pnpm deploy:pages` (or `pnpm deploy:qa` for the preview branch).
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets
+        id: secrets
+        env:
+          TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          ACCOUNT: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ACCOUNT" ]; then echo "present=true" >> "$GITHUB_OUTPUT"; else echo "present=false" >> "$GITHUB_OUTPUT"; echo "Cloudflare secrets absent; skipping deploy"; fi
+      - uses: pnpm/action-setup@v4
+        if: steps.secrets.outputs.present == 'true'
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        if: steps.secrets.outputs.present == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+        if: steps.secrets.outputs.present == 'true'
+      - run: pnpm build && pnpm check:bundle
+        if: steps.secrets.outputs.present == 'true'
+      - name: Deploy (main → production, other branches → preview named after the branch)
+        if: steps.secrets.outputs.present == 'true'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/deploy-pages.mjs "${{ github.ref_name == 'main' && 'main' || 'qa' }}"
