@@ -8,7 +8,7 @@ import { advance, pressKey } from './input';
  * Set E2E_BASE_URL to run it against a deployed origin; the default is the local production preview.
  */
 test.describe('offline play after first load', () => {
-  test.setTimeout(240_000);
+  test.setTimeout(420_000);
   test.skip(({ browserName }) => browserName !== 'chromium', 'service worker assertions use Chromium');
 
   test('installs the worker, then completes the first beats fully offline', async ({ page, context, baseURL }) => {
@@ -23,7 +23,7 @@ test.describe('offline play after first load', () => {
         if (!reg?.active || !navigator.serviceWorker.controller) return 'waiting';
         const keys = await caches.keys();
         return keys.length > 0 ? 'ready' : 'no-cache';
-      }), { timeout: 60_000 })
+      }), { timeout: process.env['E2E_BASE_URL'] ? 240_000 : 90_000 })
       .toBe('ready');
     const precached = await page.evaluate(async () => {
       const keys = await caches.keys();

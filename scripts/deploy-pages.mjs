@@ -11,7 +11,7 @@ const branch = process.argv[2] ?? 'main';
 if (!existsSync('dist/sw.js')) throw new Error('dist/ is missing or incomplete; run `pnpm build` first');
 
 const commitDirty = execSync('git status --porcelain', { encoding: 'utf8' }).trim().length > 0;
-const message = `${execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()}${commitDirty ? ' (dirty)' : ''}`;
+const message = `${execSync('git rev-parse --short HEAD', { encoding: 'utf8' }).trim()}${commitDirty ? '-dirty' : ''}`;
 const args = ['wrangler@4', 'pages', 'deploy', 'dist', `--project-name=${projectName}`, `--branch=${branch}`, `--commit-dirty=${commitDirty}`, `--commit-message=${message}`];
 console.log(`deploying to Pages project "${projectName}" branch "${branch}"`);
 const result = spawnSync(process.platform === 'win32' ? 'npx.cmd' : 'npx', args, { stdio: 'inherit', shell: process.platform === 'win32' });

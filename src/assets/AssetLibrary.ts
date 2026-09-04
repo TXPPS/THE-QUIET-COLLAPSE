@@ -19,6 +19,24 @@ export interface TextureOptions {
 }
 
 const TRANSCODER_PATH = `${import.meta.env.BASE_URL}vendor/basis/`;
+/** A loader that never settles (blocked worker, stalled decoder) must not hold the boot screen hostage. */
+const LOAD_TIMEOUT_MS = 45_000;
+
+function withTimeout<T>(promise: Promise<T>, key: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = window.setTimeout(() => reject(new Error(`${key}: load timed out after ${LOAD_TIMEOUT_MS} ms`)), LOAD_TIMEOUT_MS);
+    promise.then(
+      (value) => {
+        window.clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        window.clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
 
 /**
  * Loads and caches every pipeline output by manifest key. One GLTFLoader (KTX2 + meshopt), one
@@ -122,7 +140,7 @@ export class AssetLibrary {
   private memo<T>(key: string, load: () => Promise<T>): Promise<T> {
     let pending = this.cache.get(key) as Promise<T> | undefined;
     if (!pending) {
-      pending = load().then(
+      pending = withTimeout(load(), key).then(
         (value) => {
           this.loaded.add(key);
           return value;
