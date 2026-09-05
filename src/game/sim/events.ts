@@ -1,5 +1,5 @@
 import type { DocumentDef } from '@/game/level/types';
-import type { NoiseEvent } from './types';
+import type { HitReaction, NoiseEvent } from './types';
 
 export interface SimEvents extends Record<string, unknown> {
   noise: NoiseEvent;
@@ -10,9 +10,11 @@ export interface SimEvents extends Record<string, unknown> {
   reloadStart: undefined;
   reloadDone: undefined;
   impact: { x: number; y: number; z: number };
-  threatHit: { id: string; x: number; z: number; killed: boolean };
+  threatHit: { id: string; x: number; z: number; killed: boolean; reaction: HitReaction; headshot: boolean };
   threatAlert: { id: string };
   threatAttack: { id: string };
+  /** The knocked-down enemy starts getting up (once per life). */
+  threatRise: { id: string };
   threatVocal: { id: string; x: number; z: number; kind: 'idle' | 'alert' | 'attack' | 'hurt' | 'death' };
   playerHurt: { amount: number; health: number };
   playerDied: undefined;
@@ -28,7 +30,12 @@ export interface SimEvents extends Record<string, unknown> {
   ending: undefined;
   flashlight: { on: boolean };
   equip: { item: string };
+  quickItemChanged: { item: string };
   dodge: undefined;
+  jump: undefined;
+  land: { hard: boolean };
+  vault: { height: number };
+  melee: { hit: boolean; x: number; z: number };
   medkitUsed: undefined;
   interactionPromptChanged: { label: string | null; verb: string | null };
 }

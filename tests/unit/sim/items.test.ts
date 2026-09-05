@@ -8,7 +8,7 @@ import { createHeadless, stepFor, walkAndInteract } from '../../helpers/headless
 
 describe('item registry', () => {
   it('grants, counts, combines and persists registry items', () => {
-    const world = new World(DISTRICT_LEVEL, createNewRun(DISTRICT_LEVEL, 'normal', 7));
+    const world = new World(DISTRICT_LEVEL, createNewRun(DISTRICT_LEVEL, 'standard', 7));
     expect(grantItem(world, 'dressing', 1)).toBe(1);
     expect(grantItem(world, 'antiseptic', 1)).toBe(1);
     expect(countItem(world.player, 'dressing')).toBe(1);
@@ -28,7 +28,7 @@ describe('item registry', () => {
   });
 
   it('respects stack limits and accepts v1 saves without an items map', () => {
-    const run = createNewRun(DISTRICT_LEVEL, 'normal', 8);
+    const run = createNewRun(DISTRICT_LEVEL, 'standard', 8);
     delete run.player.items;
     expect(validateRunState(run)).toBe(true);
     const world = new World(DISTRICT_LEVEL, run);

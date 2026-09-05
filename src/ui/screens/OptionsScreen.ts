@@ -1,17 +1,21 @@
 import type { App } from '@/app/App';
+import { DIFFICULTY_ORDER, DIFFICULTY_PRESETS, resolveEnemyStats } from '@/config/enemies';
 import { el } from '@/ui/dom';
 import { footer, heading, menuItem, menuList, selectItem, sliderItem, toggleItem } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
 import type { DeepPartial } from '@/persistence/SettingsStore';
 import type { AudioSettings, ControlSettings } from '@/persistence/settingsSchema';
 
-type TabId = 'video' | 'audio' | 'controls' | 'accessibility';
+type TabId = 'game' | 'video' | 'audio' | 'controls' | 'accessibility';
 const TABS: Array<[TabId, string]> = [
+  ['game', 'Game'],
   ['video', 'Video'],
   ['audio', 'Audio'],
   ['controls', 'Controls'],
   ['accessibility', 'Accessibility'],
 ];
+
+type NumericControl = { [K in keyof ControlSettings]: ControlSettings[K] extends number ? K : never }[keyof ControlSettings];
 
 /** Options with tabbed groups. Each row states its consequence in the hint. */
 export class OptionsScreen extends Screen {
@@ -45,7 +49,7 @@ export class OptionsScreen extends Screen {
   private renderTabs(): void {
     this.tabBar.replaceChildren(
       ...TABS.map(([id, label]) => {
-        const button = el('button', { class: 'tqc-tab', text: label, attrs: { type: 'button', role: 'tab', 'aria-selected': String(id === this.tab) } });
+        const button = el('button', { class: 'tqc-tab', text: label, attrs: { type: 'button', role: 'tab', 'aria-selected': String(id === this.tab), 'data-tab': id } });
         button.addEventListener('click', () => this.switchTo(id));
         return button;
       }),
@@ -60,6 +64,11 @@ export class OptionsScreen extends Screen {
     this.focus.focusFirst();
   }
 
+  /** The selected tab id (tests and the QA overlay). */
+  get currentTab(): TabId {
+    return this.tab;
+  }
+
   override onTabPrev(): void {
     const index = TABS.findIndex(([id]) => id === this.tab);
     this.switchTo(TABS[(index - 1 + TABS.length) % TABS.length]?.[0] ?? 'video');
@@ -71,8 +80,31 @@ export class OptionsScreen extends Screen {
   }
 
   private renderPanel(): void {
-    const rows = this.tab === 'video' ? this.videoRows() : this.tab === 'audio' ? this.audioRows() : this.tab === 'controls' ? this.controlRows() : this.accessibilityRows();
+    const rows =
+      this.tab === 'game' ? this.gameRows() : this.tab === 'video' ? this.videoRows() : this.tab === 'audio' ? this.audioRows() : this.tab === 'controls' ? this.controlRows() : this.accessibilityRows();
     this.panel.replaceChildren(menuList(rows, true));
+  }
+
+  private gameRows(): HTMLElement[] {
+    const s = this.app.settings;
+    const describe = () => {
+      const preset = s.get().meta.difficulty;
+      const stats = resolveEnemyStats('affected', preset);
+      return `${DIFFICULTY_PRESETS[preset].hint} Affected run ${stats.runSpeed.toFixed(1)} m/s, attack every ${stats.attackCooldown.toFixed(1)} s for ${stats.damage}. Applies to the next new run.`;
+    };
+    const row = selectItem(this.focus, {
+      label: 'Difficulty',
+      hint: describe(),
+      values: DIFFICULTY_ORDER,
+      get: () => s.get().meta.difficulty,
+      set: (value) => {
+        s.update({ meta: { difficulty: value } });
+        const hint = row.querySelector<HTMLElement>('.tqc-item__hint');
+        if (hint) hint.textContent = describe();
+      },
+      format: (value) => DIFFICULTY_PRESETS[value].label,
+    });
+    return [row];
   }
 
   private videoRows(): HTMLElement[] {
@@ -112,24 +144,30 @@ export class OptionsScreen extends Screen {
 
   private controlRows(): HTMLElement[] {
     const s = this.app.settings;
-    const holdToggle = (label: string, key: 'aimMode' | 'sprintMode') =>
-      selectItem(this.focus, { label, values: ['hold', 'toggle'] as const, get: () => s.get().controls[key], set: (v) => s.update({ controls: { [key]: v } as DeepPartial<ControlSettings> }), format: (v) => (v === 'hold' ? 'Hold' : 'Toggle') });
+    const holdToggle = (label: string, key: 'aimMode' | 'sprintMode', hint?: string) =>
+      selectItem(this.focus, { label, hint, values: ['hold', 'toggle'] as const, get: () => s.get().controls[key], set: (v) => s.update({ controls: { [key]: v } as DeepPartial<ControlSettings> }), format: (v) => (v === 'hold' ? 'Hold' : 'Toggle') });
+    const numeric = (label: string, key: NumericControl, min: number, max: number, step: number, hint?: string, format: (v: number) => string = (v) => v.toFixed(1)) =>
+      sliderItem(this.focus, this.bag, { label, hint, min, max, step, get: () => s.get().controls[key], set: (v) => s.update({ controls: { [key]: v } as DeepPartial<ControlSettings> }), format });
     return [
       menuItem({ label: 'Choose primary controls', hint: 'Pick which device drives the game, or let it follow your last input.', onSelect: () => this.app.openControlsChooser(true) }),
-      menuItem({ label: 'Key and button bindings', onSelect: () => this.app.openRemap() }),
+      menuItem({ label: 'Key and button bindings', hint: 'Keyboard, and one profile per controller family.', onSelect: () => this.app.openRemap() }),
       menuItem({ label: 'Controller test', onSelect: () => this.app.openControllerTest() }),
       menuItem({ label: 'Touch layout', hint: 'Position, size and opacity of on-screen controls.', onSelect: () => this.app.openTouchEditor() }),
-      sliderItem(this.focus, this.bag, { label: 'Mouse sensitivity', min: 0.2, max: 3, step: 0.1, get: () => s.get().controls.mouseSensitivity, set: (v) => s.update({ controls: { mouseSensitivity: v } }), format: (v) => v.toFixed(1) }),
-      sliderItem(this.focus, this.bag, { label: 'Stick / touch sensitivity', min: 0.2, max: 3, step: 0.1, get: () => s.get().controls.stickSensitivity, set: (v) => s.update({ controls: { stickSensitivity: v } }), format: (v) => v.toFixed(1) }),
+      numeric('Mouse look sensitivity', 'mouseSensitivity', 0.2, 3, 0.1),
+      numeric('Mouse aim multiplier', 'aimSensitivityMouse', 0.3, 2, 0.05, 'Look speed while aiming, on top of the narrower view.', (v) => `×${v.toFixed(2)}`),
+      numeric('Controller look sensitivity', 'stickSensitivity', 0.2, 3, 0.1),
+      numeric('Controller aim multiplier', 'aimSensitivityGamepad', 0.3, 2, 0.05, 'Look speed while aiming, on top of the narrower view.', (v) => `×${v.toFixed(2)}`),
+      numeric('Touch look sensitivity', 'touchSensitivity', 0.2, 3, 0.1),
+      numeric('Touch aim multiplier', 'aimSensitivityTouch', 0.3, 2, 0.05, 'Look speed while aiming, on top of the narrower view.', (v) => `×${v.toFixed(2)}`),
       toggleItem(this.focus, { label: 'Invert vertical look (mouse)', get: () => s.get().controls.invertYMouse, set: (v) => s.update({ controls: { invertYMouse: v } }) }),
       toggleItem(this.focus, { label: 'Invert vertical look (controller)', get: () => s.get().controls.invertYGamepad, set: (v) => s.update({ controls: { invertYGamepad: v } }) }),
       toggleItem(this.focus, { label: 'Invert vertical look (touch)', get: () => s.get().controls.invertYTouch, set: (v) => s.update({ controls: { invertYTouch: v } }) }),
       holdToggle('Aim', 'aimMode'),
-      holdToggle('Sprint', 'sprintMode'),
-      sliderItem(this.focus, this.bag, { label: 'Stick dead zone', hint: 'Radial dead zone for both sticks.', min: 0, max: 0.6, step: 0.02, get: () => s.get().controls.deadZoneRadial, set: (v) => s.update({ controls: { deadZoneRadial: v } }), format: (v) => v.toFixed(2) }),
+      holdToggle('Sprint', 'sprintMode', 'Hold the stick click / key, or tap once to run until you stop.'),
+      numeric('Stick dead zone', 'deadZoneRadial', 0, 0.6, 0.02, 'Radial dead zone for both sticks.', (v) => v.toFixed(2)),
       selectItem(this.focus, {
         label: 'Button prompts',
-        hint: 'Override the detected controller family.',
+        hint: 'Override the detected controller family (also picks the binding profile).',
         values: ['auto', 'xbox', 'playstation', 'nintendo', 'generic'] as const,
         get: () => s.get().controls.glyphFamilyOverride,
         set: (v) => s.update({ controls: { glyphFamilyOverride: v } }),
@@ -144,8 +182,8 @@ export class OptionsScreen extends Screen {
         format: (v) => (v === 'east' ? 'A (right)' : 'B (bottom)'),
       }),
       toggleItem(this.focus, { label: 'Controller vibration', get: () => s.get().controls.vibration, set: (v) => s.update({ controls: { vibration: v } }) }),
-      sliderItem(this.focus, this.bag, { label: 'Touch joystick dead zone', min: 0, max: 0.4, step: 0.02, get: () => s.get().controls.touchDeadZone, set: (v) => s.update({ controls: { touchDeadZone: v } }), format: (v) => v.toFixed(2) }),
-      sliderItem(this.focus, this.bag, { label: 'Touch sprint threshold', hint: 'How far the joystick must be pushed before you start running.', min: 0.6, max: 1, step: 0.02, get: () => s.get().controls.touchSprintThreshold, set: (v) => s.update({ controls: { touchSprintThreshold: v } }), format: (v) => `${Math.round(v * 100)}%` }),
+      numeric('Touch joystick dead zone', 'touchDeadZone', 0, 0.4, 0.02, undefined, (v) => v.toFixed(2)),
+      numeric('Touch sprint threshold', 'touchSprintThreshold', 0.6, 1, 0.02, 'How far the joystick must be pushed before you start running.', (v) => `${Math.round(v * 100)}%`),
       toggleItem(this.focus, { label: 'Touch sprint lock', hint: 'Keep running until the joystick relaxes.', get: () => s.get().controls.touchSprintLock, set: (v) => s.update({ controls: { touchSprintLock: v } }) }),
       selectItem(this.focus, {
         label: 'Look control',

@@ -1,5 +1,6 @@
 import { EventBus } from '@/core/EventBus';
 import type { NavProvider } from '@/game/nav/NavProvider';
+import { normaliseDifficulty, resolveEnemyStats } from '@/config/enemies';
 import { THREAT } from '@/config/gameplay';
 import { createRng } from '@/core/math';
 import type { BlockDef, DoorDef, LevelData, SurfaceKind, ZoneDef } from '@/game/level/types';
@@ -32,6 +33,7 @@ function blockToCollider(block: BlockDef): Collider {
     rot: block.rot ?? 0,
     height: (block.y ?? 0) + block.h,
     lowObstacle: block.lowObstacle ?? false,
+    vaultable: block.vaultable ?? false,
   };
 }
 
@@ -70,6 +72,8 @@ export class World {
   animatedFootsteps = false;
   /** Recast crowd when the baked navmesh is available; null keeps the grid A* in charge. */
   navigation: NavProvider | null = null;
+  /** True while an interaction prompt is showing (Interact then wins over Jump on a shared button). */
+  interactAvailable = false;
 
   constructor(
     readonly level: LevelData,
@@ -77,7 +81,7 @@ export class World {
   ) {
     this.seed = state.seed;
     this.rng = createRng(state.seed);
-    this.difficulty = state.difficulty;
+    this.difficulty = normaliseDifficulty(state.difficulty);
     this.playtimeSec = state.playtimeSec;
     this.checkpointId = state.checkpointId;
     this.objectiveIndex = state.objectiveIndex;
@@ -88,7 +92,7 @@ export class World {
     this.documentsRead = new Set(state.documentsRead);
     this.look = { yaw: state.look.yaw, pitch: state.look.pitch };
     this.player = new PlayerRuntime(state.player);
-    for (const def of level.threats) this.threats.push(new ThreatRuntime(def, state.threats[def.id]));
+    for (const def of level.threats) this.threats.push(new ThreatRuntime(def, state.threats[def.id], resolveEnemyStats(def.kind ?? 'affected', this.difficulty)));
     this.staticColliders = level.blocks.filter((block) => !block.noCollide).map(blockToCollider);
     for (const door of level.doors) this.doorColliders.set(door.id, doorToCollider(door));
     this.rebuildColliders();
@@ -117,7 +121,12 @@ export class World {
     this.navigation?.dispose();
     this.navigation = navigation;
     if (!navigation) return;
-    for (const threat of this.threats) if (threat.alive) navigation.addAgent(threat.id, threat.x, threat.z, threat.radius);
+    for (const threat of this.threats) {
+      if (!threat.alive) continue;
+      navigation.addAgent(threat.id, threat.x, threat.z, threat.radius);
+      threat.agentActive = false;
+      navigation.setAgentPaused(threat.id, true);
+    }
     for (const door of this.level.doors) navigation.setDoorBlocked(door, !this.isDoorOpen(door.id));
   }
 
@@ -129,10 +138,11 @@ export class World {
   }
 
   /** Pushes a circle out of every collider it overlaps (two passes settle corner cases). */
-  resolveCircle(pos: Vec2, radius: number): boolean {
+  resolveCircle(pos: Vec2, radius: number, ignoreId: string | null = null): boolean {
     let corrected = false;
     for (let pass = 0; pass < 2; pass += 1) {
       for (const collider of this.colliders) {
+        if (collider.id === ignoreId) continue;
         if (Math.abs(collider.cx - pos.x) > collider.hw + collider.hd + radius + 1) continue;
         if (Math.abs(collider.cz - pos.z) > collider.hw + collider.hd + radius + 1) continue;
         if (resolveCircleBox(pos, radius, collider)) corrected = true;

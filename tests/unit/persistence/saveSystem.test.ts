@@ -6,7 +6,7 @@ import type { RunState } from '@/game/sim/types';
 import { SaveSystem, SAVE_VERSION } from '@/persistence/SaveSystem';
 import { storageKey } from '@/persistence/Storage';
 
-const header = { playtimeSec: 12, objectiveLabel: 'Leave', locationLabel: 'Stairwell', difficulty: 'normal' as const, checkpointId: 'start' };
+const header = { playtimeSec: 12, objectiveLabel: 'Leave', locationLabel: 'Stairwell', difficulty: 'standard' as const, checkpointId: 'start' };
 
 describe('SaveSystem', () => {
   beforeEach(() => localStorage.clear());
@@ -14,7 +14,7 @@ describe('SaveSystem', () => {
   it('lists empty slots, saves, loads and picks the most recent slot', () => {
     const saves = new SaveSystem<RunState>(validateRunState);
     expect(saves.listSlots().map((s) => s.status)).toEqual(['empty', 'empty', 'empty']);
-    const run = createNewRun(DISTRICT_LEVEL, 'normal', 7);
+    const run = createNewRun(DISTRICT_LEVEL, 'standard', 7);
     expect(saves.save(2, header, run)).toBe(true);
     const info = saves.inspect(2);
     expect(info.status).toBe('ok');
@@ -37,7 +37,7 @@ describe('SaveSystem', () => {
   });
 
   it('rejects run payloads with the wrong shape', () => {
-    const run = createNewRun(DISTRICT_LEVEL, 'normal', 7);
+    const run = createNewRun(DISTRICT_LEVEL, 'standard', 7);
     expect(validateRunState(run)).toBe(true);
     expect(validateRunState({ ...run, player: { ...run.player, health: 'full' } })).toBe(false);
     expect(validateRunState({ ...run, threats: { a: { x: 1 } } })).toBe(false);

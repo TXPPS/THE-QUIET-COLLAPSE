@@ -15,7 +15,7 @@ export interface Headless {
 }
 
 export function createHeadless(state?: RunState, options: { killThreats?: boolean } = {}): Headless {
-  const run = state ?? createNewRun(DISTRICT_LEVEL, 'normal', 1234);
+  const run = state ?? createNewRun(DISTRICT_LEVEL, 'standard', 1234);
   if (options.killThreats) for (const threat of Object.values(run.threats)) threat.alive = false;
   const world = new World(DISTRICT_LEVEL, run);
   const sim = new Simulation(world);

@@ -77,6 +77,17 @@ export class RecastNavigation implements NavProvider {
     this.agents.get(id)?.resetMoveTarget();
   }
 
+  setAgentPaused(id: string, paused: boolean): void {
+    const agent = this.agents.get(id);
+    if (!agent) return;
+    if (paused) {
+      agent.resetMoveTarget();
+      agent.maxSpeed = 0;
+    } else {
+      agent.maxSpeed = THREAT.chaseSpeed;
+    }
+  }
+
   agentPosition(id: string): Vec2 | null {
     const agent = this.agents.get(id);
     if (!agent) return null;

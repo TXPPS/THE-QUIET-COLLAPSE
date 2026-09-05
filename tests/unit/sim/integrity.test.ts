@@ -32,7 +32,7 @@ describe('save/load integrity', () => {
     threat.timeSinceSeen = 0;
     stepFor(dead, 15);
     expect(dead.world.player.dead).toBe(true);
-    const fresh = new World(DISTRICT_LEVEL, createNewRun(DISTRICT_LEVEL, 'normal', 99));
+    const fresh = new World(DISTRICT_LEVEL, createNewRun(DISTRICT_LEVEL, 'standard', 99));
     expect(fresh.player.dead).toBe(false);
     expect(fresh.player.health).toBe(100);
     expect(fresh.threats.every((t) => t.alive && t.state === 'idle')).toBe(true);

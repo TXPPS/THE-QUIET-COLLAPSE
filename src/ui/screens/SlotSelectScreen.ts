@@ -1,4 +1,5 @@
 import type { App } from '@/app/App';
+import { DIFFICULTY_ORDER, DIFFICULTY_PRESETS } from '@/config/enemies';
 import { el } from '@/ui/dom';
 import { footer, heading, menuItem, menuList, selectItem } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
@@ -54,11 +55,11 @@ export class SlotSelectScreen extends Screen {
         ? [
             selectItem(this.focus, {
               label: 'Difficulty',
-              hint: 'Hard: more damage taken, fewer rounds found. Changes apply to the new run only.',
-              values: ['normal', 'hard'] as const,
+              hint: `${DIFFICULTY_PRESETS[settings.get().meta.difficulty].hint} Changes apply to the new run only.`,
+              values: DIFFICULTY_ORDER,
               get: () => settings.get().meta.difficulty,
               set: (value) => settings.update({ meta: { difficulty: value } }),
-              format: (value) => (value === 'normal' ? 'Normal' : 'Hard'),
+              format: (value) => DIFFICULTY_PRESETS[value].label,
             }),
           ]
         : [];

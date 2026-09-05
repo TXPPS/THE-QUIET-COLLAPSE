@@ -1,17 +1,20 @@
 import { PISTOL, THREAT } from '@/config/gameplay';
 import { rayCircleT, segmentBoxT } from './collision';
+import { damageThreat } from './threatState';
 import type { World } from './World';
 
 export interface ShotResult {
   hit: boolean;
   threatId: string | null;
   killed: boolean;
+  headshot: boolean;
   impact: { x: number; y: number; z: number };
 }
 
 /**
  * Hitscan from the render camera's aim ray. Threat capsules are tested as vertical cylinders and
- * walls occlude by height so shots over low barriers still land.
+ * walls occlude by height so shots over low barriers still land. Hits above the head line take
+ * the enemy's headshot multiplier.
  */
 export function fireHitscan(world: World): ShotResult {
   const ray = world.aimRay;
@@ -43,30 +46,17 @@ export function fireHitscan(world: World): ShotResult {
     if (t * bestT < wallT) wallT = t * bestT;
   }
   if (wallT < bestT) {
-    return { hit: false, threatId: null, killed: false, impact: { x: ray.ox + dx * wallT, y: ray.oy + dy * wallT, z: ray.oz + dz * wallT } };
+    return { hit: false, threatId: null, killed: false, headshot: false, impact: { x: ray.ox + dx * wallT, y: ray.oy + dy * wallT, z: ray.oz + dz * wallT } };
   }
   if (bestThreat !== null) {
     const threat = world.threats.find((t) => t.id === bestThreat);
     if (threat) {
-      threat.health -= PISTOL.damage;
-      const killed = threat.health <= 0;
-      if (killed) {
-        threat.alive = false;
-        threat.state = 'dead';
-        threat.deathTimer = 0;
-      } else {
-        threat.state = 'stagger';
-        threat.stateTimer = THREAT.staggerDuration;
-        threat.staggerDirX = dx;
-        threat.staggerDirZ = dz;
-        threat.awareness = 1;
-        threat.lastSeenPlayer = { x: world.player.x, z: world.player.z };
-        threat.timeSinceSeen = 0;
-      }
-      world.events.emit('threatHit', { id: threat.id, x: threat.x, z: threat.z, killed });
-      world.events.emit('threatVocal', { id: threat.id, x: threat.x, z: threat.z, kind: killed ? 'death' : 'hurt' });
-      return { hit: true, threatId: threat.id, killed, impact: { x: threat.x, y: ray.oy + dy * bestT, z: threat.z } };
+      const hitY = ray.oy + dy * bestT;
+      const headshot = hitY >= THREAT.height * THREAT.headFraction;
+      const damage = PISTOL.damage * (headshot ? threat.stats.headshotMultiplier : 1);
+      const result = damageThreat(world, threat, damage, { headshot, dirX: dx, dirZ: dz });
+      return { hit: true, threatId: threat.id, killed: result.killed, headshot, impact: { x: threat.x, y: hitY, z: threat.z } };
     }
   }
-  return { hit: false, threatId: null, killed: false, impact: { x: endX, y: ray.oy + dy * bestT, z: endZ } };
+  return { hit: false, threatId: null, killed: false, headshot: false, impact: { x: endX, y: ray.oy + dy * bestT, z: endZ } };
 }

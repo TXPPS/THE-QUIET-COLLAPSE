@@ -11,6 +11,11 @@ export interface NavProvider {
   /** Requests a path to `goal` and caps the agent at `speed` m/s. */
   setTarget(id: string, goal: Vec2, speed: number): void;
   clearTarget(id: string): void;
+  /**
+   * A paused agent stops steering (no target, zero speed) while the body is in a non-locomotion
+   * state; the simulation keeps teleporting it onto the body so nothing snaps when it resumes.
+   */
+  setAgentPaused(id: string, paused: boolean): void;
   /** Where the crowd moved the agent this step (null when the agent is unknown). */
   agentPosition(id: string): Vec2 | null;
   agentVelocity(id: string): Vec2;

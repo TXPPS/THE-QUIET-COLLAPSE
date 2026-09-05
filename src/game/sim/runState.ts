@@ -1,3 +1,4 @@
+import { ENEMY_STATS, normaliseDifficulty } from '@/config/enemies';
 import { MEDKIT, PISTOL, PLAYER, type DifficultyId } from '@/config/gameplay';
 import { isFiniteNumber, isRecord } from '@/persistence/Storage';
 import type { LevelData } from '@/game/level/types';
@@ -6,7 +7,7 @@ import { RUN_STATE_VERSION, type PlayerSaveState, type RunState, type ThreatSave
 export function createNewRun(level: LevelData, difficulty: DifficultyId, seed = Date.now() >>> 0): RunState {
   const threats: Record<string, ThreatSaveState> = {};
   for (const def of level.threats) {
-    threats[def.id] = { x: def.x, z: def.z, yaw: def.yaw, health: 100, alive: true };
+    threats[def.id] = { x: def.x, z: def.z, yaw: def.yaw, health: ENEMY_STATS[def.kind ?? 'affected'].hp, alive: true };
   }
   return {
     version: RUN_STATE_VERSION,
@@ -63,7 +64,9 @@ export function validateRunState(value: unknown): value is RunState {
   if (!isRecord(value)) return false;
   if (value['version'] !== RUN_STATE_VERSION) return false;
   if (!isFiniteNumber(value['seed']) || !isFiniteNumber(value['playtimeSec']) || !isFiniteNumber(value['objectiveIndex'])) return false;
-  if (value['difficulty'] !== 'normal' && value['difficulty'] !== 'hard') return false;
+  // v1 saves stored "normal"; it is rewritten to the standard preset in place.
+  if (value['difficulty'] === 'normal') value['difficulty'] = 'standard';
+  if (value['difficulty'] !== normaliseDifficulty(value['difficulty'])) return false;
   if (typeof value['checkpointId'] !== 'string' || typeof value['completed'] !== 'boolean') return false;
   if (!isPlayerState(value['player'])) return false;
   const look = value['look'];
