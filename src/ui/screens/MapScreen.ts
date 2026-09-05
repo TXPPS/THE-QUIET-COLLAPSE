@@ -2,6 +2,7 @@ import type { App } from '@/app/App';
 import { el } from '@/ui/dom';
 import { footer, heading } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
+import { InventoryScreen } from './InventoryScreen';
 import { drawDistrictMap } from './mapDrawing';
 
 /** District map with the current objective separated from navigation detail. */
@@ -30,7 +31,10 @@ export class MapScreen extends Screen {
         ]),
         el('div', { class: 'tqc-panel', attrs: { style: 'display:grid;place-items:center;padding:var(--tqc-space-2)' } }, [this.canvas]),
       ]),
-      footer(this.app.prompts, this.bag, [['Cancel', 'Back']]),
+      footer(this.app.prompts, this.bag, [
+        ['TabNext', 'Items'],
+        ['Cancel', 'Back'],
+      ]),
     );
     this.bag.listen(window, 'resize', () => this.draw());
     this.draw();
@@ -38,6 +42,15 @@ export class MapScreen extends Screen {
 
   protected override onEnter(): void {
     requestAnimationFrame(() => this.draw());
+  }
+
+  /** Back to the items tab (RB / LB on a controller). */
+  override onTabNext(): void {
+    this.app.screens.replace(new InventoryScreen(this.app));
+  }
+
+  override onTabPrev(): void {
+    this.onTabNext();
   }
 
   private draw(): void {

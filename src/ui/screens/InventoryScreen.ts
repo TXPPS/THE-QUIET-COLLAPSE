@@ -6,6 +6,7 @@ import type { World } from '@/game/sim/World';
 import { el } from '@/ui/dom';
 import { footer, heading, menuItem, menuList } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
+import { MapScreen } from './MapScreen';
 
 interface Entry {
   id: string;
@@ -44,6 +45,7 @@ export class InventoryScreen extends Screen {
         ['Navigate', 'Select'],
         ['Confirm', 'Use / Read'],
         ['TabNext', 'Combine'],
+        ['TabPrev', 'Map'],
         ['Cancel', 'Back'],
       ]),
     );
@@ -102,6 +104,11 @@ export class InventoryScreen extends Screen {
   override onTabNext(): void {
     const action = this.current?.combine;
     if (action?.enabled) action.run();
+  }
+
+  /** The map is the inventory's other tab (LB / RB on a controller). */
+  override onTabPrev(): void {
+    this.app.screens.replace(new MapScreen(this.app));
   }
 
   private reload(world: World): void {

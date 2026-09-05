@@ -14,6 +14,7 @@ const PAD_TUNING: PadTuning = {
   deadZoneRadial: 0.1,
   deadZoneAxial: 0.05,
   stickSensitivity: 1,
+  aimSensitivity: 1,
   invertY: false,
   invertX: false,
   glyphFamilyOverride: 'auto',
@@ -58,7 +59,7 @@ describe('Look sign convention', () => {
     let frame = new InputFrame();
     source.poll(frame, 'game', 1 / 60);
     expect(frame.lookDeltaY).toBeGreaterThan(0);
-    source.tuning = { mouseSensitivity: 1, invertY: true, invertX: false };
+    source.tuning = { mouseSensitivity: 1, aimSensitivity: 1, invertY: true, invertX: false };
     move(0, 30);
     frame = new InputFrame();
     source.poll(frame, 'game', 1 / 60);
@@ -89,12 +90,12 @@ describe('Look sign convention', () => {
     let frame = new InputFrame();
     touch.poll(frame, 'game', 1 / 60);
     expect(frame.lookDeltaY).toBeCloseTo(20 * CAMERA.lookSensitivityBase * 1.6, 6);
-    touch.setTuning({ stickSensitivity: 1, invertY: true });
+    touch.setTuning({ stickSensitivity: 1, aimSensitivity: 1, invertY: true });
     touch.addLook(0, 20);
     frame = new InputFrame();
     touch.poll(frame, 'game', 1 / 60);
     expect(frame.lookDeltaY).toBeLessThan(0);
-    touch.setTuning({ stickSensitivity: 1, invertY: false });
+    touch.setTuning({ stickSensitivity: 1, aimSensitivity: 1, invertY: false });
     touch.setLookStick(0, 1);
     frame = new InputFrame();
     touch.poll(frame, 'game', 0.5);

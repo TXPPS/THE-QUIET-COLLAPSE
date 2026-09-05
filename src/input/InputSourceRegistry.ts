@@ -3,7 +3,7 @@ import { DisposeBag } from '@/core/DisposeBag';
 import type { ControlPolicy } from '@/persistence/settingsSchema';
 import type { BindingStore } from './BindingStore';
 import { GamepadSource, type PadTuning } from './GamepadSource';
-import type { GlyphFamily, InputSource } from './InputSource';
+import { DEFAULT_LOOK_MODIFIER, type GlyphFamily, type InputSource, type LookModifier } from './InputSource';
 import { KEYBOARD_MOUSE_SOURCE_ID, TOUCH_SOURCE_ID, gamepadSourceId } from './InputSource';
 
 const SWITCH_DEBOUNCE_MS = 220;
@@ -40,6 +40,7 @@ export class InputSourceRegistry {
   constructor(
     private readonly bindings: BindingStore,
     padTuning: PadTuning,
+    private readonly lookModifier: LookModifier = DEFAULT_LOOK_MODIFIER,
   ) {
     this.padTuning = padTuning;
     this.bag.listen(window, 'gamepadconnected', (event) => this.onGamepadConnected(event.gamepad));
@@ -171,7 +172,7 @@ export class InputSourceRegistry {
 
   private onGamepadConnected(pad: Gamepad): void {
     if (this.gamepads.has(pad.index)) return;
-    const source = new GamepadSource(pad.index, pad.id, pad.mapping, this.bindings, this.padTuning);
+    const source = new GamepadSource(pad.index, pad.id, pad.mapping, this.bindings, this.padTuning, this.lookModifier);
     this.gamepads.set(pad.index, source);
     this.sources.set(source.id, source);
     source.start();

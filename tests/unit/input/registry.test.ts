@@ -7,7 +7,7 @@ import { InputSourceRegistry } from '@/input/InputSourceRegistry';
 import { KeyboardMouseSource } from '@/input/KeyboardMouseSource';
 import { gamepadSourceId } from '@/input/InputSource';
 
-const tuning: PadTuning = { deadZoneRadial: 0.18, deadZoneAxial: 0.1, stickSensitivity: 1, invertY: false, invertX: false, glyphFamilyOverride: 'auto', nintendoConfirm: 'east', vibration: true };
+const tuning: PadTuning = { deadZoneRadial: 0.18, deadZoneAxial: 0.1, stickSensitivity: 1, aimSensitivity: 1, invertY: false, invertX: false, glyphFamilyOverride: 'auto', nintendoConfirm: 'east', vibration: true };
 
 function padEvent(type: 'gamepadconnected' | 'gamepaddisconnected', gamepad: Gamepad): Event {
   return Object.assign(new Event(type), { gamepad });

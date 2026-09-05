@@ -18,9 +18,16 @@ export const DEFAULT_KBM_BINDINGS: KbmBindingMap = {
   Fire: [{ type: 'mouse', button: 0 }],
   Reload: [{ type: 'key', code: 'KeyR' }],
   Interact: [{ type: 'key', code: 'KeyE' }],
+  Jump: [{ type: 'key', code: 'Space' }],
   Sprint: [{ type: 'key', code: 'ShiftLeft' }, { type: 'key', code: 'ShiftRight' }],
-  Dodge: [{ type: 'key', code: 'Space' }],
-  SwapItem: [{ type: 'key', code: 'KeyQ' }, { type: 'wheel', dir: 'down' }, { type: 'wheel', dir: 'up' }],
+  Dodge: [{ type: 'key', code: 'KeyC' }, { type: 'key', code: 'ControlLeft' }],
+  Melee: [{ type: 'key', code: 'KeyV' }, { type: 'mouse', button: 1 }],
+  QuickItem: [{ type: 'key', code: 'KeyH' }],
+  QuickItemPrev: [{ type: 'key', code: 'BracketLeft' }],
+  QuickItemNext: [{ type: 'key', code: 'BracketRight' }],
+  WeaponPrev: [{ type: 'key', code: 'Digit1' }, { type: 'wheel', dir: 'up' }],
+  WeaponNext: [{ type: 'key', code: 'Digit2' }, { type: 'wheel', dir: 'down' }],
+  SwapItem: [{ type: 'key', code: 'KeyQ' }],
   Flashlight: [{ type: 'key', code: 'KeyF' }],
   Inventory: [{ type: 'key', code: 'Tab' }, { type: 'key', code: 'KeyI' }],
   Map: [{ type: 'key', code: 'KeyM' }],
@@ -64,32 +71,8 @@ export type PadBinding =
   | { type: 'axis'; index: number; sign: 1 | -1 }
   | { type: 'stick'; x: number; y: number };
 
-export type PadBindingMap = Partial<Record<BindingSlot | 'Move' | 'Look' | 'Navigate', PadBinding[]>>;
-
-export const DEFAULT_PAD_BINDINGS: PadBindingMap = {
-  Move: [{ type: 'stick', x: PAD_AXIS.leftX, y: PAD_AXIS.leftY }],
-  Look: [{ type: 'stick', x: PAD_AXIS.rightX, y: PAD_AXIS.rightY }],
-  Navigate: [{ type: 'stick', x: PAD_AXIS.leftX, y: PAD_AXIS.leftY }],
-  'Navigate.up': [{ type: 'button', index: PAD.dpadUp }],
-  'Navigate.down': [{ type: 'button', index: PAD.dpadDown }],
-  'Navigate.left': [{ type: 'button', index: PAD.dpadLeft }],
-  'Navigate.right': [{ type: 'button', index: PAD.dpadRight }],
-  Aim: [{ type: 'button', index: PAD.l2 }],
-  Fire: [{ type: 'button', index: PAD.r2 }],
-  Reload: [{ type: 'button', index: PAD.west }],
-  Interact: [{ type: 'button', index: PAD.south }],
-  Sprint: [{ type: 'button', index: PAD.l3 }, { type: 'button', index: PAD.l1 }],
-  Dodge: [{ type: 'button', index: PAD.east }],
-  SwapItem: [{ type: 'button', index: PAD.north }],
-  Flashlight: [{ type: 'button', index: PAD.r3 }],
-  Inventory: [{ type: 'button', index: PAD.select }],
-  Map: [{ type: 'button', index: PAD.dpadUp }],
-  Pause: [{ type: 'button', index: PAD.start }],
-  Confirm: [{ type: 'button', index: PAD.south }],
-  Cancel: [{ type: 'button', index: PAD.east }],
-  TabPrev: [{ type: 'button', index: PAD.l1 }],
-  TabNext: [{ type: 'button', index: PAD.r1 }],
-};
+export type PadSlot = BindingSlot | 'Move' | 'Look' | 'Navigate';
+export type PadBindingMap = Partial<Record<PadSlot, PadBinding[]>>;
 
 /** Slots that must keep at least one binding so the player can never lock themselves out. */
 export const REQUIRED_SLOTS: readonly BindingSlot[] = ['Pause', 'Confirm', 'Cancel', 'Interact'];

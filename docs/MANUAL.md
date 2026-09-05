@@ -18,26 +18,35 @@ event: slow to jogging, hostile at close range, and only dangerous when they rea
 
 ## Controls
 
-| Action | Keyboard & mouse | Controller (Xbox / PlayStation / Nintendo) | Touch | Context | Rebindable |
-|---|---|---|---|---|---|
-| Move | W/↑ A/← S/↓ D/→ | Left stick | Joystick | game | yes |
-| Look | Mouse | Right stick | Drag | game | no |
-| Aim | Right click | LT / L2 / ZL | Aim | game | yes |
-| Fire | Left click | RT / R2 / ZR | Fire | game | yes |
-| Reload | R | X / □ / Y | Reload | game | yes |
-| Interact | E | A / ✕ / B | Use | game | yes |
-| Sprint | Shift, Right Shift | LS press, LB / L1 / L | Run | game | yes |
-| Dodge | Space | B / ○ / A | Step | game | yes |
-| Swap item | Q, Wheel down, Wheel up | Y / △ / X | Swap | game | yes |
-| Flashlight | F | RS press | Light | game | yes |
-| Inventory | Tab, I | View / Share / − | Items | both | yes |
-| Map | M | D-pad ↑ | Map | both | yes |
-| Pause | Esc, P | Menu / Options / + | Pause | both | no |
-| Navigate | ↑/W ←/A ↓/S →/D | Left stick | Tap | ui | no |
-| Confirm | Enter, Space, Num Enter | A / ✕ / B | Tap | ui | no |
-| Back | Esc, Backspace | B / ○ / A | Back | ui | no |
-| Previous tab | Q, PgUp | LB / L1 / L | ◀ | ui | no |
-| Next tab | E, PgDn | RB / R1 / R | ▶ | ui | no |
+| Action | Keyboard & mouse | Xbox | PlayStation | Nintendo | Touch | Context | Rebindable |
+|---|---|---|---|---|---|---|---|
+| Move | W/↑ A/← S/↓ D/→ | Left stick | Left stick | Left stick | Joystick | game | yes |
+| Look | Mouse | Right stick | Right stick | Right stick | Drag | game | no |
+| Aim | Right click | LT | L2 | ZL | Aim | game | yes |
+| Fire | Left click | RT | R2 | ZR | Fire | game | yes |
+| Reload | R | X | □ | Y | Reload | game | yes |
+| Interact | E | A | ✕ | B | Use | game | yes |
+| Jump / vault | Space | A | ✕ | B | Jump | game | yes |
+| Sprint | Shift, Right Shift | LS press | L3 | LS press | Run | game | yes |
+| Dodge | C, ControlLeft | B | ○ | A | Step | game | yes |
+| Melee / push | V, Middle click | RB | R1 | R | Push | game | yes |
+| Quick item | H | LB | L1 | L | Heal | game | yes |
+| Quick item: previous | BracketLeft | D-pad ↑ | D-pad ↑ | D-pad ↑ | Quick item: previous | game | yes |
+| Quick item: next | BracketRight | D-pad ↓ | D-pad ↓ | D-pad ↓ | Quick item: next | game | yes |
+| Weapon: previous | 1, Wheel up | D-pad ← | D-pad ← | D-pad ← | Weapon: previous | game | yes |
+| Weapon: next | 2, Wheel down | D-pad → | D-pad → | D-pad → | Weapon: next | game | yes |
+| Swap weapon / item | Q | Y | △ | X | Swap | game | yes |
+| Flashlight | F | RS press | R3 | RS press | Light | game | yes |
+| Inventory | Tab, I | View | Share / Touchpad | − | Items | both | yes |
+| Map | M | — | — | — | Map | both | yes |
+| Pause | Esc, P | Menu | Options | + | Pause | both | no |
+| Navigate | ↑/W ←/A ↓/S →/D | Left stick | Left stick | Left stick | Tap | ui | no |
+| Confirm | Enter, Space, Num Enter | A | ✕ | B | Tap | ui | no |
+| Back | Esc, Backspace | B | ○ | A | Back | ui | no |
+| Previous tab | Q, PgUp | LB | L1 | L | ◀ | ui | no |
+| Next tab | E, PgDn | RB | R1 | R | ▶ | ui | no |
+
+Jump and Interact share the face button on a controller: when a prompt is showing, the press interacts. Nintendo pads honour the Options → Controls confirm-button choice in menus. Generic pads use the Xbox layout with numbered buttons.
 
 Every rebindable action can be changed under Options → Controls. Prompts on screen always show the
 current binding for the device you are using. Touch layouts have presets and a drag-and-drop editor.

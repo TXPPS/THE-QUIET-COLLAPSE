@@ -1,6 +1,7 @@
 import type { App } from '@/app/App';
 import type { GamepadSource } from '@/input/GamepadSource';
-import { applyDeadZones } from '@/input/GamepadSource';
+import { applyDeadZones, PAD } from '@/input/GamepadSource';
+import { PAD_PROFILE_LABELS } from '@/input/padProfiles';
 import { el, setText } from '@/ui/dom';
 import { footer, heading, menuItem, menuList, selectItem, sliderItem } from '@/ui/components';
 import { Screen } from '@/ui/Screen';
@@ -87,7 +88,11 @@ export class ControllerTestScreen extends Screen {
       el('dt', { text: 'Family' }),
       el('dd', { text: `${pad.family} (${Math.round(pad.confidence * 100)}%) → ${pad.glyphFamily} prompts` }),
       el('dt', { text: 'Mapping' }),
-      el('dd', { text: pad.mapping || 'non-standard' }),
+      el('dd', { text: pad.mapping || 'non-standard (triggers read from axes)' }),
+      el('dt', { text: 'Profile' }),
+      el('dd', { text: PAD_PROFILE_LABELS[pad.profileFamily] }),
+      el('dt', { text: 'Triggers' }),
+      el('dd', { text: `LT ${pad.triggerValue(PAD.l2).toFixed(2)} · RT ${pad.triggerValue(PAD.r2).toFixed(2)} (press ≥ 0.35, release ≤ 0.25)` }),
       el('dt', { text: 'Raw id' }),
       el('dd', { text: pad.gamepadId }),
     );

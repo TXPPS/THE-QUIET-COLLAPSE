@@ -4,7 +4,7 @@ import type { Settings } from '@/persistence/settingsSchema';
 import { type Action, type AxisAction, type ButtonAction, isAxisAction } from './actions';
 import { BindingStore } from './BindingStore';
 import { InputFrame, type ActionSnapshot } from './InputFrame';
-import type { InputSource, SourceContext } from './InputSource';
+import type { InputSource, LookModifier, SourceContext } from './InputSource';
 import { InputSourceRegistry } from './InputSourceRegistry';
 import { KeyboardMouseSource } from './KeyboardMouseSource';
 import type { PadTuning } from './GamepadSource';
@@ -62,6 +62,8 @@ export class InputManager implements ActionSnapshot {
   readonly keyboardMouse: KeyboardMouseSource;
   readonly touch: TouchSource;
   readonly glyphs: PromptGlyphService;
+  /** Shared look scaling (aim multiplier gate + field-of-view ratio) every source reads while polling. */
+  readonly lookModifier: LookModifier = { fovRatio: 1, aiming: false };
   private context: SourceContext = 'ui';
   private current = new InputFrame();
   private previous = new InputFrame();
@@ -78,9 +80,9 @@ export class InputManager implements ActionSnapshot {
 
   constructor(private readonly settings: SettingsStore) {
     const s = settings.get();
-    this.registry = new InputSourceRegistry(this.bindings, padTuningFrom(s));
-    this.keyboardMouse = new KeyboardMouseSource(this.bindings);
-    this.touch = new TouchSource();
+    this.registry = new InputSourceRegistry(this.bindings, padTuningFrom(s), this.lookModifier);
+    this.keyboardMouse = new KeyboardMouseSource(this.bindings, this.lookModifier);
+    this.touch = new TouchSource(this.lookModifier);
     this.registry.register(this.keyboardMouse);
     this.glyphs = new PromptGlyphService(this.bindings, this.registry);
     this.applySettings(s);
@@ -118,6 +120,15 @@ export class InputManager implements ActionSnapshot {
     const registered = this.registry.get(this.touch.id) !== null;
     if (enabled && !registered) this.registry.register(this.touch);
     if (!enabled && registered) this.registry.unregister(this.touch.id);
+  }
+
+  /**
+   * The session reports the camera state every frame: aiming gates the per-source aim multiplier,
+   * and the field-of-view ratio keeps a narrowed view from turning faster than a wide one.
+   */
+  setLookModifier(fovRatio: number, aiming: boolean): void {
+    this.lookModifier.fovRatio = fovRatio > 0 ? fovRatio : 1;
+    this.lookModifier.aiming = aiming;
   }
 
   update(dt: number): void {
@@ -196,12 +207,13 @@ export class InputManager implements ActionSnapshot {
   private applySettings(s: Settings): void {
     this.keyboardMouse.tuning = {
       mouseSensitivity: s.controls.mouseSensitivity,
+      aimSensitivity: s.controls.aimSensitivityMouse,
       invertY: s.controls.invertYMouse,
       invertX: s.controls.invertX,
     };
     this.registry.setPadTuning(padTuningFrom(s));
     this.registry.setPolicy(s.controls.policy, s.controls.primarySource);
-    this.touch.setTuning({ stickSensitivity: s.controls.stickSensitivity, invertY: s.controls.invertYTouch });
+    this.touch.setTuning({ stickSensitivity: s.controls.touchSensitivity, aimSensitivity: s.controls.aimSensitivityTouch, invertY: s.controls.invertYTouch });
   }
 
   /** Convenience for screens: list of sources for the chooser. */
@@ -215,6 +227,7 @@ export function padTuningFrom(s: Settings): PadTuning {
     deadZoneRadial: s.controls.deadZoneRadial,
     deadZoneAxial: s.controls.deadZoneAxial,
     stickSensitivity: s.controls.stickSensitivity,
+    aimSensitivity: s.controls.aimSensitivityGamepad,
     invertY: s.controls.invertYGamepad,
     invertX: s.controls.invertX,
     glyphFamilyOverride: s.controls.glyphFamilyOverride,

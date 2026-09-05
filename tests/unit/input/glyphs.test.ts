@@ -6,7 +6,7 @@ import { PromptGlyphService } from '@/input/PromptGlyphService';
 import { KeyboardMouseSource } from '@/input/KeyboardMouseSource';
 import type { PadTuning } from '@/input/GamepadSource';
 
-const tuning: PadTuning = { deadZoneRadial: 0.18, deadZoneAxial: 0.1, stickSensitivity: 1, invertY: false, invertX: false, glyphFamilyOverride: 'auto', nintendoConfirm: 'east', vibration: true };
+const tuning: PadTuning = { deadZoneRadial: 0.18, deadZoneAxial: 0.1, stickSensitivity: 1, aimSensitivity: 1, invertY: false, invertX: false, glyphFamilyOverride: 'auto', nintendoConfirm: 'east', vibration: true };
 
 describe('PromptGlyphService', () => {
   beforeEach(() => localStorage.clear());

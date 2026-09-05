@@ -2,10 +2,12 @@ import { CAMERA } from '@/config/gameplay';
 import type { ButtonAction } from './actions';
 import { lookCurve } from './GamepadSource';
 import type { InputFrame } from './InputFrame';
-import { TOUCH_SOURCE_ID, type InputSource, type SourceContext } from './InputSource';
+import { DEFAULT_LOOK_MODIFIER, TOUCH_SOURCE_ID, type InputSource, type LookModifier, type SourceContext } from './InputSource';
 
 export interface TouchTuning {
   stickSensitivity: number;
+  /** Multiplier on touch look while aiming (before the field-of-view ratio). */
+  aimSensitivity: number;
   invertY: boolean;
 }
 
@@ -36,7 +38,9 @@ export class TouchSource implements InputSource {
   navigateY = 0;
   private readonly held = new Set<ButtonAction>();
   private readonly pulsed = new Set<ButtonAction>();
-  private tuning: TouchTuning = { stickSensitivity: 1, invertY: false };
+  private tuning: TouchTuning = { stickSensitivity: 1, aimSensitivity: 1, invertY: false };
+
+  constructor(private readonly lookModifier: LookModifier = DEFAULT_LOOK_MODIFIER) {}
 
   start(): void {
     /* Driven by the touch HUD. */
@@ -121,10 +125,11 @@ export class TouchSource implements InputSource {
   /** Drag pixels and stick deflection both feed the one Look action (+Y = look down). */
   private pollLook(frame: InputFrame, dt: number): void {
     const invert = this.tuning.invertY ? -1 : 1;
-    const drag = CAMERA.lookSensitivityBase * DRAG_LOOK_SCALE * this.tuning.stickSensitivity;
+    const scale = (this.lookModifier.aiming ? this.tuning.aimSensitivity : 1) * this.lookModifier.fovRatio;
+    const drag = CAMERA.lookSensitivityBase * DRAG_LOOK_SCALE * this.tuning.stickSensitivity * scale;
     if (this.lookDx !== 0 || this.lookDy !== 0) frame.addLook(this.lookDx * drag, this.lookDy * drag * invert);
     if (this.lookStickX !== 0 || this.lookStickY !== 0) {
-      const rate = CAMERA.stickLookRateBase * this.tuning.stickSensitivity * dt;
+      const rate = CAMERA.stickLookRateBase * this.tuning.stickSensitivity * scale * dt;
       frame.addLook(lookCurve(this.lookStickX) * rate, lookCurve(this.lookStickY) * rate * invert);
     }
   }

@@ -40,6 +40,12 @@ function slotName(slot: number): string {
   return `save.slot${slot}`;
 }
 
+/** Headers written before the presets existed say "normal"; they are read as the standard preset. */
+function isDifficulty(value: Record<string, unknown>): boolean {
+  if (value['difficulty'] === 'normal') value['difficulty'] = 'standard';
+  return value['difficulty'] === 'accessible' || value['difficulty'] === 'standard' || value['difficulty'] === 'hard';
+}
+
 function isHeader(value: unknown): value is SaveHeader {
   if (!isRecord(value)) return false;
   return (
@@ -48,7 +54,7 @@ function isHeader(value: unknown): value is SaveHeader {
     isFiniteNumber(value['playtimeSec']) &&
     typeof value['objectiveLabel'] === 'string' &&
     typeof value['locationLabel'] === 'string' &&
-    (value['difficulty'] === 'normal' || value['difficulty'] === 'hard') &&
+    isDifficulty(value) &&
     typeof value['appVersion'] === 'string' &&
     typeof value['checkpointId'] === 'string'
   );

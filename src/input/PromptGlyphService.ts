@@ -4,6 +4,7 @@ import type { BindingStore } from './BindingStore';
 import { PAD, type PadBinding } from './bindings';
 import type { GlyphFamily } from './InputSource';
 import type { InputSourceRegistry } from './InputSourceRegistry';
+import { profileFamilyFor } from './padProfiles';
 import { ARROWS_ICON, kbmIcon, MOUSE_LOOK_ICON, padIcon, stickIcon } from './glyphIcons';
 import { kbmBindingLabel } from './keyLabels';
 
@@ -91,8 +92,11 @@ export const TOUCH_LABELS: Partial<Record<Action, [string, string]>> = {
   Fire: ['Fire', 'Fire button'],
   Reload: ['Reload', 'Reload button'],
   Interact: ['Use', 'Use button'],
+  Jump: ['Jump', 'Jump button'],
   Sprint: ['Run', 'Run button'],
   Dodge: ['Step', 'Step button'],
+  Melee: ['Push', 'Push button'],
+  QuickItem: ['Heal', 'Quick item button'],
   SwapItem: ['Swap', 'Swap item button'],
   Flashlight: ['Light', 'Flashlight button'],
   Inventory: ['Items', 'Items button'],
@@ -156,7 +160,7 @@ export class PromptGlyphService {
     }
     if (family === 'touch') return [this.glyph(action, family)];
     if (isAxisAction(action)) return [this.padGlyph(action, family)];
-    return this.bindings.padFor(action).map((binding) => this.padBindingGlyph(binding, family));
+    return this.bindings.padFor(action, profileFamilyFor(family)).map((binding) => this.padBindingGlyph(binding, family));
   }
 
   private keyboardGlyph(action: Action): Glyph {
@@ -176,7 +180,7 @@ export class PromptGlyphService {
 
   private padGlyph(action: Action, family: GlyphFamily): Glyph {
     if (isAxisAction(action)) {
-      const binding = this.bindings.padFor(action)[0];
+      const binding = this.bindings.padFor(action, profileFamilyFor(family))[0];
       if (binding?.type === 'stick' && binding.x !== 0) {
         const label = family === 'xbox' ? 'RS' : family === 'generic' ? 'Stick 2' : 'R';
         return { text: label, aria: 'Right stick', shape: 'stick', family, icon: stickIcon(family, true) ?? undefined };
@@ -184,7 +188,7 @@ export class PromptGlyphService {
       const [text, aria] = STICK_LABELS[family];
       return { text, aria, shape: 'stick', family, icon: stickIcon(family, false) ?? undefined };
     }
-    const binding = this.bindings.padFor(action)[0];
+    const binding = this.bindings.padFor(action, profileFamilyFor(family))[0];
     if (!binding) return { text: '—', aria: 'Unbound', shape: 'face', family };
     return this.padBindingGlyph(binding, family);
   }

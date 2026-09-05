@@ -4,7 +4,7 @@ import { ACTION_META, BUTTON_ACTIONS, type AxisAction, type BindingSlot, type Bu
 import type { BindingStore } from './BindingStore';
 import type { KbmBinding } from './bindings';
 import type { InputFrame } from './InputFrame';
-import { KEYBOARD_MOUSE_SOURCE_ID, type InputSource, type SourceContext } from './InputSource';
+import { DEFAULT_LOOK_MODIFIER, KEYBOARD_MOUSE_SOURCE_ID, type InputSource, type LookModifier, type SourceContext } from './InputSource';
 
 const MOUSE_JITTER_PX = 2;
 /** Browsers can report one huge movement when the pointer locks or the window regains focus. */
@@ -14,6 +14,8 @@ const KEYS_TO_PREVENT = new Set(['Tab', 'Space', 'ArrowUp', 'ArrowDown', 'ArrowL
 
 export interface KbmTuning {
   mouseSensitivity: number;
+  /** Multiplier on mouse look while aiming (before the field-of-view ratio). */
+  aimSensitivity: number;
   invertY: boolean;
   invertX: boolean;
 }
@@ -31,7 +33,7 @@ export class KeyboardMouseSource implements InputSource {
   confidence = 1;
   available = true;
   lastActivity = 0;
-  tuning: KbmTuning = { mouseSensitivity: 1, invertY: false, invertX: false };
+  tuning: KbmTuning = { mouseSensitivity: 1, aimSensitivity: 1, invertY: false, invertX: false };
   /** Element whose pointer lock enables mouse look. */
   lockTarget: HTMLElement | null = null;
 
@@ -49,7 +51,10 @@ export class KeyboardMouseSource implements InputSource {
   lastRawBinding: KbmBinding | null = null;
   onRawBinding: ((binding: KbmBinding) => void) | null = null;
 
-  constructor(private readonly bindings: BindingStore) {}
+  constructor(
+    private readonly bindings: BindingStore,
+    private readonly lookModifier: LookModifier = DEFAULT_LOOK_MODIFIER,
+  ) {}
 
   start(): void {
     if (this.bag) return;
@@ -86,7 +91,8 @@ export class KeyboardMouseSource implements InputSource {
   poll(frame: InputFrame, context: SourceContext, _dt: number): void {
     if (context === 'game') {
       this.pollAxis(frame, 'Move');
-      const s = CAMERA.lookSensitivityBase * this.tuning.mouseSensitivity;
+      const aim = this.lookModifier.aiming ? this.tuning.aimSensitivity : 1;
+      const s = CAMERA.lookSensitivityBase * this.tuning.mouseSensitivity * aim * this.lookModifier.fovRatio;
       // movementY grows downward, matching the Look convention (positive = look down).
       if (this.isPointerLocked) frame.addLook(this.mouseDx * s * (this.tuning.invertX ? -1 : 1), this.mouseDy * s * (this.tuning.invertY ? -1 : 1));
     } else {
