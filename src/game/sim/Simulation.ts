@@ -49,6 +49,8 @@ export class Simulation {
   step(input: SimInput, dt: number): void {
     const world = this.world;
     world.playtimeSec += dt;
+    // The prompt from the previous step decides whether a shared Jump/Interact button interacts.
+    world.interactAvailable = this.prompt !== null;
     updatePlayer(world, input, dt);
     updateThreats(world, dt);
     updateObjectives(world);

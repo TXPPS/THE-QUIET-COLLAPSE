@@ -1,9 +1,13 @@
+import type { DifficultyPreset } from '@/persistence/settingsSchema';
+
 /** Gameplay tuning. All gameplay numbers live here; systems import tokens, never literals. */
 export const PLAYER = {
   radius: 0.38,
   height: 1.75,
   eyeHeight: 1.55,
   walkSpeed: 2.6,
+  /** Reference jog pace: enemy run speed is a fraction of this (see src/config/enemies.ts). */
+  jogSpeed: 3.4,
   sprintSpeed: 5.0,
   aimWalkSpeed: 1.6,
   hurtSpeedFactor: 0.85,
@@ -26,6 +30,23 @@ export const PLAYER = {
   sprintNoiseRadius: 9,
   walkNoiseRadius: 3.5,
   hurtInvulnerable: 0.5,
+  /** Jump: initial upward speed, gravity and the grace window after leaving a ledge. */
+  jumpSpeed: 4.2,
+  gravity: 18,
+  coyoteTime: 0.1,
+  /** Vault: reach ahead, the tallest and deepest collider that can be crossed, and the crossing time. */
+  vaultReach: 1.1,
+  vaultMaxHeight: 1.25,
+  vaultMaxDepth: 1.7,
+  vaultDuration: 0.7,
+  vaultClearance: 0.12,
+  /** Melee shove: reach, cone, stamina cost, damage and cooldown. */
+  meleeReach: 1.4,
+  meleeCos: 0.5,
+  meleeCost: 15,
+  meleeDamage: 45,
+  meleeCooldown: 0.7,
+  meleePush: 1.2,
 } as const;
 
 export const PISTOL = {
@@ -40,7 +61,9 @@ export const PISTOL = {
   recoilPitch: 0.035,
   recoilYaw: 0.012,
   spreadAim: 0.006,
-  raiseTime: 0.22,
+  /** Aim blend: seconds to raise fully and to lower again (one value drives camera, crosshair and arms). */
+  aimInTime: 0.12,
+  aimOutTime: 0.18,
 } as const;
 
 export const MEDKIT = {
@@ -52,21 +75,19 @@ export const MEDKIT = {
 export const THREAT = {
   radius: 0.42,
   height: 1.8,
-  maxHealth: 100,
+  /** Hits above this fraction of the height count as headshots. */
+  headFraction: 0.82,
   wanderSpeed: 0.7,
   investigateSpeed: 1.6,
-  chaseSpeed: 3.1,
+  /** Crowd agent speed cap (per-enemy stats scale below this). */
+  chaseSpeed: 3.4,
   sightRangeLit: 15,
   sightRangeDark: 7.5,
   sightRangeFlashlightBonus: 5,
   sightConeCos: 0.42,
   hearingSensitivity: 1,
   attackReach: 1.35,
-  attackWindup: 0.55,
-  attackRecover: 1.15,
-  attackDamage: 26,
   attackKnockback: 1.4,
-  staggerDuration: 0.45,
   loseTargetAfter: 5.5,
   repathInterval: 0.45,
   investigateTimeout: 8,
@@ -101,11 +122,8 @@ export const INTERACTION = {
   documentReadTime: 0,
 } as const;
 
-export const DIFFICULTY = {
-  normal: { damageTaken: 1, ammoFound: 1 },
-  hard: { damageTaken: 1.35, ammoFound: 0.66 },
-} as const;
-export type DifficultyId = keyof typeof DIFFICULTY;
+/** Difficulty presets live in src/config/enemies.ts; this is the id the run state stores. */
+export type DifficultyId = DifficultyPreset;
 
 export const FLASHLIGHT = {
   range: 18,

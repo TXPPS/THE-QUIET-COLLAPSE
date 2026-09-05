@@ -23,6 +23,7 @@ export const CONTROL_LABELS: Record<TouchControlId, string> = {
   interact: 'Use',
   sprint: 'Run',
   dodge: 'Step',
+  jump: 'Jump',
   swap: 'Swap',
   flashlight: 'Light',
   pause: 'Pause',
@@ -39,8 +40,8 @@ function control(x: number, y: number, size: number, opacity = 0.75, visible = t
 /*
  * Phone default, built against a 19.5:9 phone (844×390, 44 px notch insets) and real thumb reach:
  * the move stick sits in the lower-left corner, fire is the largest button in the lower-right
- * corner, aim above-left of fire, reload and use above aim, step left of fire, swap and pause in
- * the top-right corner. Nothing lives in the top-centre band. Sprint is push-past on the stick, so
+ * corner, aim above-left of fire, reload and use above aim, step left of fire, jump left of step, swap
+ * and pause in the top-right corner. Nothing lives in the top-centre band. Sprint is push-past on the stick, so
  * its button, the secondary fire, items and map start hidden.
  */
 const PHONE_TWO_THUMB: TouchControls = {
@@ -53,6 +54,7 @@ const PHONE_TWO_THUMB: TouchControls = {
   interact: control(0.8, 0.4, 0.15, 0.8),
   sprint: control(0.17, 0.56, 0.15, 0.7, false),
   dodge: control(0.83, 0.99, 0.15, 0.7),
+  jump: control(0.6, 0.99, 0.15, 0.7),
   swap: control(0.88, 0, 0.145, 0.65),
   flashlight: control(0.31, 1, 0.145, 0.65),
   pause: control(1, 0, 0.145, 0.6),
@@ -89,6 +91,7 @@ export const PRESETS: Record<PresetId, PresetDef> = {
       reload: { size: 0.145, x: 0.95, y: 0.44 },
       interact: { size: 0.145, x: 0.81, y: 0.42 },
       dodge: { size: 0.145, x: 0.84 },
+      jump: { size: 0.145, x: 0.6 },
       flashlight: { x: 0.3 },
     }),
   },
@@ -104,6 +107,7 @@ export const PRESETS: Record<PresetId, PresetDef> = {
       reload: { x: 0.92, y: 0.44, size: 0.125 },
       interact: { x: 0.8, y: 0.42, size: 0.125 },
       dodge: { x: 0.82, y: 0.95, size: 0.125 },
+      jump: { x: 0.62, y: 0.95, size: 0.125 },
       swap: { x: 0.86, y: 0.03, size: 0.12 },
       sprint: { x: 0.16, y: 0.55, size: 0.125 },
       flashlight: { x: 0.27, y: 0.96, size: 0.12 },

@@ -121,8 +121,8 @@ const parkingProps: BlockDef[] = [
 ];
 
 const southProps: BlockDef[] = [
-  prop('debris', 57.5, 40, 1.6, 1.2, 0.6, 'concrete', 0.5, { lowObstacle: true }),
-  prop('debris', 64.2, 47, 1.4, 1.4, 0.7, 'concrete', -0.4, { lowObstacle: true }),
+  prop('debris', 57.5, 40, 1.6, 1.2, 0.6, 'concrete', 0.5, { lowObstacle: true, vaultable: true }),
+  prop('debris', 64.2, 47, 1.4, 1.4, 0.7, 'concrete', -0.4, { lowObstacle: true, vaultable: true }),
   prop('cart', 60.6, 58.5, 0.8, 1.0, 1.0, 'metal', 0.3),
   prop('tent', 48, 74.5, 3, 3, 2.2, 'tarp'),
   prop('generator', 66.8, 75.6, 1.4, 0.9, 1.1, 'metal'),

@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "generated": "2026-09-04T21:28:54.741Z",
-  "precachedBytes": 7835710,
+  "generated": "2026-09-05T00:21:47.468Z",
+  "precachedBytes": 7706046,
   "streamedBytes": 5661815,
   "files": {
     "audio.ambience-night-1": {
@@ -503,8 +503,8 @@
       "precache": true
     },
     "character.animations": {
-      "path": "characters/animations-33aefe19.glb",
-      "bytes": 2839684,
+      "path": "characters/animations-5b1ab40d.glb",
+      "bytes": 2710020,
       "sources": [
         "quaternius-universal-animation-library",
         "quaternius-universal-animation-library-2"
@@ -518,16 +518,22 @@
         "Idle_Torch_Loop",
         "Interact",
         "Jog_Fwd_Loop",
+        "Jump_Land",
+        "Jump_Loop",
+        "Jump_Start",
         "Pistol_Aim_Down",
         "Pistol_Aim_Neutral",
         "Pistol_Aim_Up",
         "Pistol_Idle_Loop",
         "Pistol_Reload",
         "Pistol_Shoot",
+        "Punch_Cross",
         "Roll",
         "Sprint_Loop",
         "Walk_Loop",
+        "ClimbUp_1m",
         "Hit_Knockback",
+        "LayToIdle",
         "Melee_Hook",
         "Zombie_Idle_Loop",
         "Zombie_Scratch",

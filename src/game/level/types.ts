@@ -1,3 +1,4 @@
+import type { EnemyKind } from '@/config/enemies';
 import type { ItemId } from '@/game/items/registry';
 import type { NavBounds } from '@/game/sim/navgrid';
 
@@ -59,6 +60,8 @@ export interface BlockDef {
   material: MaterialKey;
   /** Blocks movement but not sight/bullets (rubble, low barriers). */
   lowObstacle?: boolean;
+  /** Waist-high collider the player can vault across with Jump. */
+  vaultable?: boolean;
   /** Visual only. */
   noCollide?: boolean;
   /** Skip the visual (invisible blocker). */
@@ -183,6 +186,8 @@ export interface ThreatDef {
   z: number;
   yaw: number;
   wander: boolean;
+  /** Stats table entry (src/config/enemies.ts); defaults to the affected resident. */
+  kind?: EnemyKind;
 }
 
 export interface ObjectiveDef {

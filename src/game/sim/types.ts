@@ -16,11 +16,22 @@ export interface Collider {
   height: number;
   /** Colliders that block movement but not bullets/vision (e.g. low fences) set this. */
   lowObstacle?: boolean;
+  /** Waist-high colliders the player can vault across. */
+  vaultable?: boolean;
   /** Doors can be opened and stop blocking. */
   doorId?: string;
 }
 
-export type ThreatAiState = 'idle' | 'wander' | 'investigate' | 'chase' | 'attack' | 'stagger' | 'dead';
+/**
+ * Enemy states. `wander`, `investigate` and `chase` are locomotion states where the crowd agent
+ * owns the position; every other state freezes the agent on the body so nothing can snap.
+ */
+export type ThreatAiState = 'idle' | 'wander' | 'investigate' | 'chase' | 'attack' | 'hitReact' | 'stagger' | 'knockdown' | 'dead';
+
+export const LOCOMOTION_STATES: ReadonlySet<ThreatAiState> = new Set<ThreatAiState>(['wander', 'investigate', 'chase']);
+
+/** What a hit did to an enemy (drives animation and audio). */
+export type HitReaction = 'hitReact' | 'stagger' | 'knockdown' | 'dead';
 
 export interface ThreatSaveState {
   x: number;
@@ -31,6 +42,7 @@ export interface ThreatSaveState {
 }
 
 export type EquippedItem = 'pistol' | 'medkit';
+export const EQUIPPABLE: readonly EquippedItem[] = ['pistol', 'medkit'];
 export type DoorState = 'closed' | 'open';
 
 export interface PlayerSaveState {
@@ -74,7 +86,7 @@ export interface RunState {
 
 export const RUN_STATE_VERSION = 1;
 
-export type NoiseKind = 'footstep' | 'sprint' | 'gunshot' | 'door' | 'impact';
+export type NoiseKind = 'footstep' | 'sprint' | 'gunshot' | 'door' | 'impact' | 'land';
 
 export interface NoiseEvent {
   x: number;

@@ -198,7 +198,7 @@ export const SOURCES = [
       { from: `${UAL}/License.txt`, to: 'assets/src/quaternius/universal-animation-library/License.txt' },
       { from: `${UAL}/README.txt`, to: 'assets/src/quaternius/universal-animation-library/README.txt' },
     ],
-    modifications: 'Only the clips the state machine uses are kept (idle, walk, jog, sprint, pistol idle/aim/shoot/reload, hit, death, interact, roll, torch idle); the mannequin mesh is stripped. Non root-motion variant.',
+    modifications: 'Only the clips the state machine uses are kept (idle, walk, jog, sprint, pistol idle/aim/shoot/reload, hit, death, interact, roll, torch idle, jump start/loop/land, punch); the mannequin mesh is stripped. Non root-motion variant.',
   },
   {
     id: 'quaternius-universal-animation-library-2',
@@ -213,7 +213,7 @@ export const SOURCES = [
       { from: `${UAL2}/Unreal-Godot/UAL2_Standard.glb`, to: 'assets/src/quaternius/universal-animation-library-2/UAL2_Standard.glb', large: true },
       { from: `${UAL2}/License.txt`, to: 'assets/src/quaternius/universal-animation-library-2/License.txt' },
     ],
-    modifications: 'Only the affected-resident clips are kept (Zombie_Idle_Loop, Zombie_Walk_Fwd_Loop, Zombie_Scratch, Hit_Knockback, Melee_Hook); mesh stripped. Non root-motion variant.',
+    modifications: 'Only the affected-resident clips plus the vault climb and get-up are kept (Zombie_Idle_Loop, Zombie_Walk_Fwd_Loop, Zombie_Scratch, Hit_Knockback, Melee_Hook, ClimbUp_1m, LayToIdle); mesh stripped. Non root-motion variant.',
   },
   {
     id: 'polyhaven-aarfontein-dusk',

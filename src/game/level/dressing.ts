@@ -61,10 +61,10 @@ function streetFurniture(): ModelDef[] {
 
 export function blockedRouteProps(): BlockDef[] {
   return [
-    modelProp('city-kit-roads', 'construction-barrier', 57.4, 31, QUARTER, 'barrier', { lowObstacle: true }),
-    modelProp('city-kit-roads', 'construction-barrier', 59.6, 31.1, QUARTER, 'barrier', { lowObstacle: true }),
-    modelProp('city-kit-roads', 'construction-barrier', 62.6, 31.1, QUARTER + 0.1, 'barrier', { lowObstacle: true }),
-    modelProp('city-kit-roads', 'construction-barrier', 64.8, 31, QUARTER, 'barrier', { lowObstacle: true }),
+    modelProp('city-kit-roads', 'construction-barrier', 57.4, 31, QUARTER, 'barrier', { lowObstacle: true, vaultable: true }),
+    modelProp('city-kit-roads', 'construction-barrier', 59.6, 31.1, QUARTER, 'barrier', { lowObstacle: true, vaultable: true }),
+    modelProp('city-kit-roads', 'construction-barrier', 62.6, 31.1, QUARTER + 0.1, 'barrier', { lowObstacle: true, vaultable: true }),
+    modelProp('city-kit-roads', 'construction-barrier', 64.8, 31, QUARTER, 'barrier', { lowObstacle: true, vaultable: true }),
     modelProp('city-kit-roads', 'construction-fence', 56.4, 33.4, QUARTER, 'fence', { lowObstacle: true }),
     modelProp('city-kit-roads', 'construction-fence', 66, 33.8, QUARTER - 0.2, 'fence', { lowObstacle: true }),
     modelProp('city-kit-industrial', 'shipping-container-a', 56.6, 39.4, 0.35),

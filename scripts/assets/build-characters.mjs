@@ -25,8 +25,9 @@ const SMALL = 512;
 /** Clothing tints: the resident in dark blue-grey work clothes; the affected in a paler, dirtied set. */
 const TINT = { resident: [0.62, 0.66, 0.74], affected: [0.78, 0.72, 0.64] };
 
-const PLAYER_CLIPS = ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop', 'Pistol_Idle_Loop', 'Pistol_Aim_Neutral', 'Pistol_Aim_Up', 'Pistol_Aim_Down', 'Pistol_Shoot', 'Pistol_Reload', 'Hit_Chest', 'Death01', 'Interact', 'Roll', 'Idle_Torch_Loop'];
-const THREAT_CLIPS = ['Zombie_Idle_Loop', 'Zombie_Walk_Fwd_Loop', 'Zombie_Scratch', 'Hit_Knockback', 'Melee_Hook'];
+const PLAYER_CLIPS = ['Idle_Loop', 'Walk_Loop', 'Jog_Fwd_Loop', 'Sprint_Loop', 'Pistol_Idle_Loop', 'Pistol_Aim_Neutral', 'Pistol_Aim_Up', 'Pistol_Aim_Down', 'Pistol_Shoot', 'Pistol_Reload', 'Hit_Chest', 'Death01', 'Interact', 'Roll', 'Idle_Torch_Loop', 'Jump_Start', 'Jump_Loop', 'Jump_Land', 'Punch_Cross'];
+/** Clips that only exist in the second library: the affected resident's set, the vault climb and the get-up. */
+const THREAT_CLIPS = ['Zombie_Idle_Loop', 'Zombie_Walk_Fwd_Loop', 'Zombie_Scratch', 'Hit_Knockback', 'Melee_Hook', 'ClimbUp_1m', 'LayToIdle'];
 
 /** The free pack references two textures by names that do not exist; the hair files sit one folder up. */
 async function readPatched(io, file, patch) {

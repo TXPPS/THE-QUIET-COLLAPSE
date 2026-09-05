@@ -9,6 +9,7 @@ const ICONS: Partial<Record<TouchControlId, string>> = {
   interact: '<path d="M8 11V6a2 2 0 0 1 4 0v5"/><path d="M12 10a2 2 0 0 1 4 0v3"/><path d="M8 11a2 2 0 0 0-4 0v3a7 7 0 0 0 7 7h1a6 6 0 0 0 6-6v-2"/>',
   sprint: '<path d="M13 4l-2 5 3 2-1 5 4-4-3-2 1-3z"/><path d="M6 9l3-1"/><path d="M7 18l3-3"/>',
   dodge: '<path d="M4 12h9"/><path d="M9 7l5 5-5 5"/><path d="M16 5v14"/>',
+  jump: '<path d="M12 19V7"/><path d="M7 12l5-5 5 5"/><path d="M5 20h14"/>',
   swap: '<path d="M7 7h10l-3-3"/><path d="M17 17H7l3 3"/>',
   flashlight: '<path d="M6 4h8l-1 6-1 10H8L7 10z"/><path d="M6 8h8"/><path d="M17 5l2-2M18 9h3M17 13l2 2"/>',
   pause: '<path d="M9 5v14M15 5v14"/>',

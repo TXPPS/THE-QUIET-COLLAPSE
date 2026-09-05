@@ -1,9 +1,11 @@
-import { DIFFICULTY, PISTOL, PLAYER } from '@/config/gameplay';
+import { PISTOL, PLAYER } from '@/config/gameplay';
 import { consumeItem, countItem, itemDef, type ItemId } from '@/game/items/registry';
 import { clamp, dampAngle, length2 } from '@/core/math';
 import type { ActionSnapshot } from '@/input/InputFrame';
 import { fireHitscan } from './combat';
 import type { PlayerRuntime } from './entities';
+import { cycleEquipped, cycleQuickItem, ensureQuickItem, tryMelee } from './playerActions';
+import { moveDirection, updateJump, type MoveDirection } from './playerJump';
 import type { Vec2 } from './types';
 import type { World } from './World';
 
@@ -15,12 +17,15 @@ export interface PlayerInput extends ActionSnapshot {
 const FOOTSTEP_INTERVAL_WALK = 0.52;
 const FOOTSTEP_INTERVAL_SPRINT = 0.32;
 const scratch: Vec2 = { x: 0, z: 0 };
+const direction: MoveDirection = { x: 0, z: 0, magnitude: 0 };
 
 /** Advances the player one fixed step. Movement is relative to the camera yaw. */
 export function updatePlayer(world: World, input: PlayerInput, dt: number): void {
   const p = world.player;
   p.prevX = p.x;
   p.prevZ = p.z;
+  p.prevY = p.y;
+  p.prevWeaponRaise = p.weaponRaise;
   tickTimers(p, dt);
   if (p.dead) {
     p.deathTimer += dt;
@@ -28,9 +33,11 @@ export function updatePlayer(world: World, input: PlayerInput, dt: number): void
     p.velZ = 0;
     return;
   }
+  moveDirection(world, input, direction);
   handleEquipment(world, input);
   handleCombat(world, input, dt);
   handleMovement(world, input, dt);
+  updateJump(world, input, direction, dt);
   applyMovement(world, dt);
   handleFacing(world, dt);
   handleFootsteps(world, dt);
@@ -40,27 +47,33 @@ function tickTimers(p: PlayerRuntime, dt: number): void {
   p.invulnTimer = Math.max(0, p.invulnTimer - dt);
   p.hurtTimer = Math.max(0, p.hurtTimer - dt);
   p.fireCooldown = Math.max(0, p.fireCooldown - dt);
+  p.meleeCooldown = Math.max(0, p.meleeCooldown - dt);
   p.recoil = Math.max(0, p.recoil - dt * 4);
   p.staminaRegenDelay = Math.max(0, p.staminaRegenDelay - dt);
 }
 
 function handleEquipment(world: World, input: PlayerInput): void {
   const p = world.player;
-  if (input.justPressed('SwapItem') && !p.isBusy) {
-    p.equipped = p.equipped === 'pistol' ? 'medkit' : 'pistol';
-    world.events.emit('equip', { item: p.equipped });
-  }
+  ensureQuickItem(p);
+  if (input.justPressed('SwapItem') || input.justPressed('WeaponNext')) cycleEquipped(world, 1);
+  else if (input.justPressed('WeaponPrev')) cycleEquipped(world, -1);
+  if (input.justPressed('QuickItemNext')) cycleQuickItem(world, 1);
+  else if (input.justPressed('QuickItemPrev')) cycleQuickItem(world, -1);
   if (input.justPressed('Flashlight') && p.hasFlashlight) {
     p.flashlightOn = !p.flashlightOn;
     world.events.emit('flashlight', { on: p.flashlightOn });
   }
 }
 
+/**
+ * Aim is one value with one owner: `weaponRaise` ramps 0→1 in 120 ms and back in 180 ms, and the
+ * camera, crosshair and arm layer all read it. Firing waits for the ramp to finish.
+ */
 function handleCombat(world: World, input: PlayerInput, dt: number): void {
   const p = world.player;
-  const wantsAim = input.isEngaged('Aim') && !p.dead && p.dodgeTimer <= 0 && p.medkitTimer <= 0;
+  const wantsAim = input.isEngaged('Aim') && !p.dead && p.dodgeTimer <= 0 && p.medkitTimer <= 0 && p.jumpState !== 'vault';
   p.aiming = wantsAim;
-  p.weaponRaise = clamp(p.weaponRaise + (wantsAim ? dt / PISTOL.raiseTime : -dt / PISTOL.raiseTime), 0, 1);
+  p.weaponRaise = clamp(p.weaponRaise + (wantsAim ? dt / PISTOL.aimInTime : -dt / PISTOL.aimOutTime), 0, 1);
   if (p.reloadTimer > 0) {
     p.reloadTimer -= dt;
     if (p.reloadTimer <= 0) finishReload(world);
@@ -72,6 +85,8 @@ function handleCombat(world: World, input: PlayerInput, dt: number): void {
     return;
   }
   if (input.justPressed('Reload')) tryReload(world);
+  if (input.justPressed('QuickItem')) tryMedkit(world, p.quickItem);
+  if (input.justPressed('Melee')) tryMelee(world);
   if (!wantsAim || p.weaponRaise < 1) return;
   if (input.justPressed('Fire')) {
     if (p.equipped === 'medkit') tryMedkit(world);
@@ -99,7 +114,7 @@ function tryFire(world: World): void {
 
 export function tryReload(world: World): void {
   const p = world.player;
-  if (p.equipped !== 'pistol' || p.ammoLoaded >= PISTOL.magazine || p.ammoReserve <= 0 || p.reloadTimer > 0) return;
+  if (p.equipped !== 'pistol' || p.ammoLoaded >= PISTOL.magazine || p.ammoReserve <= 0 || p.reloadTimer > 0 || p.airborne) return;
   p.reloadTimer = PISTOL.reloadTime;
   world.events.emit('reloadStart', undefined);
 }
@@ -119,7 +134,7 @@ export function tryMedkit(world: World, item: ItemId = 'medkit'): void {
   const p = world.player;
   const use = itemDef(item).use;
   if (!use || use.kind !== 'heal') return;
-  if (countItem(p, item) <= 0 || p.health >= PLAYER.maxHealth || p.medkitTimer > 0) return;
+  if (countItem(p, item) <= 0 || p.health >= PLAYER.maxHealth || p.medkitTimer > 0 || p.airborne) return;
   p.healingItem = item;
   p.medkitTimer = use.seconds;
 }
@@ -137,20 +152,10 @@ function finishMedkit(world: World): void {
 
 function handleMovement(world: World, input: PlayerInput, dt: number): void {
   const p = world.player;
-  const move = input.axis('Move');
-  const camYaw = world.look.yaw;
-  const fx = Math.sin(camYaw);
-  const fz = Math.cos(camYaw);
-  // Screen-right for a camera facing (fx, fz) is forward x up = (-fz, fx): +X is on the LEFT at yaw 0.
-  const rx = -Math.cos(camYaw);
-  const rz = Math.sin(camYaw);
-  let dirX = rx * move.x + fx * move.y;
-  let dirZ = rz * move.x + fz * move.y;
-  const magnitude = length2(dirX, dirZ);
-  if (magnitude > 1) {
-    dirX /= magnitude;
-    dirZ /= magnitude;
-  }
+  if (p.jumpState === 'vault') return; // the vault owns position until it lands
+  const magnitude = direction.magnitude;
+  const dirX = direction.x;
+  const dirZ = direction.z;
   if (p.dodgeTimer > 0) {
     p.dodgeTimer -= dt;
     const speed = PLAYER.dodgeDistance / PLAYER.dodgeDuration;
@@ -158,7 +163,7 @@ function handleMovement(world: World, input: PlayerInput, dt: number): void {
     p.velZ = p.dodgeDirZ * speed;
     return;
   }
-  const canDodge = p.stamina >= PLAYER.dodgeCost && !p.isBusy && p.medkitTimer <= 0;
+  const canDodge = p.stamina >= PLAYER.dodgeCost && !p.isBusy && p.medkitTimer <= 0 && !p.airborne;
   if (input.justPressed('Dodge') && canDodge) {
     startDodge(world, magnitude > 0.1 ? dirX : -Math.sin(p.yaw), magnitude > 0.1 ? dirZ : -Math.cos(p.yaw));
     return;
@@ -182,7 +187,8 @@ function handleMovement(world: World, input: PlayerInput, dt: number): void {
   const nz = magnitude > 1e-6 ? dirZ / magnitude : 0;
   const targetX = nx * speed;
   const targetZ = nz * speed;
-  const rate = magnitude > 0.05 ? PLAYER.acceleration : PLAYER.deceleration;
+  // In the air the direction still steers, but slower: no sudden reversals mid-jump.
+  const rate = (magnitude > 0.05 ? PLAYER.acceleration : PLAYER.deceleration) * (p.airborne ? 0.35 : 1);
   const blend = 1 - Math.exp(-rate * dt);
   p.velX += (targetX - p.velX) * blend;
   p.velZ += (targetZ - p.velZ) * blend;
@@ -213,15 +219,23 @@ function targetSpeed(p: PlayerRuntime): number {
 
 function applyMovement(world: World, dt: number): void {
   const p = world.player;
-  scratch.x = p.x + p.velX * dt;
-  scratch.z = p.z + p.velZ * dt;
-  world.resolveCircle(scratch, p.radius);
+  if (p.jumpState === 'vault') {
+    // The vault set the position; only keep it out of everything except the collider being crossed.
+    scratch.x = p.x;
+    scratch.z = p.z;
+    world.resolveCircle(scratch, p.radius, p.vaultColliderId);
+  } else {
+    scratch.x = p.x + p.velX * dt;
+    scratch.z = p.z + p.velZ * dt;
+    world.resolveCircle(scratch, p.radius);
+  }
   p.x = clamp(scratch.x, world.level.bounds.minX + 1, world.level.bounds.maxX - 1);
   p.z = clamp(scratch.z, world.level.bounds.minZ + 1, world.level.bounds.maxZ - 1);
 }
 
 function handleFacing(world: World, dt: number): void {
   const p = world.player;
+  if (p.jumpState === 'vault') return;
   if (p.aiming || p.reloadTimer > 0) {
     p.yaw = dampAngle(p.yaw, world.look.yaw, PLAYER.turnRate * 1.5, dt);
     return;
@@ -233,7 +247,7 @@ function handleFacing(world: World, dt: number): void {
 function handleFootsteps(world: World, dt: number): void {
   const p = world.player;
   const speed = length2(p.velX, p.velZ);
-  if (speed < 0.4) {
+  if (speed < 0.4 || p.airborne) {
     p.footstepTimer = 0.1;
     return;
   }
@@ -249,12 +263,11 @@ function handleFootsteps(world: World, dt: number): void {
   });
 }
 
-/** Applies damage from a threat; honours dodge/hit invulnerability and difficulty. */
+/** Applies damage from a threat; honours dodge/hit invulnerability. Damage already carries the difficulty preset. */
 export function damagePlayer(world: World, amount: number, fromX: number, fromZ: number): boolean {
   const p = world.player;
   if (p.dead || p.invulnTimer > 0) return false;
-  const scaled = amount * DIFFICULTY[world.difficulty].damageTaken;
-  p.health = Math.max(0, p.health - scaled);
+  p.health = Math.max(0, p.health - amount);
   p.invulnTimer = PLAYER.hurtInvulnerable;
   p.hurtTimer = 0.6;
   const dx = p.x - fromX;
@@ -265,7 +278,7 @@ export function damagePlayer(world: World, amount: number, fromX: number, fromZ:
   p.velX += (dx / len) * 3;
   p.velZ += (dz / len) * 3;
   p.medkitTimer = 0;
-  world.events.emit('playerHurt', { amount: scaled, health: p.health });
+  world.events.emit('playerHurt', { amount, health: p.health });
   if (p.health <= 0) {
     p.dead = true;
     p.deathTimer = 0;

@@ -18,6 +18,7 @@ export type TouchControlId =
   | 'interact'
   | 'sprint'
   | 'dodge'
+  | 'jump'
   | 'swap'
   | 'flashlight'
   | 'pause'
@@ -72,6 +73,7 @@ export const TOUCH_CONTROL_IDS: readonly TouchControlId[] = [
   'interact',
   'sprint',
   'dodge',
+  'jump',
   'swap',
   'flashlight',
   'pause',
