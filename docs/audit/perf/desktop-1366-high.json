@@ -1,0 +1,13 @@
+{
+  "project": "desktop-1366",
+  "tier": "high",
+  "cpuThrottle": 1,
+  "windowMs": 8000,
+  "drawCalls": 240,
+  "renderer": "headless Chromium + SwiftShader (software GL)",
+  "medianMs": 564.9000244140625,
+  "worstMs": 1649.9000244140625,
+  "fps": 1.7702247420457116,
+  "samples": 11,
+  "at": "2026-09-05T00:50:38.390Z"
+}

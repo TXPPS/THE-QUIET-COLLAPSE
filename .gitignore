@@ -45,3 +45,6 @@ assets/incoming/*
 assets/src/quaternius/universal-animation-library/UAL1_Standard.glb
 assets/src/quaternius/universal-animation-library-2/UAL2_Standard.glb
 assets/src/polyhaven/aarfontein_dusk_2k.hdr
+
+# Playwright output of the isolated ADS clip run
+test-results-ads/

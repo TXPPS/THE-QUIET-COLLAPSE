@@ -91,6 +91,97 @@ untested** and must be run before a public release:
 | Regression: desktop loop x2, smoke, emulated controller, screens, offline | `... smoke/loop/gamepad/screens --project=desktop-1080p`, `pnpm test:offline` | PASS |
 | QA preview | `pnpm deploy:qa` | https://qa.quiet-collapse.pages.dev = deployment `0931469e` and production = `35888b39` (commit `c436f35`); `E2E_BASE_URL=https://quiet-collapse.pages.dev live-boot.spec.ts offline.spec.ts` 2 passed (no console errors, worker installed, offline run + save + Continue) |
 
+## Fix wave: gamepad, ADS, weapon grip, touch-HUD visibility, jump, enemy death (2026-09-04)
+
+| Check | Command | Result |
+|---|---|---|
+| Lint / type check | `pnpm lint && pnpm typecheck` | 0 errors (1 pre-existing warning in `live-boot.spec.ts`) / clean |
+| Unit tests | `pnpm test` | 26 files, 133 tests passing (new: triggers, pad profiles, touch visibility, touch fade, jump/vault, enemy stats/reactions/death) |
+| Production build | `pnpm build` | clean; touch layout gate "4 presets clean at 4 aspect ratios" with the new Jump button; 93 precached files, 10.22 MB (`90ccd9a55b5f`) |
+| Bundle hygiene + asset licences | `pnpm check:bundle` | no reference screenshots; 62 sources / 344 files, licences CC0-1.0 / OFL-1.1 / MIT / Public Domain, ledger in sync |
+| Asset pipeline | `pnpm assets:build` | 85 outputs, precached 7.35 MB, streamed 5.40 MB; `character.animations` now 27 clips, 2.58 MB (adds Jump_Start/Loop/Land, Punch_Cross, ClimbUp_1m, LayToIdle) |
+| §0.1 loop, desktop KBM (twice) | `… loop.spec.ts --project=desktop-1080p` | PASS (1.4 min, zero console/page errors) |
+| Boot/menu/pause smoke | `… smoke.spec.ts --project=desktop-1080p` | PASS |
+| Screen evidence | `… screens.spec.ts` on desktop-1080p, desktop-1366, phone-landscape | PASS ×3, evidence PNGs refreshed |
+| Emulated controller, every screen | `… gamepad.spec.ts --project=desktop-1080p` | PASS (1.9 min): chooser, Options tabs by LB/RB (video → audio → game), slot select, run, stick walk, analog LT/RT with the hysteresis band, jump on A, View → Items → LB map → RB items → B, Menu pause → B resume, unplug → chooser; touch HUD stays hidden under the locked pad |
+| Crowd navigation | `… nav.spec.ts --project=desktop-1080p` | PASS (22 s) with the paused-agent model |
+| Held weapon evidence | `… weapon.spec.ts` (desktop + phone) | PASS; `*-31-weapon-aim.png` shows the barrel along the forearm with the measured socket |
+| Aim blend clip | `ADS_CLIP=before|after … ads.spec.ts --project=desktop-1366` | PASS; `docs/audit/evidence/desktop-1366-ads-before.webm` (recorded against commit fb40491) and `-after.webm` |
+| Three session cycles, heap | `… memory.spec.ts --project=desktop-1080p` | PASS — 132.6 MB after each of three cycles (flat) |
+| Frame-time floor | `… perf.spec.ts` (desktop-1080p, desktop-1366, phone Low 4× throttle) | PASS, JSON in `docs/audit/perf/` (table below) |
+| Touch loop, phone weapon/screens | `… touch.spec.ts weapon.spec.ts screens.spec.ts perf.spec.ts --project=phone-landscape` | PASS (5 tests, 3.5 min); the HUD fade did not change any touch beat |
+| Touch presets | `… touch-presets.spec.ts --project=phone-landscape` | PASS (6.1 min, 20 captures refreshed with the Jump button) |
+| Offline | `pnpm test:offline` | PASS (29 s) |
+
+### Frame-time floor (fix wave; headless Chromium + SwiftShader software GL, CPU floor only)
+
+| Project | Tier | CPU throttle | Median frame | Worst frame | Draw calls |
+|---|---|---|---|---|---|
+| desktop-1080p | low | 1× | 616.7 ms | 1599.9 ms | 118 |
+| desktop-1080p | balanced | 1× | 1016.6 ms | 4483.2 ms | 120 |
+| desktop-1080p | high | 1× | 2149.9 ms | 3566.5 ms | 240 |
+| desktop-1366 | low | 1× | 483.3 ms | 1516.6 ms | 118 |
+| desktop-1366 | balanced | 1× | 516.7 ms | 2733.2 ms | 120 |
+| desktop-1366 | high | 1× | 564.9 ms | 1649.9 ms | 240 |
+| phone-landscape (844×390 @3×) | low | 4× | 300.0 ms | 499.9 ms | 122 |
+
+Software rasterisation dominates these numbers (the 1080p balanced/high medians moved by more than 2× between
+runs on the same code); they bound CPU-side cost only. Real-device capture stays the open manual item.
+
+### Default controller mapping as shipped (every family; standard-mapping positions)
+
+| Position | Xbox | PlayStation | Nintendo | Gameplay | Menus |
+|---|---|---|---|---|---|
+| Left stick / click | LS / LS press | L / L3 | L / LS press | Move / Sprint (hold or toggle per Options) | Navigate |
+| Right stick / click | RS / RS press | R / R3 | R / RS press | Look / Flashlight | — |
+| Left trigger | LT | L2 | ZL | Aim (analog, 0.35 press / 0.25 release) | — |
+| Right trigger | RT | R2 | ZR | Fire (analog) | — |
+| South | A | ✕ | B | Jump / vault; Interact when a prompt shows | Confirm (Nintendo: per confirm policy) |
+| East | B | ○ | A | Dodge | Cancel |
+| West | X | □ | Y | Reload | — |
+| North | Y | △ | X | Swap weapon / item | — |
+| Left bumper | LB | L1 | L | Quick item | Previous tab |
+| Right bumper | RB | R1 | R | Melee / push | Next tab |
+| D-pad up / down | | | | Quick item previous / next | Navigate |
+| D-pad left / right | | | | Weapon previous / next | Navigate |
+| Start | Menu | Options | + | Pause | — |
+| Select | View | Share / Touchpad | − | Items (its LB/RB tab is the map) | — |
+
+### Held-item sockets chosen (joint space, metres / radians XYZ)
+
+| Item | Joint | positionOffset | rotationOffset |
+|---|---|---|---|
+| pistol, first-aid kit | hand_r | [0, 0.055, 0.03] | [-1.6706, -0.0946, 3.1079] |
+| flashlight | hand_l | [0, 0.055, 0.03] | [-1.5385, 0.113, -3.0239] |
+
+Measured on the universal skeleton at Pistol_Aim_Neutral / Idle_Torch_Loop: the joint's +Y runs along the fingers
+and the forearm, so the item's barrel (+Z) is turned onto +Y and its top (+Y) onto the back of the hand. Refine on
+device with the QA overlay's socket tuner (F9 → sliders → copy JSON) and commit the values into
+`src/game/items/registry.ts`.
+
+### Enemy stats table (affected resident)
+
+| Stat | Value | Notes |
+|---|---|---|
+| hp | 100 | pistol 40 per round; headshot ×2 (hit above 82 % of the 1.8 m height) |
+| walk speed | 1.3 m/s | wander / investigate (investigate capped at 1.6) |
+| run speed | 0.8 / 0.9 / 1.0 × player jog 3.4 m/s → 2.72 / 3.06 / 3.40 m/s | Accessible / Standard / Hard |
+| attack windup | 0.55 s | telegraphed before damage lands; 0.6 s recovery after |
+| attack cooldown | 1.8 / 1.4 / 1.0 s | next attack may not start before it elapses |
+| damage | 20 / 30 / 40 | per preset; no other multiplier |
+| stagger threshold | 40 | a single hit at or above it staggers (0.45 s, interruptible); the melee shove always staggers |
+| knockdown threshold | 75 | once per life: falls 1.1 s, lies 0.7 s, rises 1.4 s, then moves at 0.78× |
+| hit-react | 0.25 s | upper body only, no position change |
+
+### Deviations recorded (fix wave)
+
+- Nintendo pads keep the runtime confirm/cancel swap (Options → Controls) instead of a differing stored profile,
+  so a remap on the Nintendo tab is expressed in standard positions like every other family.
+- The Map has no dedicated pad button: View opens Items and LB/RB switches between Items and Map.
+- Vaultable colliders in the test area are the two debris blocks and the four construction barriers in front of
+  the wreck; the wreck rubble itself stays non-vaultable so the blocked route still forces the detour.
+- Frame-time numbers come from SwiftShader; the 30 fps floor on hardware remains a manual-matrix item.
+
 ## Asset wave: free-asset pipeline, characters, enemy, dressed test area (2026-09-04)
 
 | Check | Command | Result |

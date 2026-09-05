@@ -9,6 +9,35 @@ Resume from this file, not from scratch.
 - Reference screenshots stay outside the repo (scratchpad only). Only pack `.md` files are committed.
 
 ## Phase / wave
+- **Gamepad / ADS / grip / touch-HUD / jump / enemy fix wave (2026-09-04) — complete; gate table in the
+  "Fix wave" section of 10_RELEASE_GATE.md.**
+  - Input: triggers are analog with 0.35/0.25 hysteresis and an axis fallback for non-standard mappings
+    (`src/input/triggers.ts`); default binding profiles per family are data (`src/input/padProfiles.ts`,
+    bindings schema v2 = one profile per family, v1 map migrates into every profile); new actions Jump, Melee,
+    QuickItem, QuickItemPrev/Next, WeaponPrev/Next; Jump and Interact share the south button (interact wins when
+    a prompt shows: `World.interactAvailable`). Look sensitivity is per source with an aim multiplier per
+    source, and every source scales look by the current FOV ratio (`InputManager.lookModifier`, written by the
+    session from `CameraRig.fovRatio`). Settings v3 (`touchSensitivity`, `aimSensitivity*`, difficulty
+    presets accessible/standard/hard; "normal" migrates to standard in settings, saves and save headers).
+  - Touch HUD: `shouldShowTouchHud` (`src/app/TouchShell.ts`) follows the active-source policy; locked-to-touch
+    keeps it; 150 ms fade, no input during the fade, pointer owners released before hiding. New `jump` touch
+    control in every preset (layout gate still clean).
+  - Weapon: held-item sockets live in the item registry (`HELD_ITEM_SOCKETS`), measured on the skeleton; the QA
+    overlay (F9) has a socket tuner with copy-JSON (values reach the registry only through a commit). ADS has a
+    single owner: `PlayerRuntime.weaponRaise` (120 ms in / 180 ms out) drives camera distance, shoulder, FOV,
+    crosshair opacity and the upper-body layer weight; `CameraRig` no longer smooths the blend itself.
+    Before/after clips: `docs/audit/evidence/desktop-1366-ads-{before,after}.webm`.
+  - Jump / vault (`src/game/sim/playerJump.ts`): coyote time, gravity, no jump while aiming/reloading/healing/
+    dodging; colliders tagged `vaultable` (debris, the wreck's construction barriers) are crossed with the
+    ClimbUp clip; Jump_Start / Jump_Land clips added to the animation build. Position height is transient (never saved).
+  - Enemies: stats table `src/config/enemies.ts` (hp, speeds, windup, cooldown, damage, stagger/knockdown
+    thresholds, headshot ×2); states hitReact / stagger / knockdown (once, rises slower) / dead; the crowd agent is
+    authoritative only in wander/investigate/chase and is paused + glued to the body otherwise
+    (`NavProvider.setAgentPaused`); death removes the agent in the same call. Difficulty presets 0.8/0.9/1.0 ×
+    player jog, cooldown 1.8/1.4/1.0 s, damage 20/30/40, shown in Options → Game and the QA overlay.
+  - Menus on a pad: A confirm, B cancel, LB/RB tabs everywhere; View opens Items, whose LB/RB tab is the map.
+  - Unit: 26 files, 133 tests. New/changed e2e: `gamepad.spec.ts` (every screen by pad, analog triggers, jump),
+    `ads.spec.ts` (video clip).
 - **Free-asset pipeline / characters / enemy / dressed test area wave (2026-09-04) — complete; see the
   "Asset wave" section of 10_RELEASE_GATE.md for the gate table.**
   - Provenance: `scripts/assets/sources.mjs` → `assets/ledger.json` + `docs/assets/ASSET_LEDGER.md` (62 sources, 344 files,
@@ -83,9 +112,10 @@ Resume from this file, not from scratch.
 
 ## Verification commands
 - `pnpm assets:fetch && pnpm assets:build` when sources or level colliders change (navmesh bake); `pnpm assets:ledger` after editing `scripts/assets/sources.mjs`
-- `pnpm lint && pnpm typecheck && pnpm test` (unit: 99 tests) · `pnpm build && pnpm check:bundle` (bundle hygiene + asset licence gate; build fails on a bad touch preset)
+- `pnpm lint && pnpm typecheck && pnpm test` (unit: 133 tests) · `pnpm build && pnpm check:bundle` (bundle hygiene + asset licence gate; build fails on a bad touch preset)
 - `pnpm exec playwright test tests/e2e/nav.spec.ts tests/e2e/memory.spec.ts tests/e2e/perf.spec.ts --project=desktop-1080p` (crowd, heap over three cycles, frame-time floor → `docs/audit/perf/`)
-- `pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/screens.spec.ts tests/e2e/loop.spec.ts --project=desktop-1080p`
+- `pnpm exec playwright test tests/e2e/smoke.spec.ts tests/e2e/screens.spec.ts tests/e2e/loop.spec.ts tests/e2e/gamepad.spec.ts --project=desktop-1080p` · `ADS_CLIP=after pnpm exec playwright test tests/e2e/ads.spec.ts --project=desktop-1366` (aim clip)
+- Run Playwright suites one at a time (they share the preview server); keep each batch under ten minutes.
 - `pnpm exec playwright test tests/e2e/touch.spec.ts tests/e2e/touch-presets.spec.ts tests/e2e/weapon.spec.ts --project=phone-landscape`
 
 ## Open blockers
