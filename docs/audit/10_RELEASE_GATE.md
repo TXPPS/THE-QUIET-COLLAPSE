@@ -113,6 +113,13 @@ untested** and must be run before a public release:
 | Touch presets | `… touch-presets.spec.ts --project=phone-landscape` | PASS (6.1 min, 20 captures refreshed with the Jump button) |
 | Offline | `pnpm test:offline` | PASS (29 s) |
 
+### Deployment (fix wave)
+
+| Target | Deployment | Build | Checks |
+|---|---|---|---|
+| Production https://quiet-collapse.pages.dev | `183194ce` | `451c2e7eb713` (93 precached files, 10.22 MB), commit b6d0822 | `E2E_BASE_URL=https://quiet-collapse.pages.dev … live-boot.spec.ts offline.spec.ts` → 2 passed (53.2 s); index 200 |
+| QA https://qa.quiet-collapse.pages.dev | `33919b22` | same | same two specs → 2 passed (1.1 min) |
+
 ### Frame-time floor (fix wave; headless Chromium + SwiftShader software GL, CPU floor only)
 
 | Project | Tier | CPU throttle | Median frame | Worst frame | Draw calls |

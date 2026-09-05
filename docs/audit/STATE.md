@@ -36,6 +36,7 @@ Resume from this file, not from scratch.
     (`NavProvider.setAgentPaused`); death removes the agent in the same call. Difficulty presets 0.8/0.9/1.0 ×
     player jog, cooldown 1.8/1.4/1.0 s, damage 20/30/40, shown in Options → Game and the QA overlay.
   - Menus on a pad: A confirm, B cancel, LB/RB tabs everywhere; View opens Items, whose LB/RB tab is the map.
+  - Deployed: production `183194ce`, QA `33919b22` (build `451c2e7eb713`, commit b6d0822); live boot + offline gates green on both.
   - Unit: 26 files, 133 tests. New/changed e2e: `gamepad.spec.ts` (every screen by pad, analog triggers, jump),
     `ads.spec.ts` (video clip).
 - **Free-asset pipeline / characters / enemy / dressed test area wave (2026-09-04) — complete; see the
