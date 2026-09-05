@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
-import { beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { InputFrame } from '@/input/InputFrame';
 import { TouchSource } from '@/input/TouchSource';
-import { TouchHud, readViewport, type TouchHudState } from '@/ui/touch/TouchHud';
+import { TouchHud, TOUCH_HUD_FADE_MS, readViewport, type TouchHudState } from '@/ui/touch/TouchHud';
 import { controlRect, presetProfile } from '@/ui/touch/touchProfiles';
 
 class FakePointerEvent extends MouseEvent {
@@ -49,15 +49,52 @@ describe('TouchHud pointer ownership', () => {
     document.body.innerHTML = '';
     layer = document.createElement('div');
     document.body.append(layer);
+    vi.useFakeTimers();
     source = new TouchSource();
     hud = new TouchHud(layer, source, presetProfile('twoThumb'));
     hud.setVisible(true);
+    vi.advanceTimersByTime(TOUCH_HUD_FADE_MS);
     hud.update(IDLE, 1 / 60);
     (globalThis as { performance: Performance }).performance.now = () => 1000;
     moveZone = layer.querySelector('.tqc-touch__zone--move') as HTMLElement;
     lookZone = layer.querySelector('.tqc-touch__zone--look') as HTMLElement;
     fireButton = layer.querySelector('[data-touch-control="fire"]') as HTMLElement;
     freeLook = { x: 620, y: 200 };
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('fades in over 150 ms with no input accepted during the fade, and hiding releases a held stick at once', () => {
+    // Show fade: pointers are ignored until the fade completes.
+    hud.setVisible(false);
+    vi.advanceTimersByTime(TOUCH_HUD_FADE_MS);
+    expect(hud.root.hidden).toBe(true);
+    hud.setVisible(true);
+    expect(hud.root.hidden).toBe(false);
+    expect(hud.acceptsInput).toBe(false);
+    expect(hud.root.classList.contains('is-fading')).toBe(true);
+    fire(moveZone, 'pointerdown', 21, 120, 600);
+    expect(hud.ownedPointers.size).toBe(0);
+    vi.advanceTimersByTime(TOUCH_HUD_FADE_MS);
+    expect(hud.acceptsInput).toBe(true);
+    expect(hud.root.classList.contains('is-fading')).toBe(false);
+    // A finger drives the stick; a gamepad takes over and the HUD hides mid-drag.
+    fire(moveZone, 'pointerdown', 22, 120, 600);
+    fire(moveZone, 'pointermove', 22, 120, 520);
+    expect(source.moveY).toBeGreaterThan(0.5);
+    hud.setVisible(false);
+    expect(source.moveX).toBe(0);
+    expect(source.moveY).toBe(0);
+    expect(hud.ownedPointers.size).toBe(0);
+    expect(hud.acceptsInput).toBe(false);
+    expect(hud.root.hidden).toBe(false); // still fading out
+    fire(moveZone, 'pointermove', 22, 120, 450);
+    expect(source.moveY).toBe(0);
+    vi.advanceTimersByTime(TOUCH_HUD_FADE_MS);
+    expect(hud.root.hidden).toBe(true);
+    expect(document.documentElement.dataset['touchHud']).toBe('false');
   });
 
   it('runs the move stick and the look zone at the same time on independent pointers, every frame', () => {
@@ -119,7 +156,7 @@ describe('TouchHud pointer ownership', () => {
     fire(lookZone, 'pointermove', 6, freeLook.x, freeLook.y + 25);
     expect(source.lookDy).toBe(25);
     expect(poll(source).lookDeltaY).toBeGreaterThan(0);
-    source.setTuning({ stickSensitivity: 1, invertY: true });
+    source.setTuning({ stickSensitivity: 1, aimSensitivity: 1, invertY: true });
     fire(lookZone, 'pointermove', 6, freeLook.x, freeLook.y + 50);
     expect(poll(source).lookDeltaY).toBeLessThan(0);
     fire(lookZone, 'pointerup', 6, freeLook.x, freeLook.y + 50);

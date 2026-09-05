@@ -7,6 +7,12 @@
   overflow: hidden;
 }
 .tqc-touch[hidden] { display: none; }
+/* 150 ms show/hide fade; pointer events stay off until the fade completes (TouchHud.acceptsInput). */
+.tqc-touch { opacity: 1; transition: opacity 150ms linear; }
+.tqc-touch.is-hidden { opacity: 0; }
+.tqc-touch.is-fading { pointer-events: none; }
+.tqc-touch.is-fading * { pointer-events: none !important; }
+:root[data-reduced-motion='true'] .tqc-touch { transition: none; }
 /* Zones are positioned by TouchHud.layout(): left/right halves inside the safe-area insets. */
 .tqc-touch__zone {
   position: absolute;
