@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { lerp } from '@/core/math';
-import type { Rig, RigKind, RigPose } from './Rig';
+import type { ItemSocket, Rig, RigKind, RigPose } from './Rig';
 import { FlashlightRig, WeaponRig } from './WeaponRig';
 
 export { IDLE_HANDS } from './Rig';
@@ -98,6 +98,11 @@ export class CharacterRig implements Rig {
     // nothing to do
   }
 
+  /** The procedural hands have fixed sockets; the tuner only applies to the skinned rig. */
+  setSocket(_item: 'pistol' | 'medkit' | 'flashlight', _socket: ItemSocket): void {
+    // nothing to do
+  }
+
   /** World position of the muzzle (player rig only); falls back to the group position. */
   muzzleWorldPosition(out: THREE.Vector3): THREE.Vector3 {
     if (this.weapon) return this.weapon.muzzle.getWorldPosition(out);
@@ -105,7 +110,7 @@ export class CharacterRig implements Rig {
   }
 
   update(pose: RigPose, dt: number): void {
-    this.group.position.set(pose.x, 0, pose.z);
+    this.group.position.set(pose.x, pose.y, pose.z);
     this.group.rotation.y = pose.yaw;
     if (pose.dead) {
       this.animateDeath(pose.deathTimer, dt);

@@ -22,6 +22,11 @@ export interface HudModel {
   hasFlashlight: boolean;
   flashlightOn: boolean;
   aiming: boolean;
+  /** 0..1 aim blend; the crosshair fades in with it. */
+  aimBlend: number;
+  /** Quick-slot medical item and how many are carried. */
+  quickItem: string;
+  quickItemCount: number;
   reloading: boolean;
   usingMedkit: boolean;
   dead: boolean;
@@ -75,7 +80,7 @@ export class Hud {
     this.itemIcon = el('div', { class: 'tqc-hud__item-icon', attrs: { 'aria-hidden': 'true' } });
     this.ammo = el('div', { class: 'tqc-hud__ammo' });
     this.status = el('div', { class: 'tqc-hud__status' });
-    this.medkitsNode = el('span', { text: 'Medkit ×0' });
+    this.medkitsNode = el('span', { text: 'First-aid kit ×0' });
     this.flashlightNode = el('span', { text: 'Light' });
     const item = el('div', { class: 'tqc-hud__item' }, [
       this.itemIcon,
@@ -179,10 +184,13 @@ export class Hud {
       toggleClass(this.ammo, 'is-empty', model.medkits === 0);
     }
     setText(this.status, model.reloading ? 'Reloading' : model.usingMedkit ? 'Applying dressing' : model.ammoLoaded === 0 && model.equipped === 'pistol' && model.ammoReserve > 0 ? 'Reload' : '');
-    setText(this.medkitsNode, `Medkit ×${model.medkits}`);
+    setText(this.medkitsNode, `${model.quickItem} ×${model.quickItemCount}`);
+    toggleClass(this.medkitsNode, 'is-empty', model.quickItemCount === 0);
     setHidden(this.flashlightNode, !model.hasFlashlight);
     toggleClass(this.flashlightNode, 'is-on', model.flashlightOn);
-    toggleClass(this.crosshair, 'is-visible', model.aiming && !model.dead);
+    const aim = model.dead ? 0 : model.aimBlend;
+    toggleClass(this.crosshair, 'is-visible', aim > 0.02);
+    this.crosshair.style.opacity = String(aim > 0.02 ? aim : 0);
     toggleClass(this.crosshair, 'is-busy', model.reloading || model.usingMedkit);
     toggleClass(this.damage, 'is-critical', model.condition === 'critical' && !model.dead);
     setHidden(this.hint, !model.mouseHint);

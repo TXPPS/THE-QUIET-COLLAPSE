@@ -1,7 +1,9 @@
 import { DisposeBag } from '@/core/DisposeBag';
 import type { FrameStats } from '@/core/GameLoop';
 import { PROJECT_BUILD_STAMP } from '@/config/project';
+import type { HeldItemId, ItemSocketDef } from '@/game/items/registry';
 import { el, setHidden, setText, toggleClass } from '@/ui/dom';
+import { SocketTuner } from './SocketTuner';
 
 export interface DebugSnapshot {
   stats: FrameStats;
@@ -17,22 +19,27 @@ export interface DebugSnapshot {
   online: boolean;
   scene: string;
   nav: string;
+  /** Difficulty preset with the resolved enemy numbers. */
+  difficulty: string;
 }
 
 const THREE_FINGER_WINDOW_MS = 400;
 const REFRESH_MS = 250;
-const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'touch', 'sw', 'scene', 'nav'] as const;
+const LINE_KEYS = ['build', 'fps', 'frame', 'res', 'input', 'touch', 'sw', 'scene', 'nav', 'difficulty'] as const;
 
 /**
  * Hidden QA overlay toggled with F9 or a three-finger tap. Costs nothing while hidden: the host
  * only calls `update` when `visible` is true and the DOM is untouched otherwise. F10 (or the
- * button) toggles the spawn-ray debug draw that shows where props and pickups were grounded.
+ * button) toggles the spawn-ray debug draw that shows where props and pickups were grounded. The
+ * socket tuner re-seats the held items live; its JSON is copied by hand into the item registry.
  */
 export class DebugOverlay {
   readonly root: HTMLElement;
   visible = false;
   spawnRays = false;
   onSpawnRays: ((visible: boolean) => void) | null = null;
+  onSocket: ((item: HeldItemId, socket: ItemSocketDef) => void) | null = null;
+  readonly tuner: SocketTuner;
   private readonly bag = new DisposeBag();
   private readonly lines = new Map<string, HTMLElement>();
   private readonly raysButton: HTMLButtonElement;
@@ -54,6 +61,8 @@ export class DebugOverlay {
     this.line('build').textContent = PROJECT_BUILD_STAMP;
     this.raysButton = el('button', { class: 'tqc-debug__toggle', text: 'spawn rays: off', attrs: { type: 'button', 'aria-pressed': 'false' } });
     this.root.append(this.raysButton);
+    this.tuner = new SocketTuner(this.root);
+    this.tuner.onChange = (item, socket) => this.onSocket?.(item, socket);
     layer.append(this.root);
     this.bag.listen(this.raysButton, 'click', () => this.toggleSpawnRays());
     this.bag.listen(window, 'keydown', (event) => {
@@ -96,6 +105,7 @@ export class DebugOverlay {
     setText(this.line('sw'), `sw ${snapshot.swState} / ${snapshot.online ? 'online' : 'offline'}`);
     setText(this.line('scene'), `scene ${snapshot.scene}`);
     setText(this.line('nav'), `nav ${snapshot.nav}`);
+    setText(this.line('difficulty'), `difficulty ${snapshot.difficulty}`);
   }
 
   private line(key: string): HTMLElement {
@@ -112,6 +122,7 @@ export class DebugOverlay {
   }
 
   dispose(): void {
+    this.tuner.dispose();
     this.bag.dispose();
     this.root.remove();
   }

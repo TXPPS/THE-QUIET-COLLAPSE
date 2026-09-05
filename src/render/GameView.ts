@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { PISTOL, PLAYER, THREAT } from '@/config/gameplay';
+import { PISTOL, PLAYER } from '@/config/gameplay';
 import { lerp } from '@/core/math';
 import type { ThreatRuntime } from '@/game/sim/entities';
 import type { World } from '@/game/sim/World';
@@ -10,7 +10,7 @@ import { AnimatedRig } from './character/AnimatedRig';
 import type { CharacterAssets } from './character/CharacterAssets';
 import { Effects } from './Effects';
 import type { Renderer } from './Renderer';
-import { IDLE_HANDS, type Rig, type RigKind } from './Rig';
+import { IDLE_HANDS, type ItemSocket, type Rig, type RigKind } from './Rig';
 import { NavMeshHelper } from '@recast-navigation/three';
 import type { NavMesh } from 'recast-navigation';
 import { SpawnRayDebug } from './SpawnRayDebug';
@@ -88,6 +88,13 @@ export class GameView {
       }),
       world.events.on('reloadStart', () => this.playerRig.trigger('reload')),
       world.events.on('dodge', () => this.playerRig.trigger('dodge')),
+      world.events.on('jump', () => this.playerRig.trigger('jump')),
+      world.events.on('land', ({ hard }) => {
+        this.playerRig.trigger('land');
+        if (hard) this.cameraRig.addShake(0.4);
+      }),
+      world.events.on('vault', () => this.playerRig.trigger('vault')),
+      world.events.on('melee', () => this.playerRig.trigger('melee')),
       world.events.on('pickup', () => this.playerRig.trigger('interact')),
       world.events.on('door', () => this.playerRig.trigger('interact')),
       world.events.on('document', () => this.playerRig.trigger('interact')),
@@ -97,21 +104,30 @@ export class GameView {
         this.playerRig.trigger('hit');
       }),
       world.events.on('threatAttack', ({ id }) => threatRig(id)?.trigger('attack')),
-      world.events.on('threatHit', ({ id, killed }) => {
-        if (!killed) threatRig(id)?.trigger('stagger');
+      world.events.on('threatHit', ({ id, reaction }) => {
+        // Death is driven by the pose; the reactions each have their own clip.
+        if (reaction === 'hitReact') threatRig(id)?.trigger('hit');
+        else if (reaction === 'stagger') threatRig(id)?.trigger('stagger');
+        else if (reaction === 'knockdown') threatRig(id)?.trigger('knockdown');
       }),
+      world.events.on('threatRise', ({ id }) => threatRig(id)?.trigger('rise')),
     );
   }
 
   private playerStep(): void {
     const p = this.world.player;
-    if (p.dead) return;
+    if (p.dead || p.airborne) return;
     this.world.events.emit('footstep', { x: p.x, z: p.z, surface: this.world.surfaceAt(p.x, p.z), sprint: p.sprinting });
   }
 
   private threatStep(threat: ThreatRuntime): void {
     if (!threat.alive) return;
     this.world.events.emit('threatFootstep', { id: threat.id, x: threat.x, z: threat.z, surface: this.world.surfaceAt(threat.x, threat.z) });
+  }
+
+  /** QA socket tuner: re-seats a held item on the player rig without touching the registry. */
+  setSocket(item: 'pistol' | 'medkit' | 'flashlight', socket: ItemSocket): void {
+    this.playerRig.setSocket(item, socket);
   }
 
   /** QA overlay: draws the grounding rays every prop was placed with and the walkable navmesh. */
@@ -140,22 +156,25 @@ export class GameView {
     const usingMedkit = p.medkitTimer > 0;
     if (usingMedkit && !this.wasUsingMedkit) this.playerRig.trigger('interact');
     this.wasUsingMedkit = usingMedkit;
+    const playerY = lerp(p.prevY, p.y, alpha);
     this.playerRig.update(
       {
         x: lerp(p.prevX, p.x, alpha),
+        y: playerY,
         z: lerp(p.prevZ, p.z, alpha),
         yaw: p.yaw,
         moveYaw: Math.atan2(p.velX, p.velZ),
         moving: p.moving || p.dodgeTimer > 0,
         speed: Math.hypot(p.velX, p.velZ),
         aiming: p.aiming,
+        airborne: p.airborne,
         dead: p.dead,
         deathTimer: p.deathTimer,
         hurt: p.hurtTimer > 0,
         attack: 0,
         stagger: false,
         threatState: null,
-        weaponRaise: p.weaponRaise,
+        weaponRaise: lerp(p.prevWeaponRaise, p.weaponRaise, alpha),
         lookPitch: world.look.pitch,
         reloadProgress: p.reloadTimer > 0 ? 1 - p.reloadTimer / PISTOL.reloadTime : 0,
         equipped: p.equipped,
@@ -167,21 +186,23 @@ export class GameView {
     for (const threat of world.threats) {
       const rig = this.threatRigs.get(threat.id);
       if (!rig) continue;
-      const attack = threat.state === 'attack' ? Math.min(1, threat.stateTimer / THREAT.attackWindup) : 0;
+      const attack = threat.state === 'attack' ? Math.min(1, threat.stateTimer / threat.stats.attackWindup) : 0;
       rig.update(
         {
           x: lerp(threat.prevX, threat.x, alpha),
+          y: 0,
           z: lerp(threat.prevZ, threat.z, alpha),
           yaw: threat.yaw,
           moveYaw: Math.atan2(threat.velX, threat.velZ),
           moving: threat.moving,
           speed: Math.hypot(threat.velX, threat.velZ),
           aiming: false,
+          airborne: false,
           dead: !threat.alive,
           deathTimer: threat.deathTimer,
           hurt: false,
           attack,
-          stagger: threat.state === 'stagger',
+          stagger: threat.state === 'stagger' || threat.state === 'knockdown',
           threatState: threat.state,
           ...IDLE_HANDS,
         },
@@ -191,7 +212,7 @@ export class GameView {
     this.renderer.camera.getWorldDirection(this.forward);
     const lampX = p.x + Math.sin(world.look.yaw) * 0.2;
     const lampZ = p.z + Math.cos(world.look.yaw) * 0.2;
-    this.effects.setFlashlight(p.flashlightOn && p.hasFlashlight && !p.dead, lampX, PLAYER.eyeHeight - 0.25, lampZ, this.forward.x, this.forward.y, this.forward.z);
+    this.effects.setFlashlight(p.flashlightOn && p.hasFlashlight && !p.dead, lampX, playerY + PLAYER.eyeHeight - 0.25, lampZ, this.forward.x, this.forward.y, this.forward.z);
     this.effects.update(dt);
     this.worldRenderer.update(world, dt);
   }

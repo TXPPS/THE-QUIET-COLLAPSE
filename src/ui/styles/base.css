@@ -414,3 +414,13 @@ body {
   min-height: 28px;
 }
 .tqc-debug__toggle.is-on { color: var(--tqc-accent); border-color: var(--tqc-accent); }
+
+/* ---------- QA overlay: socket tuner ---------- */
+.tqc-debug__tuner { display: grid; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(214, 210, 200, 0.25); pointer-events: auto; }
+.tqc-debug__select { font: inherit; background: rgba(10, 11, 12, 0.6); color: inherit; border: 1px solid rgba(214, 210, 200, 0.35); }
+.tqc-debug__rows { display: grid; gap: 2px; }
+.tqc-debug__row { display: grid; grid-template-columns: 5.5em 1fr 4em; align-items: center; gap: 6px; font-size: 0.85em; }
+.tqc-debug__row input[type='range'] { width: 100%; min-width: 120px; }
+.tqc-debug__actions { display: flex; gap: 6px; align-items: center; }
+.tqc-debug__json { margin: 0; font-size: 0.75em; white-space: pre-wrap; word-break: break-all; -webkit-user-select: text; user-select: text; max-width: 32em; }
+.tqc-debug__status { font-size: 0.8em; opacity: 0.8; }

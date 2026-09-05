@@ -5,6 +5,7 @@ import { DISTRICT_LEVEL } from '@/game/level/districtLevel';
 import type { DocumentDef } from '@/game/level/types';
 import { GameSession } from '@/game/GameSession';
 import { PISTOL } from '@/config/gameplay';
+import { resolveEnemyStats } from '@/config/enemies';
 import { createNewRun, validateRunState } from '@/game/sim/runState';
 import type { RunState } from '@/game/sim/types';
 import { InputManager } from '@/input/InputManager';
@@ -136,6 +137,8 @@ export class App {
     this.prompts.onActivate = (action) => this.activatePrompt(action);
     this.device.events.on('change', () => this.onDeviceChanged());
     this.input.registry.events.on('gamepadConnected', ({ source }) => this.onGamepadConnected(source.label));
+    // Touch controls follow the active source: hide under a pad or keyboard, return on the first touch.
+    this.input.registry.events.on('activeChanged', () => this.updateOverlays());
     this.input.registry.events.on('primaryLost', ({ source }) => this.onPrimaryLost(source.label));
     this.touch.onLookHintUsed = () => this.settings.update({ meta: { touchLookHintSeen: true } });
   }
@@ -169,6 +172,7 @@ export class App {
       else this.screens.reset(new WarningScreen(this));
       this.debug = new DebugOverlay(this.layers.system, () => this.loop.resetStats());
       this.debug.onSpawnRays = (visible) => this.session?.view.setSpawnRays(visible);
+      this.debug.onSocket = (item, socket) => this.session?.view.setSocket(item, socket);
       if (import.meta.env.PROD) {
         const bypassed = await SwClient.bypassIfRequested();
         if (bypassed) this.toasts.show('Caches cleared: fresh load', 'info', 4);
@@ -542,6 +546,7 @@ export class App {
     this.touch.setLookHint(!s.meta.touchLookHintSeen);
     this.audio.applySettings(s.audio);
     this.applyRenderQuality(s);
+    this.updateOverlays();
   }
 
   private updateDebug(stats: FrameStats): void {
@@ -560,7 +565,15 @@ export class App {
       online: navigator.onLine,
       nav: this.session ? (this.session.world.navigation ? `crowd (${this.session.world.navigation.agentCount} agents)` : 'grid A*') : '-',
       scene: top ? top.id : this.session ? `gameplay / ${this.session.world.currentObjective()?.id ?? '-'}` : 'idle',
+      difficulty: this.describeDifficulty(),
     });
+  }
+
+  /** Preset in force (the run's when one is active, otherwise the setting) with the resolved enemy numbers. */
+  private describeDifficulty(): string {
+    const preset = this.session ? this.session.world.difficulty : this.settings.get().meta.difficulty;
+    const stats = resolveEnemyStats('affected', preset);
+    return `${preset} (run ${stats.runSpeed.toFixed(2)} m/s, cooldown ${stats.attackCooldown.toFixed(1)} s, damage ${stats.damage})`;
   }
 
   private applyRenderQuality(s: Settings): void {

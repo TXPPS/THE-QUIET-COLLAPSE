@@ -1,4 +1,5 @@
 import { RUN } from '@/config/gameplay';
+import { countItem, itemDef, type ItemId } from '@/game/items/registry';
 import { CANON } from '@/config/canon';
 import type { DocumentDef, LevelData } from '@/game/level/types';
 import type { InputManager } from '@/input/InputManager';
@@ -83,6 +84,7 @@ export class GameSession {
       events.on('playerHurt', () => hud.flashDamage()),
       events.on('interactionPromptChanged', ({ verb, label }) => hud.setPrompt(verb, label)),
       events.on('flashlight', ({ on }) => hud.showMessage(on ? 'Flashlight on' : 'Flashlight off', 1.2)),
+      events.on('quickItemChanged', ({ item }) => hud.showMessage(`Quick item: ${itemDef(item as ItemId).name}`, 1.4)),
     );
   }
 
@@ -132,6 +134,8 @@ export class GameSession {
     }
     this.view.update(dt, alpha, { baseFov: s.video.fov, shakeEnabled: s.video.cameraShake && !this.deps.reducedMotion() });
     const p = this.world.player;
+    // Look scaling for the next frame: the aim multiplier gate and the narrowed field of view.
+    input.setLookModifier(this.view.cameraRig.fovRatio, p.aiming && !p.dead);
     hud.update(
       {
         health: p.health,
@@ -145,6 +149,9 @@ export class GameSession {
         hasFlashlight: p.hasFlashlight,
         flashlightOn: p.flashlightOn,
         aiming: p.aiming,
+        aimBlend: this.view.cameraRig.aimBlend,
+        quickItem: itemDef(p.quickItem).name,
+        quickItemCount: countItem(p, p.quickItem),
         reloading: p.reloadTimer > 0,
         usingMedkit: p.medkitTimer > 0,
         dead: p.dead,

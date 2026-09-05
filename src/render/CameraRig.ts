@@ -8,18 +8,24 @@ const CEILING_MARGIN = 0.3;
 const GROUND_MIN_Y = 0.35;
 /** The crosshair converges on the player's forward line at this distance (metres). */
 const AIM_CONVERGE_DISTANCE = 14;
+/** Collision pulls the boom in immediately and lets it back out at the follow rate. */
+const COLLISION_PULL_RATE = 60;
 
 /**
- * Over-the-shoulder third-person camera. Pulls in against walls (2D box sweep with height check)
- * and stays under interior ceilings so the view never clips through geometry.
+ * Over-the-shoulder third-person camera. The aim blend is not owned here: the simulation's one
+ * aim value (interpolated between steps) drives distance, shoulder offset and field of view
+ * together, so the camera can never lag or lead the arms and crosshair. Collision (a 2D box sweep
+ * with height check) is solved after the blend and only ever shortens the boom; interior ceilings
+ * clamp the height so the view never clips through geometry.
  */
 export class CameraRig {
-  private aimBlend = 0;
   private currentDistance: number = CAMERA.distance;
-  private currentFov: number = CAMERA.fov;
   private shakeX = 0;
   private shakeY = 0;
   private shakeEnergy = 0;
+  private lastAimBlend = 0;
+  private lastFov: number = CAMERA.fov;
+  private lastBaseFov: number = CAMERA.fov;
   private readonly pivot = new THREE.Vector3();
   private readonly desired = new THREE.Vector3();
   private readonly forward = new THREE.Vector3();
@@ -32,22 +38,35 @@ export class CameraRig {
     this.shakeEnergy = Math.min(1.5, this.shakeEnergy + energy);
   }
 
+  /** The aim blend the camera rendered last (0 lowered, 1 aimed). */
+  get aimBlend(): number {
+    return this.lastAimBlend;
+  }
+
+  /** Current field of view over the un-aimed field of view; the input layer scales look by it. */
+  get fovRatio(): number {
+    return this.lastBaseFov > 0 ? this.lastFov / this.lastBaseFov : 1;
+  }
+
   update(world: World, alpha: number, dt: number, options: { baseFov: number; shakeEnabled: boolean }): void {
     const p = world.player;
     const px = lerp(p.prevX, p.x, alpha);
     const pz = lerp(p.prevZ, p.z, alpha);
-    const aiming = p.aiming && !p.dead;
-    this.aimBlend = damp(this.aimBlend, aiming ? 1 : 0, CAMERA.aimBlendRate, dt);
+    const py = lerp(p.prevY, p.y, alpha);
+    const aimBlend = p.dead ? 0 : lerp(p.prevWeaponRaise, p.weaponRaise, alpha);
+    this.lastAimBlend = aimBlend;
     const yaw = world.look.yaw;
     const pitch = world.look.pitch;
-    this.pivot.set(px, CAMERA.height * (p.dead ? 0.35 : 1), pz);
+    this.pivot.set(px, py + CAMERA.height * (p.dead ? 0.35 : 1), pz);
     this.forward.set(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch));
     // Camera right = forward x up; the boom sits over the player's right shoulder (the gun side).
     this.right.set(-Math.cos(yaw), 0, Math.sin(yaw));
-    const shoulder = lerp(CAMERA.shoulderOffset, CAMERA.aimShoulderOffset, this.aimBlend);
-    const targetDistance = lerp(CAMERA.distance, CAMERA.aimDistance, this.aimBlend) * (p.dead ? 1.6 : 1);
+    const shoulder = lerp(CAMERA.shoulderOffset, CAMERA.aimShoulderOffset, aimBlend);
+    const targetDistance = lerp(CAMERA.distance, CAMERA.aimDistance, aimBlend) * (p.dead ? 1.6 : 1);
+    // Collision solves after the blend: it can only shorten the boom the blend asked for.
     const distance = this.sweep(world, targetDistance, shoulder);
-    this.currentDistance = damp(this.currentDistance, distance, distance < this.currentDistance ? 60 : CAMERA.followRate, dt);
+    this.currentDistance = damp(this.currentDistance, distance, distance < this.currentDistance ? COLLISION_PULL_RATE : CAMERA.followRate, dt);
+    this.currentDistance = Math.min(this.currentDistance, Math.max(distance, targetDistance));
     this.desired.copy(this.pivot).addScaledVector(this.right, shoulder).addScaledVector(this.forward, -this.currentDistance);
     const ceiling = world.ceilingAt(this.desired.x, this.desired.z);
     if (ceiling !== null) this.desired.y = Math.min(this.desired.y, ceiling - CEILING_MARGIN);
@@ -58,10 +77,11 @@ export class CameraRig {
     this.camera.lookAt(this.lookAt);
     this.camera.rotateZ(this.shakeX * 0.3);
     this.camera.rotateX(this.shakeY);
-    const targetFov = lerp(options.baseFov, CAMERA.aimFov, this.aimBlend);
-    this.currentFov = damp(this.currentFov, targetFov, CAMERA.fovBlendRate, dt);
-    if (Math.abs(this.camera.fov - this.currentFov) > 0.01) {
-      this.camera.fov = this.currentFov;
+    const fov = lerp(options.baseFov, CAMERA.aimFov, aimBlend);
+    this.lastFov = fov;
+    this.lastBaseFov = options.baseFov;
+    if (Math.abs(this.camera.fov - fov) > 0.01) {
+      this.camera.fov = fov;
       this.camera.updateProjectionMatrix();
     }
     const ray = world.aimRay;

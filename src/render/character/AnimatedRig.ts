@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import { BONE, CHARACTER, CLIP } from '@/config/character';
-import { PISTOL, PLAYER, THREAT } from '@/config/gameplay';
+import { ENEMY_STATS } from '@/config/enemies';
+import { PISTOL, PLAYER } from '@/config/gameplay';
 import { clamp, damp, wrapAngle } from '@/core/math';
-import type { Rig, RigKind, RigPose, RigTrigger } from '../Rig';
+import { HELD_ITEM_SOCKETS } from '@/game/items/registry';
+import type { ItemSocket, Rig, RigKind, RigPose, RigTrigger } from '../Rig';
 import { FlashlightRig, WeaponRig } from '../WeaponRig';
 import type { CharacterAssets, CharacterVariant, ClipSet } from './CharacterAssets';
 import { LayerBlender } from './LayerBlender';
@@ -15,17 +17,19 @@ const FULL = '#full';
 const PLAYER_LOCO = [CLIP.idle, CLIP.walk, CLIP.jog, CLIP.sprint];
 const THREAT_LOCO = [CLIP.threatIdle, CLIP.threatWalk, CLIP.jog];
 const PLAYER_UPPER_LOOPS = [CLIP.pistolIdle, CLIP.aimNeutral, CLIP.aimUp, CLIP.aimDown, CLIP.torch];
-const PLAYER_ONESHOTS_UPPER = [CLIP.shoot, CLIP.reload, CLIP.hit, CLIP.interact];
-const PLAYER_ONESHOTS_FULL = [CLIP.roll, CLIP.death];
-const THREAT_ONESHOTS_FULL = [CLIP.threatAttack, CLIP.threatHook, CLIP.threatStagger, CLIP.death];
+const PLAYER_ONESHOTS_UPPER = [CLIP.shoot, CLIP.reload, CLIP.hit, CLIP.interact, CLIP.melee];
+const PLAYER_ONESHOTS_FULL = [CLIP.roll, CLIP.death, CLIP.jumpStart, CLIP.jumpLand, CLIP.vault];
+const THREAT_ONESHOTS_FULL = [CLIP.threatAttack, CLIP.threatHook, CLIP.threatStagger, CLIP.death, CLIP.threatRise];
 const TWIST_RATE = 14;
+const STATS = ENEMY_STATS.affected;
 
 /**
  * Skinned character driven by the shared clip library. Two layers (lower body / upper body) blend
  * independently: locomotion always plays on the legs, while the arms take aim poses, reloads,
- * hits and interactions. Strafing under aim twists the pelvis toward the travel direction and
- * counter-rotates the spine so the torso keeps facing the camera. Root motion is never used; the
- * simulation owns position.
+ * hits and interactions. The aim pose is an upper-body layer whose weight *is* the simulation's aim
+ * value, never a full-body swap. Strafing under aim twists the pelvis toward the travel direction
+ * and counter-rotates the spine so the torso keeps facing the camera. Root motion is never used;
+ * the simulation owns position (height included, for jumps and vaults).
  */
 export class AnimatedRig implements Rig {
   readonly group = new THREE.Group();
@@ -40,6 +44,8 @@ export class AnimatedRig implements Rig {
   private lower = '';
   private oneShotUpper: string | null = null;
   private oneShotFull: string | null = null;
+  /** A full-body one-shot held at its last frame (knockdown) until the next trigger releases it. */
+  private holdFull = false;
   private deathFired = false;
   private twist = 0;
   private lastPhase = 0;
@@ -65,8 +71,8 @@ export class AnimatedRig implements Rig {
       this.weapon = new WeaponRig();
       this.torch = new FlashlightRig();
       this.torch.group.visible = false;
-      this.attach(BONE.handRight, this.weapon.group, CHARACTER.sockets.pistol);
-      this.attach(BONE.handLeft, this.torch.group, CHARACTER.sockets.torch);
+      this.setSocket('pistol', HELD_ITEM_SOCKETS.pistol);
+      this.setSocket('flashlight', HELD_ITEM_SOCKETS.flashlight);
     }
     this.lower = `${kind === 'player' ? CLIP.idle : CLIP.threatIdle}${LOWER}`;
     this.blender.set(this.lower, 1, 0.01);
@@ -93,12 +99,15 @@ export class AnimatedRig implements Rig {
     return clip;
   }
 
-  private attach(boneName: string, object: THREE.Object3D, socket: { position: readonly number[]; rotation: readonly number[] }): void {
-    const bone = this.root.getObjectByName(boneName);
+  /** Seats a held item on its joint from registry socket data (also the live QA tuner path). */
+  setSocket(item: 'pistol' | 'medkit' | 'flashlight', socket: ItemSocket): void {
+    const object = item === 'flashlight' ? this.torch?.group : this.weapon?.group;
+    if (!object) return;
+    const bone = this.root.getObjectByName(socket.joint);
     if (!bone) return;
-    object.position.set(socket.position[0] ?? 0, socket.position[1] ?? 0, socket.position[2] ?? 0);
-    object.rotation.set(socket.rotation[0] ?? 0, socket.rotation[1] ?? 0, socket.rotation[2] ?? 0);
-    bone.add(object);
+    object.position.set(socket.positionOffset[0], socket.positionOffset[1], socket.positionOffset[2]);
+    object.rotation.set(socket.rotationOffset[0], socket.rotationOffset[1], socket.rotationOffset[2]);
+    if (object.parent !== bone) bone.add(object);
   }
 
   muzzleWorldPosition(out: THREE.Vector3): THREE.Vector3 {
@@ -117,12 +126,24 @@ export class AnimatedRig implements Rig {
     else if (event === 'reload') this.fireUpper(CLIP.reload, this.clip('upper', CLIP.reload).duration / PISTOL.reloadTime);
     else if (event === 'hit') this.fireUpper(CLIP.hit, 1);
     else if (event === 'interact') this.fireUpper(CLIP.interact, 2);
+    else if (event === 'melee') this.fireUpper(CLIP.melee, this.clip('upper', CLIP.melee).duration / PLAYER.meleeCooldown);
     else if (event === 'dodge') this.fireFull(CLIP.roll, this.clip('full', CLIP.roll).duration / (PLAYER.dodgeDuration + 0.3));
+    else if (event === 'jump') this.fireFull(CLIP.jumpStart, this.clip('full', CLIP.jumpStart).duration / CHARACTER.jumpStartDuration);
+    else if (event === 'land') this.fireFull(CLIP.jumpLand, this.clip('full', CLIP.jumpLand).duration / CHARACTER.landDuration);
+    else if (event === 'vault') this.fireFull(CLIP.vault, this.clip('full', CLIP.vault).duration / PLAYER.vaultDuration);
   }
 
   private triggerThreat(event: RigTrigger): void {
-    if (event === 'attack') this.fireFull(CLIP.threatAttack, this.clip('full', CLIP.threatAttack).duration / (THREAT.attackWindup + THREAT.attackRecover));
-    else if (event === 'stagger' || event === 'hit') this.fireFull(CLIP.threatStagger, this.clip('full', CLIP.threatStagger).duration / (THREAT.staggerDuration + 0.25));
+    if (event === 'attack') this.fireFull(CLIP.threatAttack, this.clip('full', CLIP.threatAttack).duration / (STATS.attackWindup + 0.6));
+    else if (event === 'stagger') this.fireFull(CLIP.threatStagger, this.clip('full', CLIP.threatStagger).duration / (STATS.staggerDuration + 0.25));
+    else if (event === 'hit') this.fireUpper(CLIP.hit, this.clip('upper', CLIP.hit).duration / STATS.hitReactDuration);
+    else if (event === 'knockdown') {
+      this.fireFull(CLIP.death, this.clip('full', CLIP.death).duration / (STATS.knockdownFall + STATS.knockdownDown));
+      this.holdFull = true;
+    } else if (event === 'rise') {
+      this.holdFull = false;
+      this.fireFull(CLIP.threatRise, this.clip('full', CLIP.threatRise).duration / STATS.knockdownRise);
+    }
   }
 
   private fireUpper(name: string, timeScale: number): void {
@@ -131,12 +152,13 @@ export class AnimatedRig implements Rig {
   }
 
   private fireFull(name: string, timeScale: number): void {
+    if (this.oneShotFull && this.oneShotFull !== `${name}${FULL}`) this.blender.set(this.oneShotFull, 0, CHARACTER.fadeFast);
     this.oneShotFull = `${name}${FULL}`;
     this.blender.fire(this.oneShotFull, CHARACTER.fadeFast, timeScale);
   }
 
   update(pose: RigPose, dt: number): void {
-    this.group.position.set(pose.x, 0, pose.z);
+    this.group.position.set(pose.x, pose.y, pose.z);
     this.group.rotation.y = pose.yaw;
     if (pose.dead && !this.deathFired) this.startDeath();
     if (!this.deathFired) {
@@ -154,6 +176,7 @@ export class AnimatedRig implements Rig {
 
   private startDeath(): void {
     this.deathFired = true;
+    this.holdFull = false;
     this.oneShotFull = `${CLIP.death}${FULL}`;
     this.oneShotUpper = null;
     for (const id of this.allIds()) this.blender.set(id, 0, CHARACTER.fade);
@@ -163,8 +186,8 @@ export class AnimatedRig implements Rig {
   private allIds(): string[] {
     const loco = this.kind === 'player' ? PLAYER_LOCO : THREAT_LOCO;
     const ids = loco.flatMap((n) => [`${n}${LOWER}`, `${n}${UPPER}`]);
-    if (this.kind === 'player') ids.push(...PLAYER_UPPER_LOOPS.map((n) => `${n}${UPPER}`), ...PLAYER_ONESHOTS_UPPER.map((n) => `${n}${UPPER}`));
-    else ids.push(`${CLIP.hit}${UPPER}`);
+    if (this.kind === 'player') ids.push(...PLAYER_UPPER_LOOPS.map((n) => `${n}${UPPER}`), ...PLAYER_ONESHOTS_UPPER.map((n) => `${n}${UPPER}`), ...PLAYER_ONESHOTS_FULL.map((n) => `${n}${FULL}`));
+    else ids.push(`${CLIP.hit}${UPPER}`, ...THREAT_ONESHOTS_FULL.filter((n) => n !== CLIP.death).map((n) => `${n}${FULL}`));
     return ids;
   }
 
@@ -173,7 +196,7 @@ export class AnimatedRig implements Rig {
       this.blender.set(this.oneShotUpper, 0, CHARACTER.fade);
       this.oneShotUpper = null;
     }
-    if (this.oneShotFull && this.blender.remaining(this.oneShotFull) <= CHARACTER.oneShotTail) {
+    if (this.oneShotFull && !this.holdFull && this.blender.remaining(this.oneShotFull) <= CHARACTER.oneShotTail) {
       this.blender.set(this.oneShotFull, 0, CHARACTER.fade);
       this.oneShotFull = null;
     }
@@ -214,23 +237,23 @@ export class AnimatedRig implements Rig {
     this.blender.set(lowerId, fullShot ? 0 : 1, CHARACTER.fade);
   }
 
+  /** The aim layer weight is the simulation's aim value: no second blend, no crossfade snap. */
   private playerUpper(pose: RigPose): void {
     const locoUpper = this.lower.replace(LOWER, UPPER);
     const override = this.oneShotUpper !== null || this.oneShotFull !== null;
-    const raise = pose.aiming ? Math.max(pose.weaponRaise, 0.35) : pose.weaponRaise;
-    const torch = pose.flashlightOn && !pose.aiming && !override;
-    const pistolRest = pose.equipped === 'pistol' && !pose.moving && !torch && !override && raise < 0.05;
-    const aim = override ? 0 : raise;
+    const aim = override ? 0 : pose.weaponRaise;
+    const torch = pose.flashlightOn && !pose.aiming && !override && aim < 0.05;
+    const pistolRest = pose.equipped === 'pistol' && !pose.moving && !torch && !override && aim < 0.05;
     const pitch = pose.lookPitch;
     const up = pitch > 0 ? Math.min(1, pitch / CHARACTER.aimPitchUp) : 0;
     const down = pitch < 0 ? Math.min(1, -pitch / CHARACTER.aimPitchDown) : 0;
-    this.blender.set(`${CLIP.aimUp}${UPPER}`, aim * up, CHARACTER.fade);
-    this.blender.set(`${CLIP.aimDown}${UPPER}`, aim * down, CHARACTER.fade);
-    this.blender.set(`${CLIP.aimNeutral}${UPPER}`, aim * (1 - Math.max(up, down)), CHARACTER.fade);
+    this.blender.set(`${CLIP.aimUp}${UPPER}`, aim * up, CHARACTER.aimFollow);
+    this.blender.set(`${CLIP.aimDown}${UPPER}`, aim * down, CHARACTER.aimFollow);
+    this.blender.set(`${CLIP.aimNeutral}${UPPER}`, aim * (1 - Math.max(up, down)), CHARACTER.aimFollow);
     this.blender.set(`${CLIP.torch}${UPPER}`, torch ? 1 - aim : 0, CHARACTER.fade);
     this.blender.set(`${CLIP.pistolIdle}${UPPER}`, pistolRest ? 1 : 0, CHARACTER.fade);
     const locoWeight = override || torch || pistolRest ? 0 : 1 - aim;
-    this.blender.set(locoUpper, this.oneShotFull ? 0 : locoWeight, CHARACTER.fade);
+    this.blender.set(locoUpper, this.oneShotFull ? 0 : locoWeight, override ? CHARACTER.fade : CHARACTER.aimFollow);
   }
 
   private threatUpper(): void {

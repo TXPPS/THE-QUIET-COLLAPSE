@@ -1,4 +1,4 @@
-/** Animated character tuning: clip names, bone masks, blend timings, hand sockets. */
+/** Animated character tuning: clip names, bone masks, blend timings. Item sockets live in the item registry. */
 
 export const CLIP = {
   idle: 'Idle_Loop',
@@ -16,11 +16,18 @@ export const CLIP = {
   interact: 'Interact',
   roll: 'Roll',
   torch: 'Idle_Torch_Loop',
+  jumpStart: 'Jump_Start',
+  jumpLoop: 'Jump_Loop',
+  jumpLand: 'Jump_Land',
+  vault: 'ClimbUp_1m',
+  melee: 'Punch_Cross',
   threatIdle: 'Zombie_Idle_Loop',
   threatWalk: 'Zombie_Walk_Fwd_Loop',
   threatAttack: 'Zombie_Scratch',
   threatHook: 'Melee_Hook',
   threatStagger: 'Hit_Knockback',
+  /** Knockdown falls with the death clip and gets up with the lay-to-idle clip. */
+  threatRise: 'LayToIdle',
 } as const;
 
 /** Joints below the waist (plus the root): locomotion lives here when the upper body is overridden. */
@@ -39,6 +46,8 @@ export const CHARACTER = {
   /** Crossfade durations (seconds). */
   fade: 0.18,
   fadeFast: 0.08,
+  /** The aim layer follows the simulation's aim value directly; this is only the per-frame catch-up time. */
+  aimFollow: 0.02,
   /** Locomotion clip selection thresholds (m/s) and the reference speeds each clip was authored at. */
   walkRef: 2.6,
   jogRef: 3.4,
@@ -58,11 +67,10 @@ export const CHARACTER = {
   strafeFlipRadians: 2.0,
   /** Seconds a one-shot keeps full weight before it fades back. */
   oneShotTail: 0.12,
-  /** Hand sockets: position (metres, bone space) and Euler rotation (radians) aligning each held item. */
-  sockets: {
-    pistol: { position: [0.0, 0.08, 0.0] as const, rotation: [Math.PI, Math.PI / 2, 0] as const },
-    torch: { position: [0.0, 0.08, 0.0] as const, rotation: [Math.PI, Math.PI / 2, 0] as const },
-  },
+  /** Seconds the landing clip is compressed into. */
+  landDuration: 0.38,
+  /** Seconds the jump take-off clip is compressed into (the rest of the jump is the loop pose). */
+  jumpStartDuration: 0.3,
   /** Normal-map strength on the body material (the sculpted suit is treated as clothing). */
   suitNormalScale: 0.35,
   /** Foot-plant detection: samples per clip when scanning for local height minima. */
