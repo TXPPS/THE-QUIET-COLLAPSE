@@ -48,3 +48,4 @@ assets/src/polyhaven/aarfontein_dusk_2k.hdr
 
 # Playwright output of the isolated ADS clip run
 test-results-ads/
+test-results-live/
